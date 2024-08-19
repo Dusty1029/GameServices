@@ -4,6 +4,7 @@ using GameService.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GameService.Infrastructure.Migrations
 {
     [DbContext(typeof(GameContext))]
-    partial class GameContextModelSnapshot : ModelSnapshot
+    [Migration("20240819204050_AddParameterTable")]
+    partial class AddParameterTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -176,10 +179,6 @@ namespace GameService.Infrastructure.Migrations
                     b.Property<int>("Platform")
                         .HasColumnType("int");
 
-                    b.Property<string>("PlaystationId")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
                     b.Property<int?>("SteamId")
                         .HasColumnType("int");
 
@@ -191,10 +190,6 @@ namespace GameService.Infrastructure.Migrations
 
                     b.HasIndex("Name", "Platform")
                         .IsUnique();
-
-                    b.HasIndex("PlaystationId", "Platform")
-                        .IsUnique()
-                        .HasFilter("[PlaystationId] IS NOT NULL");
 
                     b.ToTable("Game", (string)null);
                 });
@@ -210,12 +205,10 @@ namespace GameService.Infrastructure.Migrations
 
                     b.Property<string>("Value")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ParameterEnum")
-                        .IsUnique();
 
                     b.ToTable("Parameter", (string)null);
 

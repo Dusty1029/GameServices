@@ -4,6 +4,7 @@ using GameService.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GameService.Infrastructure.Migrations
 {
     [DbContext(typeof(GameContext))]
-    partial class GameContextModelSnapshot : ModelSnapshot
+    [Migration("20240819221612_AddPlaystationIdToGame")]
+    partial class AddPlaystationIdToGame
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -185,16 +188,16 @@ namespace GameService.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("PlaystationId")
+                        .IsUnique()
+                        .HasFilter("[PlaystationId] IS NOT NULL");
+
                     b.HasIndex("SteamId")
                         .IsUnique()
                         .HasFilter("[SteamId] IS NOT NULL");
 
                     b.HasIndex("Name", "Platform")
                         .IsUnique();
-
-                    b.HasIndex("PlaystationId", "Platform")
-                        .IsUnique()
-                        .HasFilter("[PlaystationId] IS NOT NULL");
 
                     b.ToTable("Game", (string)null);
                 });

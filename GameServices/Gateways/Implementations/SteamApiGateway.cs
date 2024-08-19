@@ -1,7 +1,8 @@
 ﻿using CommonV2.Infrastructure.Services.Interfaces;
 using GameServices.API.Dtos.SteamGateway;
 using GameServices.API.Gateways.Interfaces;
-using GameServices.API.Models;
+using GameServices.API.Models.Options;
+using Microsoft.Extensions.Options;
 using System.Collections.Specialized;
 using System.Web;
 
@@ -9,14 +10,16 @@ namespace GameServices.API.Gateways.Implementations
 {
     public class SteamApiGateway : ISteamApiGateway
     {
-        private readonly ICancellationTokenService _cancellationTokenService;
-        private readonly HttpClient _client = new();
+        private readonly CancellationToken _cancellationToken;
+        private readonly HttpClient _httpClient;
         private readonly SteamOptions _steamOptions;
-        public SteamApiGateway(IConfiguration configuration, ICancellationTokenService cancellationTokenService) 
+        public SteamApiGateway(IOptions<SteamOptions> steamOptions,
+            ICancellationTokenService cancellationTokenService,
+            HttpClient httpClient) 
         {
-            _steamOptions = configuration.GetSection("Steam").Get<SteamOptions>();
-            _client.DefaultRequestHeaders.Add("Accept", "*/*");
-            _cancellationTokenService = cancellationTokenService;
+            _steamOptions = steamOptions.Value;
+            _httpClient = httpClient;
+            _cancellationToken = cancellationTokenService.CancellationToken;
         }
 
         public async Task<List<GameSteamDto>?> GetSteamGames()
@@ -27,8 +30,8 @@ namespace GameServices.API.Gateways.Implementations
             query["steamid"] = _steamOptions.SteamId;
             query["include_appinfo"] = true.ToString();
             builder.Query = query.ToString();
-
-            var response = await _client.GetFromJsonAsync<ResponseGetGameSteamDto>(builder.ToString(), _cancellationTokenService.CancellationToken);
+            
+            var response = await _httpClient.GetFromJsonAsync<ResponseGetGamesSteamDto>(builder.ToString(), _cancellationToken);
             return response?.response?.games;
         }
 
@@ -42,7 +45,7 @@ namespace GameServices.API.Gateways.Implementations
             query["l"] = "french";
             builder.Query = query.ToString();
 
-            var response = await _client.GetFromJsonAsync<ResponseGetAchievementSteamDto>(builder.ToString(), _cancellationTokenService.CancellationToken);
+            var response = await _httpClient.GetFromJsonAsync<ResponseGetAchievementsSteamDto>(builder.ToString(), _cancellationToken);
             return response!.playerstats.achievements;
         }
 
@@ -54,7 +57,7 @@ namespace GameServices.API.Gateways.Implementations
             query["gameId"] = appId.ToString();
             builder.Query = query.ToString();
 
-            var response = await _client.GetFromJsonAsync<ResponseGetPercentageSteamDto>(builder.ToString(), _cancellationTokenService.CancellationToken);
+            var response = await _httpClient.GetFromJsonAsync<ResponseGetPercentageSteamDto>(builder.ToString(), _cancellationToken);
             return response!.achievementpercentages.achievements;
         }
 

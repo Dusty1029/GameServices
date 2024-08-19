@@ -7,6 +7,7 @@ namespace GameService.Infrastructure.Entities
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public int? SteamId { get; set; }
+        public string? PlaystationId { get; set; }
         public bool IsIgnored { get; set; }
         public PlatformEnumEntity Platform { get; set; }
 

@@ -11,6 +11,7 @@ namespace GameService.Infrastructure.Extensions
             services.AddScoped<IAchievementRepository, AchievementRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IGameRepository, GameRepository>();
+            services.AddScoped<IParameterRepository, ParameterRepository>();
         }
     }
 }

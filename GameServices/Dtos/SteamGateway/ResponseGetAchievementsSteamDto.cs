@@ -1,6 +1,6 @@
 ﻿namespace GameServices.API.Dtos.SteamGateway
 {
-    public class ResponseGetAchievementSteamDto
+    public class ResponseGetAchievementsSteamDto
     {
         public ResponseAchievementSteamDto playerstats { get; set; } = new ResponseAchievementSteamDto();
     }

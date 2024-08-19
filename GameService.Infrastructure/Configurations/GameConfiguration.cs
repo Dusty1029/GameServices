@@ -20,6 +20,10 @@ namespace GameService.Infrastructure.Configurations
             builder.Property(x => x.SteamId)
                    .IsRequired(false);
 
+            builder.Property(x => x.PlaystationId)
+                   .HasMaxLength(256)
+                   .IsRequired(false);
+
             builder.Property(x => x.Platform)
                    .IsRequired();
 
@@ -38,6 +42,9 @@ namespace GameService.Infrastructure.Configurations
 
             //Indexes
             builder.HasIndex(x => x.SteamId)
+                   .IsUnique();
+
+            builder.HasIndex(x => new { x.PlaystationId, x.Platform })
                    .IsUnique();
 
             builder.HasIndex(x => new { x.Name, x.Platform})

@@ -20,11 +20,14 @@ namespace GameServices.API.Extensions
             services.AddScoped<IGameBL, GameBL>();
             services.AddScoped<IAchievementBL, AchievementBL>();
             services.AddScoped<ISteamBL, SteamBL>();
+            services.AddScoped<IPlaystationBL, PlaystationBL>();
         }
 
         public static void AddGateways(this IServiceCollection services)
         {
-            services.AddScoped<ISteamApiGateway, SteamApiGateway>();
+            services.AddHttpClient<ISteamApiGateway, SteamApiGateway>();
+            services.AddHttpClient<IPlaystationApiGateway, PlaystationApiGateway>();
         }
+
     }
 }
