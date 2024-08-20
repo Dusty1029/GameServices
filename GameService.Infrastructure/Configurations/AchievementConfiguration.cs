@@ -22,6 +22,10 @@ namespace GameService.Infrastructure.Configurations
                    .IsRequired(false)
                    .HasDefaultValue(null);
 
+            builder.Property(x => x.PlaystationTrophyId)
+                   .IsRequired(false)
+                   .HasDefaultValue(null);
+
             builder.Property(x => x.Description)
                    .HasMaxLength(512)
                    .IsRequired(false)

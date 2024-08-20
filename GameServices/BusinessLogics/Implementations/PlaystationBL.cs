@@ -3,6 +3,7 @@ using GameService.Infrastructure.Entities.Enums;
 using GameService.Infrastructure.Repositories.Interfaces;
 using GameServices.API.BusinessLogics.Interfaces;
 using GameServices.API.Dtos.PlaystationGateway;
+using GameServices.API.Extensions.Entities;
 using GameServices.API.Gateways.Interfaces;
 
 namespace GameServices.API.BusinessLogics.Implementations
@@ -19,6 +20,20 @@ namespace GameServices.API.BusinessLogics.Implementations
             _playstationApiGateway = playstationApiGateway;
             _parameterRepository = parameterRepository;
             _gameRepository = gameRepository;
+        }
+
+        public async Task<Guid> AddPlaystationGame(GamePlaystationDto gamePlaystationDto)
+        {
+            var actualToken = (await _parameterRepository.GetPlaystationToken()) ?? "";
+            var platformEnum = Enum.Parse<PlatformEnumEntity>(gamePlaystationDto.trophyTitlePlatform);
+            var trophiesResult = _playstationApiGateway.GetTrophiesByGame(actualToken, gamePlaystationDto.npCommunicationId, platformEnum);
+            var trophiesEarnedResult = _playstationApiGateway.GetTrophyEarnedsByGame(actualToken, gamePlaystationDto.npCommunicationId, platformEnum);
+
+            await Task.WhenAll(trophiesResult, trophiesEarnedResult);
+
+            var game = await _gameRepository.InsertAndSave(gamePlaystationDto.ToEntity(trophiesResult.Result, trophiesEarnedResult.Result));
+
+            return game.Id;
         }
 
         public async Task<List<GamePlaystationDto>?> GetMissingPlaystationGames()

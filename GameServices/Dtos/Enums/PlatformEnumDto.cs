@@ -14,6 +14,8 @@
         GameboyColor = 9,
         GameboyAdvance = 10,
         Ds = 11,
-        ThreeDs = 12
+        ThreeDs = 12,
+        PSVITA = 13,
+        PS5 = 14
     }
 }

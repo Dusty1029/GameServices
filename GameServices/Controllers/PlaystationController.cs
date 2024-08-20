@@ -1,6 +1,6 @@
 ﻿using CommonV2.Helpers.Controller;
-using GameServices.API.BusinessLogics.Implementations;
 using GameServices.API.BusinessLogics.Interfaces;
+using GameServices.API.Dtos.PlaystationGateway;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GameServices.API.Controllers
@@ -28,5 +28,9 @@ namespace GameServices.API.Controllers
         [HttpGet]
         public Task<IActionResult> GetMissingSteamGames()
             => _controllerExecutor.ExecuteAsync(this, () => _playstationBL.GetMissingPlaystationGames());
+
+        [HttpPost]
+        public Task<IActionResult> AddPlaystationGame([FromBody] GamePlaystationDto gamePlaystationDto)
+            => _controllerExecutor.ExecuteAsync(this, () => _playstationBL.AddPlaystationGame(gamePlaystationDto));
     }
 }

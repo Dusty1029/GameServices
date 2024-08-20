@@ -20,6 +20,8 @@ namespace GameServices.API.Extensions.Entities.Enums
             PlatformEnumEntity.GameboyAdvance => PlatformEnumDto.GameboyAdvance,
             PlatformEnumEntity.Ds => PlatformEnumDto.Ds,
             PlatformEnumEntity.ThreeDs => PlatformEnumDto.ThreeDs,
+            PlatformEnumEntity.PSVITA => PlatformEnumDto.PSVITA,
+            PlatformEnumEntity.PS5 => PlatformEnumDto.PS5,
             _ => throw new NotImplementedException($"The PlatformEnum [{platformEnumEntity}] is not implemented."),
         };
 
@@ -38,6 +40,8 @@ namespace GameServices.API.Extensions.Entities.Enums
             PlatformEnumDto.GameboyAdvance => PlatformEnumEntity.GameboyAdvance,
             PlatformEnumDto.Ds => PlatformEnumEntity.Ds,
             PlatformEnumDto.ThreeDs => PlatformEnumEntity.ThreeDs,
+            PlatformEnumDto.PSVITA => PlatformEnumEntity.PSVITA,
+            PlatformEnumDto.PS5 => PlatformEnumEntity.PS5,
             _ => throw new NotImplementedException($"The PlatformEnum [{platformEnumEntity}] is not implemented."),
         };
     }

@@ -16,6 +16,7 @@ namespace GameService.Infrastructure.Entities.Enums
         GameboyAdvance = 10,
         Ds = 11,
         ThreeDs = 12,
-        PSVITA = 13
+        PSVITA = 13,
+        PS5 = 14
     }
 }

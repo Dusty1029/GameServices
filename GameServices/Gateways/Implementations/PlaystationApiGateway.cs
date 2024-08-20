@@ -1,4 +1,5 @@
 ﻿using CommonV2.Infrastructure.Services.Interfaces;
+using GameService.Infrastructure.Entities.Enums;
 using GameServices.API.Dtos.PlaystationGateway;
 using GameServices.API.Gateways.Interfaces;
 using Newtonsoft.Json;
@@ -62,6 +63,56 @@ namespace GameServices.API.Gateways.Implementations
             {
                 var response = await _httpClient.GetFromJsonAsync<ResponseGetGamesPlaystationDto>(builder.ToString(), _cancellationToken);
                 return response?.trophyTitles;
+            }
+            catch (HttpRequestException e)
+            {
+                if (e.StatusCode == HttpStatusCode.Unauthorized)
+                    throw new UnauthorizedAccessException("The token is expired.");
+
+                throw e;
+            }
+        }
+
+        public async Task<List<TrophyDto>> GetTrophiesByGame(string token, string gameId, PlatformEnumEntity platformEnum)
+        {
+            var builder = new UriBuilder($"https://m.np.playstation.com/api/trophy/v1/npCommunicationIds/{gameId}/trophyGroups/all/trophies");
+            var query = HttpUtility.ParseQueryString(builder.Query);
+            query["npServiceName"] = platformEnum == PlatformEnumEntity.PS5 ? "trophy2" : "trophy";
+            builder.Query = query.ToString();
+
+            if (!_httpClient.DefaultRequestHeaders.Contains("Authorization"))
+                _httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
+            _httpClient.DefaultRequestHeaders.Add("Accept-Language", "fr-fr");
+
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<ResponseGetTrophiesByGameDto>(builder.ToString(), _cancellationToken);
+                return response!.trophies;
+            }
+            catch (HttpRequestException e)
+            {
+                if (e.StatusCode == HttpStatusCode.Unauthorized)
+                    throw new UnauthorizedAccessException("The token is expired.");
+
+                throw e;
+            }
+
+        }
+
+        public async Task<List<TrophyEarnedDto>> GetTrophyEarnedsByGame(string token, string gameId, PlatformEnumEntity platformEnum)
+        {
+            var builder = new UriBuilder($"https://m.np.playstation.com/api/trophy/v1/users/me/npCommunicationIds/{gameId}/trophyGroups/all/trophies");
+            var query = HttpUtility.ParseQueryString(builder.Query);
+            query["npServiceName"] = platformEnum == PlatformEnumEntity.PS5 ? "trophy2" : "trophy";
+            builder.Query = query.ToString();
+
+            if (!_httpClient.DefaultRequestHeaders.Contains("Authorization"))
+                _httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
+
+            try
+            {
+                var response = await _httpClient.GetFromJsonAsync<ResponseGetTrophiesEarnedByGameDto>(builder.ToString(), _cancellationToken);
+                return response!.trophies;
             }
             catch (HttpRequestException e)
             {

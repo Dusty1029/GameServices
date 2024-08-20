@@ -1,6 +1,7 @@
 ﻿using GameService.Infrastructure.Entities;
 using GameService.Infrastructure.Entities.Enums;
 using GameServices.API.Dtos;
+using GameServices.API.Dtos.PlaystationGateway;
 using GameServices.API.Dtos.SteamGateway;
 using GameServices.API.Extensions.Entities.Enums;
 
@@ -40,6 +41,14 @@ namespace GameServices.API.Extensions.Entities
             Name = gameSteamDto.name,
             Platform = PlatformEnumEntity.Steam,
             SteamId = gameSteamDto.appid
+        };
+
+        public static GameEntity ToEntity(this GamePlaystationDto gamePlaystationDto, List<TrophyDto> trophies, List<TrophyEarnedDto> trophiesEarned) => new()
+        {
+            Name = gamePlaystationDto.trophyTitleName,
+            Platform = Enum.Parse<PlatformEnumEntity>(gamePlaystationDto.trophyTitlePlatform),
+            PlaystationId = gamePlaystationDto.npCommunicationId,
+            Achievements = trophies.Select(t => t.ToEntity(trophiesEarned.First(te => te.trophyId == t.trophyId))).ToList()
         };
 
         public static GameDto ToDto(this GameEntity gameEntity) => new()
