@@ -1,6 +1,6 @@
-﻿using GameService.Infrastructure.Entities;
+﻿using CommonV2.Extensions;
+using GameService.Infrastructure.Entities;
 using GameService.Infrastructure.Entities.Enums;
-using GameService.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

@@ -1,4 +1,5 @@
-﻿using GameService.Infrastructure.Entities;
+﻿using CommonV2.Extensions;
+using GameService.Infrastructure.Entities;
 using GameService.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
