@@ -2,6 +2,8 @@
 using GameService.Infrastructure.Entities.Enums;
 using GameServices.API.Dtos.PlaystationGateway;
 using GameServices.API.Gateways.Interfaces;
+using GameServices.API.Models.Options;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using System.Net;
 using System.Web;
@@ -13,15 +15,18 @@ namespace GameServices.API.Gateways.Implementations
     {
         private readonly CancellationToken _cancellationToken;
         private readonly HttpClient _httpClient;
+        private readonly PlaystationOption _playstationOption;
         public PlaystationApiGateway(ICancellationTokenService cancellationTokenService,
-            HttpClient httpClient) 
+            HttpClient httpClient,
+            IOptions<PlaystationOption> playstationOption) 
         {
             _cancellationToken = cancellationTokenService.CancellationToken;
             _httpClient = httpClient;
+            _playstationOption = playstationOption.Value;
         }
         public async Task<string?> GetAuthenticationToken(string npsso)
         {
-            var builder = new UriBuilder("https://ca.account.sony.com/api/authz/v3/oauth/authorize");
+            var builder = new UriBuilder($"{_playstationOption.TokenUrl}authorize");
             var query = HttpUtility.ParseQueryString(builder.Query);
             query["access_type"] = "offline";
             query["client_id"] = "09515159-7237-4370-9b40-3806e67c0891";
@@ -51,77 +56,51 @@ namespace GameServices.API.Gateways.Implementations
             }
         }
 
-        public async Task<List<GamePlaystationDto>?> GetPlaystationGames(string token)
-        {
-            var builder = new UriBuilder("https://m.np.playstation.com/api/trophy/v1/users/me/trophyTitles");
-            var query = HttpUtility.ParseQueryString(builder.Query);
-            query["limit"] = "800";
-            builder.Query = query.ToString();
-
-            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
-            try
+        public Task<List<GamePlaystationDto>?> GetPlaystationGames(string token)
+            => ApiExceptionHandler(async () =>
             {
+                var builder = new UriBuilder($"{_playstationOption.ServiceUrl}users/me/trophyTitles");
+                var query = HttpUtility.ParseQueryString(builder.Query);
+                query["limit"] = "800";
+                builder.Query = query.ToString();
+
+                _httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
+
                 var response = await _httpClient.GetFromJsonAsync<ResponseGetGamesPlaystationDto>(builder.ToString(), _cancellationToken);
                 return response?.trophyTitles;
-            }
-            catch (HttpRequestException e)
+
+            });
+
+        public Task<List<TrophyDto>> GetTrophiesByGame(string token, string gameId, PlatformEnumEntity platformEnum)
+            => ApiExceptionHandler(async () =>
             {
-                if (e.StatusCode == HttpStatusCode.Unauthorized)
-                    throw new UnauthorizedAccessException("The token is expired.");
+                var builder = new UriBuilder($"{_playstationOption.ServiceUrl}npCommunicationIds/{gameId}/trophyGroups/all/trophies");
+                var query = HttpUtility.ParseQueryString(builder.Query);
+                query["npServiceName"] = platformEnum == PlatformEnumEntity.PS5 ? "trophy2" : "trophy";
+                builder.Query = query.ToString();
 
-                throw e;
-            }
-        }
+                if (!_httpClient.DefaultRequestHeaders.Contains("Authorization"))
+                    _httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
+                _httpClient.DefaultRequestHeaders.Add("Accept-Language", "fr-fr");
 
-        public async Task<List<TrophyDto>> GetTrophiesByGame(string token, string gameId, PlatformEnumEntity platformEnum)
-        {
-            var builder = new UriBuilder($"https://m.np.playstation.com/api/trophy/v1/npCommunicationIds/{gameId}/trophyGroups/all/trophies");
-            var query = HttpUtility.ParseQueryString(builder.Query);
-            query["npServiceName"] = platformEnum == PlatformEnumEntity.PS5 ? "trophy2" : "trophy";
-            builder.Query = query.ToString();
-
-            if (!_httpClient.DefaultRequestHeaders.Contains("Authorization"))
-                _httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
-            _httpClient.DefaultRequestHeaders.Add("Accept-Language", "fr-fr");
-
-            try
-            {
                 var response = await _httpClient.GetFromJsonAsync<ResponseGetTrophiesByGameDto>(builder.ToString(), _cancellationToken);
                 return response!.trophies;
-            }
-            catch (HttpRequestException e)
+            });
+
+        public Task<List<TrophyEarnedDto>> GetTrophyEarnedsByGame(string token, string gameId, PlatformEnumEntity platformEnum)
+            => ApiExceptionHandler(async () =>
             {
-                if (e.StatusCode == HttpStatusCode.Unauthorized)
-                    throw new UnauthorizedAccessException("The token is expired.");
+                var builder = new UriBuilder($"{_playstationOption.ServiceUrl}users/me/npCommunicationIds/{gameId}/trophyGroups/all/trophies");
+                var query = HttpUtility.ParseQueryString(builder.Query);
+                query["npServiceName"] = platformEnum == PlatformEnumEntity.PS5 ? "trophy2" : "trophy";
+                builder.Query = query.ToString();
 
-                throw e;
-            }
+                if (!_httpClient.DefaultRequestHeaders.Contains("Authorization"))
+                    _httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
 
-        }
-
-        public async Task<List<TrophyEarnedDto>> GetTrophyEarnedsByGame(string token, string gameId, PlatformEnumEntity platformEnum)
-        {
-            var builder = new UriBuilder($"https://m.np.playstation.com/api/trophy/v1/users/me/npCommunicationIds/{gameId}/trophyGroups/all/trophies");
-            var query = HttpUtility.ParseQueryString(builder.Query);
-            query["npServiceName"] = platformEnum == PlatformEnumEntity.PS5 ? "trophy2" : "trophy";
-            builder.Query = query.ToString();
-
-            if (!_httpClient.DefaultRequestHeaders.Contains("Authorization"))
-                _httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
-
-            try
-            {
                 var response = await _httpClient.GetFromJsonAsync<ResponseGetTrophiesEarnedByGameDto>(builder.ToString(), _cancellationToken);
                 return response!.trophies;
-            }
-            catch (HttpRequestException e)
-            {
-                if (e.StatusCode == HttpStatusCode.Unauthorized)
-                    throw new UnauthorizedAccessException("The token is expired.");
-
-                throw e;
-            }
-        }
+            });
 
         private async Task<string?> GetToken(string code)
         {
@@ -133,7 +112,7 @@ namespace GameServices.API.Gateways.Implementations
                 new KeyValuePair<string, string>("token_format", "jwt")
             });
 
-            string url = "https://ca.account.sony.com/api/authz/v3/oauth/token";
+            string url = $"{_playstationOption.TokenUrl}token";
             try
             {
                 
@@ -152,6 +131,21 @@ namespace GameServices.API.Gateways.Implementations
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        private async static Task<TResult> ApiExceptionHandler<TResult>(Func<Task<TResult>> action)
+        {
+            try
+            {
+                return await action();
+            }
+            catch (HttpRequestException e)
+            {
+                if (e.StatusCode == HttpStatusCode.Unauthorized)
+                    throw new UnauthorizedAccessException("The token is expired.");
+
+                throw e;
             }
         }
     }

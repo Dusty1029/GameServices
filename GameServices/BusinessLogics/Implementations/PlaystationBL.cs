@@ -5,6 +5,7 @@ using GameServices.API.BusinessLogics.Interfaces;
 using GameServices.API.Dtos.PlaystationGateway;
 using GameServices.API.Extensions.Entities;
 using GameServices.API.Gateways.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameServices.API.BusinessLogics.Implementations
 {
@@ -75,9 +76,25 @@ namespace GameServices.API.BusinessLogics.Implementations
             await _parameterRepository.SaveChanges();
         }
 
-        public Task ReloadPlaystationGame(Guid gameId)
+        public async Task ReloadPlaystationGame(Guid gameId)
         {
-            throw new NotImplementedException();
+            var actualToken = (await _parameterRepository.GetPlaystationToken()) ?? "";
+            var gameEntity = await _gameRepository.Find(g => g.Id == gameId, f => f.Include(g => g.Achievements), noTracking: false);
+            if (gameEntity is null)
+                throw new NotFoundException($"The game with id [{gameId}] was not found.");
+            if (gameEntity.PlaystationId is null)
+                throw new ValidationException($"The game with id [{gameId}] is not a Playstation game.");
+
+            var trophiesEarned = await _playstationApiGateway.GetTrophyEarnedsByGame(actualToken, gameEntity.PlaystationId, gameEntity.Platform);
+
+            gameEntity.Achievements!.ForEach(a =>
+            {
+                var trophy = trophiesEarned.First(t => t.trophyId == a.PlaystationTrophyId);
+                a.Achieved = trophy.earned;
+                a.Percentage = trophy.trophyEarnedRate;
+            });
+
+            await _gameRepository.SaveChanges();
         }
     }
 }
