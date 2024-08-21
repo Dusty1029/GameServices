@@ -1,6 +1,8 @@
 ﻿using CommonV2.Helpers.Controller;
+using GameServices.API.BusinessLogics.Implementations;
 using GameServices.API.BusinessLogics.Interfaces;
 using GameServices.API.Dtos.PlaystationGateway;
+using GameServices.API.Dtos.SteamGateway;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GameServices.API.Controllers
@@ -32,5 +34,15 @@ namespace GameServices.API.Controllers
         [HttpPost]
         public Task<IActionResult> AddPlaystationGame([FromBody] GamePlaystationDto gamePlaystationDto)
             => _controllerExecutor.ExecuteAsync(this, () => _playstationBL.AddPlaystationGame(gamePlaystationDto));
+
+        [HttpPost]
+        [Route("ignore")]
+        public Task<IActionResult> IgnorePlaystationGame([FromBody] GamePlaystationDto gameSteamDto)
+            => _controllerExecutor.ExecuteAsync(this, () => _playstationBL.IgnorePlaystationGame(gameSteamDto));
+
+        [HttpPut]
+        [Route("game/{gameId}/reload")]
+        public Task<IActionResult> ReloadPlaystationGame([FromRoute] Guid gameId)
+            => _controllerExecutor.ExecuteAsync(this, () => _playstationBL.ReloadPlaystationGame(gameId));
     }
 }

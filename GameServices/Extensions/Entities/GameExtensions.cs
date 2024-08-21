@@ -43,6 +43,13 @@ namespace GameServices.API.Extensions.Entities
             SteamId = gameSteamDto.appid
         };
 
+        public static GameEntity ToEntity(this GamePlaystationDto gamePlaystationDto) => new()
+        {
+            Name = gamePlaystationDto.trophyTitleName,
+            Platform = Enum.Parse<PlatformEnumEntity>(gamePlaystationDto.trophyTitlePlatform),
+            PlaystationId = gamePlaystationDto.npCommunicationId
+        };
+
         public static GameEntity ToEntity(this GamePlaystationDto gamePlaystationDto, List<TrophyDto> trophies, List<TrophyEarnedDto> trophiesEarned) => new()
         {
             Name = gamePlaystationDto.trophyTitleName,

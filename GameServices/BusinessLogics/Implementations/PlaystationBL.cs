@@ -55,6 +55,15 @@ namespace GameServices.API.BusinessLogics.Implementations
                     )).OrderBy(pg => pg.trophyTitleName).ToList();
         }
 
+        public async Task<Guid> IgnorePlaystationGame(GamePlaystationDto gamePlaystationDto)
+        {
+            var gameEntity = gamePlaystationDto.ToEntity();
+            gameEntity.IsIgnored = true;
+            await _gameRepository.InsertAndSave(gameEntity);
+
+            return gameEntity.Id;
+        }
+
         public async Task RefreshToken(string npsso)
         {
             var actualToken = await _parameterRepository.GetPlaystationTokenEntity();
@@ -64,6 +73,11 @@ namespace GameServices.API.BusinessLogics.Implementations
 
             actualToken!.Value = token;
             await _parameterRepository.SaveChanges();
+        }
+
+        public Task ReloadPlaystationGame(Guid gameId)
+        {
+            throw new NotImplementedException();
         }
     }
 }
