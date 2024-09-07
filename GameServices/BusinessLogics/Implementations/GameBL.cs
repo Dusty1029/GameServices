@@ -61,10 +61,12 @@ namespace GameServices.API.BusinessLogics.Implementations
             predicate = predicate.And(g => g.Name.ToLower().Contains(searchGameDto.Name.ToLower()));
             predicate = predicate.And(g => !searchGameDto.Platform.HasValue || g.Platform == searchGameDto.Platform.Value.ToEntity());
             
-
-            foreach(var categoryId in searchGameDto.CategoriesId)
+            if(searchGameDto.CategoriesId is not null)
             {
-                predicate = predicate.And(g => g.Categories!.Select(c => c.Id).Contains(categoryId));
+                foreach (var categoryId in searchGameDto.CategoriesId)
+                {
+                    predicate = predicate.And(g => g.Categories!.Select(c => c.Id).Contains(categoryId));
+                }
             }
 
             return predicate;

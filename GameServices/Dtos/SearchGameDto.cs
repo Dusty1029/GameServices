@@ -8,6 +8,6 @@ namespace GameServices.API.Dtos
         public int Page { get; set; }
         public string Name { get; set; } = string.Empty;
         public PlatformEnumDto? Platform { get; set; }
-        public List<Guid> CategoriesId { get; set; } = new List<Guid>();
+        public List<Guid>? CategoriesId { get; set; }
     }
 }
