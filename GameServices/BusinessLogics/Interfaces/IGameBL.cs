@@ -1,7 +1,7 @@
 ﻿using CommonV2.Models;
-using GameServices.API.Dtos;
+using Game.Dto;
 
-namespace GameServices.API.BusinessLogics.Interfaces
+namespace GameService.API.BusinessLogics.Interfaces
 {
     public interface IGameBL
     {

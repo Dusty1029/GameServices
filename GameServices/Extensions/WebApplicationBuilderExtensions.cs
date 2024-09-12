@@ -1,6 +1,6 @@
-﻿using GameServices.API.Models.Options;
+﻿using GameService.API.Models.Options;
 
-namespace GameServices.API.Extensions
+namespace GameService.API.Extensions
 {
     public static class WebApplicationBuilderExtensions
     {

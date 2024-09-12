@@ -1,6 +1,6 @@
-﻿using GameServices.API.Dtos;
+﻿using Game.Dto;
 
-namespace GameServices.API.BusinessLogics.Interfaces
+namespace GameService.API.BusinessLogics.Interfaces
 {
     public interface IAchievementBL
     {

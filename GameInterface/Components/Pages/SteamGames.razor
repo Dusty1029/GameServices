@@ -1,0 +1,48 @@
+﻿@page "/steamGames"
+@inject ISteamService SteamService
+@rendermode InteractiveServer
+
+<h3>Jeux steam à récupérer. </h3>
+
+@if (SteamGameDtos is null)
+{
+    <Loading />
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Ajouter</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var game in SteamGameDtos)
+            {
+                <tr>
+                    <td>@game.Name</td>
+                    <td>
+                        <button @onclick="() => AddSteamGame(game)"> Ajouter </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private List<SteamGameDto> SteamGameDtos { get; set; } = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        SteamGameDtos = await SteamService.GetMissingSteamGames();
+    }
+
+    private async Task AddSteamGame(SteamGameDto steamGame)
+    {
+        await SteamService.AddSteamGame(steamGame);
+        SteamGameDtos?.Remove(steamGame);
+    }
+}

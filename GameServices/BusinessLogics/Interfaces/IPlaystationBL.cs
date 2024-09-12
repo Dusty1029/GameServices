@@ -1,12 +1,12 @@
-﻿using GameServices.API.Dtos.PlaystationGateway;
+﻿using GameService.API.Models.PlaystationGateway;
 
-namespace GameServices.API.BusinessLogics.Interfaces
+namespace GameService.API.BusinessLogics.Interfaces
 {
     public interface IPlaystationBL
     {
-        Task<Guid> AddPlaystationGame(GamePlaystationDto gamePlaystationDto);
-        Task<List<GamePlaystationDto>?> GetMissingPlaystationGames();
-        Task<Guid> IgnorePlaystationGame(GamePlaystationDto gameSteamDto);
+        Task<Guid> AddPlaystationGame(GamePlaystation gamePlaystationDto);
+        Task<List<GamePlaystation>?> GetMissingPlaystationGames();
+        Task<Guid> IgnorePlaystationGame(GamePlaystation gameSteamDto);
         Task RefreshToken(string npsso);
         Task ReloadPlaystationGame(Guid gameId);
     }

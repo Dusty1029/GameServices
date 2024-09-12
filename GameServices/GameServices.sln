@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommonV2", "..\..\CommonV2\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameService.Infrastructure", "..\GameService.Infrastructure\GameService.Infrastructure.csproj", "{7143876B-018D-410A-A483-D37AF8035CBF}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GameInterface", "..\GameInterface\GameInterface.csproj", "{5F9305E7-944A-4C0F-9E8A-C1626B401B20}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Game.Dto", "..\GameDto\Game.Dto.csproj", "{181F2E06-0CD5-4F66-BDBE-55888455528E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{7143876B-018D-410A-A483-D37AF8035CBF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7143876B-018D-410A-A483-D37AF8035CBF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7143876B-018D-410A-A483-D37AF8035CBF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F9305E7-944A-4C0F-9E8A-C1626B401B20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F9305E7-944A-4C0F-9E8A-C1626B401B20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F9305E7-944A-4C0F-9E8A-C1626B401B20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F9305E7-944A-4C0F-9E8A-C1626B401B20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{181F2E06-0CD5-4F66-BDBE-55888455528E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{181F2E06-0CD5-4F66-BDBE-55888455528E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{181F2E06-0CD5-4F66-BDBE-55888455528E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{181F2E06-0CD5-4F66-BDBE-55888455528E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

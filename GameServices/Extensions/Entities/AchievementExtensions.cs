@@ -1,9 +1,9 @@
-﻿using GameService.Infrastructure.Entities;
-using GameServices.API.Dtos;
-using GameServices.API.Dtos.PlaystationGateway;
-using GameServices.API.Dtos.SteamGateway;
+﻿using Game.Dto;
+using GameService.API.Models.PlaystationGateway;
+using GameService.API.Models.SteamGateway;
+using GameService.Infrastructure.Entities;
 
-namespace GameServices.API.Extensions.Entities
+namespace GameService.API.Extensions.Entities
 {
     public static class AchievementExtensions
     {
@@ -20,7 +20,7 @@ namespace GameServices.API.Extensions.Entities
             return achievementEntity;
         }
 
-        public static AchievementEntity ToEntity(this AchievementSteamDto achievementSteamDto, decimal? percentage) => new()
+        public static AchievementEntity ToEntity(this AchievementSteam achievementSteamDto, decimal? percentage) => new()
         {
             Achieved = achievementSteamDto.achieved != 0,
             Description = achievementSteamDto.description,
@@ -29,7 +29,7 @@ namespace GameServices.API.Extensions.Entities
             Percentage = percentage
         };
 
-        public static AchievementEntity ToEntity(this TrophyDto trophy, TrophyEarnedDto trophyEarned) => new()
+        public static AchievementEntity ToEntity(this Trophy trophy, TrophyEarned trophyEarned) => new()
         {
              Achieved = trophyEarned.earned,
              Name = trophy.trophyName,

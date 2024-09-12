@@ -1,10 +1,10 @@
-﻿using GameService.Infrastructure.Extensions;
-using GameServices.API.BusinessLogics.Implementations;
-using GameServices.API.BusinessLogics.Interfaces;
-using GameServices.API.Gateways.Implementations;
-using GameServices.API.Gateways.Interfaces;
+﻿using GameService.API.BusinessLogics.Implementations;
+using GameService.API.BusinessLogics.Interfaces;
+using GameService.Infrastructure.Extensions;
+using GameService.API.Gateways.Implementations;
+using GameService.API.Gateways.Interfaces;
 
-namespace GameServices.API.Extensions
+namespace GameService.API.Extensions
 {
     public static class IServiceCollectionExtensions
     {

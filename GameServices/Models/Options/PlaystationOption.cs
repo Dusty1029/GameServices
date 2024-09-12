@@ -1,4 +1,4 @@
-﻿namespace GameServices.API.Models.Options
+﻿namespace GameService.API.Models.Options
 {
     public class PlaystationOption
     {

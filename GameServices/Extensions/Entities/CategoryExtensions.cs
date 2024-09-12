@@ -1,7 +1,7 @@
-﻿using GameService.Infrastructure.Entities;
-using GameServices.API.Dtos;
+﻿using Game.Dto;
+using GameService.Infrastructure.Entities;
 
-namespace GameServices.API.Extensions.Entities
+namespace GameService.API.Extensions.Entities
 {
     public static class CategoryExtensions
     {

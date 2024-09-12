@@ -1,12 +1,12 @@
-﻿using GameServices.API.Dtos.SteamGateway;
+﻿using Game.Dto;
 
-namespace GameServices.API.BusinessLogics.Interfaces
+namespace GameService.API.BusinessLogics.Interfaces
 {
     public interface ISteamBL
     {
-        Task<Guid> AddSteamGame(GameSteamDto gameSteamDto);
-        Task<List<GameSteamDto>?> GetMissingSteamGames();
-        Task<Guid> IgnoreSteamGame(GameSteamDto gameSteamDto);
+        Task<Guid> AddSteamGame(SteamGameDto gameSteamDto);
+        Task<List<SteamGameDto>> GetMissingSteamGames();
+        Task<Guid> IgnoreSteamGame(SteamGameDto gameSteamDto);
         Task ReloadSteamGame(Guid gameId);
     }
 }

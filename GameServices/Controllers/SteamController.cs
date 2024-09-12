@@ -1,43 +1,31 @@
 ﻿using CommonV2.Helpers.Controller;
-using GameServices.API.BusinessLogics.Interfaces;
-using GameServices.API.Dtos.SteamGateway;
+using Game.Dto;
+using GameService.API.BusinessLogics.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GameServices.API.Controllers
+namespace GameService.API.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class SteamController : ControllerBase
+    public class SteamController(IControllerExecutor controllerExecutor,
+        ISteamBL steamBL) : ControllerBase
     {
-        private readonly ILogger _logger;
-        private readonly IControllerExecutor _controllerExecutor;
-        private readonly ISteamBL _steamBL;
-
-        public SteamController(ILogger<SteamController> logger,
-            IControllerExecutor controllerExecutor,
-            ISteamBL steamBL)
-        {
-            _logger = logger;
-            _controllerExecutor = controllerExecutor;
-            _steamBL = steamBL;
-        }
-
         [HttpGet]
         public Task<IActionResult> GetMissingSteamGames()
-            => _controllerExecutor.ExecuteAsync(this, () => _steamBL.GetMissingSteamGames());
+            => controllerExecutor.ExecuteAsync(this, () => steamBL.GetMissingSteamGames());
 
         [HttpPost]
-        public Task<IActionResult> AddSteamGame([FromBody] GameSteamDto gameSteamDto)
-            => _controllerExecutor.ExecuteAsync(this, () => _steamBL.AddSteamGame(gameSteamDto));
+        public Task<IActionResult> AddSteamGame([FromBody] SteamGameDto steamGameDto)
+            => controllerExecutor.ExecuteAsync(this, () => steamBL.AddSteamGame(steamGameDto));
 
         [HttpPost]
         [Route("ignore")]
-        public Task<IActionResult> IgnoreSteamGame([FromBody] GameSteamDto gameSteamDto)
-            => _controllerExecutor.ExecuteAsync(this, () => _steamBL.IgnoreSteamGame(gameSteamDto));
+        public Task<IActionResult> IgnoreSteamGame([FromBody] SteamGameDto steamGameDto)
+            => controllerExecutor.ExecuteAsync(this, () => steamBL.IgnoreSteamGame(steamGameDto));
 
         [HttpPut]
         [Route("game/{gameId}/reload")]
         public Task<IActionResult> ReloadSteamGame([FromRoute] Guid gameId)
-            => _controllerExecutor.ExecuteAsync(this, () => _steamBL.ReloadSteamGame(gameId));
+            => controllerExecutor.ExecuteAsync(this, () => steamBL.ReloadSteamGame(gameId));
     }
 }

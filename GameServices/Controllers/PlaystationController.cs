@@ -1,48 +1,35 @@
 ﻿using CommonV2.Helpers.Controller;
-using GameServices.API.BusinessLogics.Implementations;
-using GameServices.API.BusinessLogics.Interfaces;
-using GameServices.API.Dtos.PlaystationGateway;
-using GameServices.API.Dtos.SteamGateway;
+using GameService.API.BusinessLogics.Interfaces;
+using GameService.API.Models.PlaystationGateway;
 using Microsoft.AspNetCore.Mvc;
 
-namespace GameServices.API.Controllers
+namespace GameService.API.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class PlaystationController : ControllerBase
+    public class PlaystationController(IControllerExecutor controllerExecutor, IPlaystationBL playstationBL) : ControllerBase
     {
-        private readonly ILogger _logger;
-        private readonly IControllerExecutor _controllerExecutor;
-        private readonly IPlaystationBL _playstationBL;
-
-        public PlaystationController(ILogger<PlaystationController> logger, IControllerExecutor controllerExecutor, IPlaystationBL playstationBL)
-        {
-            _logger = logger;
-            _controllerExecutor = controllerExecutor;
-            _playstationBL = playstationBL;
-        }
-
         [HttpPut]
         [Route("token/{npsso}")]
         public Task<IActionResult> RefreshToken([FromRoute] string npsso)
-            => _controllerExecutor.ExecuteAsync(this, () => _playstationBL.RefreshToken(npsso));
+            => controllerExecutor.ExecuteAsync(this, () => playstationBL.RefreshToken(npsso));
 
         [HttpGet]
         public Task<IActionResult> GetMissingSteamGames()
-            => _controllerExecutor.ExecuteAsync(this, () => _playstationBL.GetMissingPlaystationGames());
+            => controllerExecutor.ExecuteAsync(this, () => playstationBL.GetMissingPlaystationGames());
 
         [HttpPost]
-        public Task<IActionResult> AddPlaystationGame([FromBody] GamePlaystationDto gamePlaystationDto)
-            => _controllerExecutor.ExecuteAsync(this, () => _playstationBL.AddPlaystationGame(gamePlaystationDto));
+        public Task<IActionResult> AddPlaystationGame([FromBody] GamePlaystation gamePlaystationDto)
+            => controllerExecutor.ExecuteAsync(this, () => playstationBL.AddPlaystationGame(gamePlaystationDto));
 
         [HttpPost]
         [Route("ignore")]
-        public Task<IActionResult> IgnorePlaystationGame([FromBody] GamePlaystationDto gameSteamDto)
-            => _controllerExecutor.ExecuteAsync(this, () => _playstationBL.IgnorePlaystationGame(gameSteamDto));
+        public Task<IActionResult> IgnorePlaystationGame([FromBody] GamePlaystation gameSteamDto)
+            => controllerExecutor.ExecuteAsync(this, () => playstationBL.IgnorePlaystationGame(gameSteamDto));
 
         [HttpPut]
         [Route("game/{gameId}/reload")]
         public Task<IActionResult> ReloadPlaystationGame([FromRoute] Guid gameId)
-            => _controllerExecutor.ExecuteAsync(this, () => _playstationBL.ReloadPlaystationGame(gameId));
+            => controllerExecutor.ExecuteAsync(this, () => playstationBL.ReloadPlaystationGame(gameId));
     }
 }

@@ -1,11 +1,11 @@
-﻿using GameService.Infrastructure.Entities;
+﻿using Game.Dto;
+using GameService.API.Models.PlaystationGateway;
+using GameService.API.Models.SteamGateway;
+using GameService.Infrastructure.Entities;
 using GameService.Infrastructure.Entities.Enums;
-using GameServices.API.Dtos;
-using GameServices.API.Dtos.PlaystationGateway;
-using GameServices.API.Dtos.SteamGateway;
-using GameServices.API.Extensions.Entities.Enums;
+using GameService.API.Extensions.Entities.Enums;
 
-namespace GameServices.API.Extensions.Entities
+namespace GameService.API.Extensions.Entities
 {
     public static class GameExtensions
     {
@@ -20,7 +20,7 @@ namespace GameServices.API.Extensions.Entities
             return gameEntity;
         }
 
-        public static GameEntity ToEntity(this ResponseAchievementSteamDto responseAchievementSteamDto, int appId, List<AchievementPercentageSteamDto> achievementPercentages) => new()
+        public static GameEntity ToEntity(this ResponseAchievementSteam responseAchievementSteamDto, int appId, List<AchievementPercentageSteam> achievementPercentages) => new()
         {
             Name = responseAchievementSteamDto.gameName,
             Platform = PlatformEnumEntity.Steam,
@@ -28,29 +28,14 @@ namespace GameServices.API.Extensions.Entities
             Achievements = responseAchievementSteamDto.achievements.Select(a => a.ToEntity(achievementPercentages.FirstOrDefault(ap => ap.name == a.apiname)?.percent)).ToList()
         };
 
-        public static GameEntity ToEntity(this GameSteamDto gameSteamDto, List<AchievementSteamDto> achievements, List<AchievementPercentageSteamDto> achievementPercentages) => new()
-        {
-            Name = gameSteamDto.name,
-            Platform = PlatformEnumEntity.Steam,
-            SteamId = gameSteamDto.appid,
-            Achievements = achievements.Select(a => a.ToEntity(achievementPercentages.FirstOrDefault(ap => ap.name == a.apiname)?.percent)).ToList()
-        };
-
-        public static GameEntity ToEntity(this GameSteamDto gameSteamDto) => new()
-        {
-            Name = gameSteamDto.name,
-            Platform = PlatformEnumEntity.Steam,
-            SteamId = gameSteamDto.appid
-        };
-
-        public static GameEntity ToEntity(this GamePlaystationDto gamePlaystationDto) => new()
+        public static GameEntity ToEntity(this GamePlaystation gamePlaystationDto) => new()
         {
             Name = gamePlaystationDto.trophyTitleName,
             Platform = Enum.Parse<PlatformEnumEntity>(gamePlaystationDto.trophyTitlePlatform),
             PlaystationId = gamePlaystationDto.npCommunicationId
         };
 
-        public static GameEntity ToEntity(this GamePlaystationDto gamePlaystationDto, List<TrophyDto> trophies, List<TrophyEarnedDto> trophiesEarned) => new()
+        public static GameEntity ToEntity(this GamePlaystation gamePlaystationDto, List<Trophy> trophies, List<TrophyEarned> trophiesEarned) => new()
         {
             Name = gamePlaystationDto.trophyTitleName,
             Platform = Enum.Parse<PlatformEnumEntity>(gamePlaystationDto.trophyTitlePlatform),

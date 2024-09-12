@@ -1,6 +1,6 @@
 using CommonV2.Extensions;
 using GameService.Infrastructure;
-using GameServices.API.Extensions;
+using GameService.API.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

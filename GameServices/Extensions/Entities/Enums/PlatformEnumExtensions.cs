@@ -1,7 +1,7 @@
-﻿using GameService.Infrastructure.Entities.Enums;
-using GameServices.API.Dtos.Enums;
+﻿using Game.Dto.Enums;
+using GameService.Infrastructure.Entities.Enums;
 
-namespace GameServices.API.Extensions.Entities.Enums
+namespace GameService.API.Extensions.Entities.Enums
 {
     public static class PlatformEnumExtensions
     {

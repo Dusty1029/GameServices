@@ -1,11 +1,11 @@
-﻿using GameServices.API.Dtos.SteamGateway;
+﻿using GameService.API.Models.SteamGateway;
 
-namespace GameServices.API.Gateways.Interfaces
+namespace GameService.API.Gateways.Interfaces
 {
     public interface ISteamApiGateway
     {
-        Task<List<GameSteamDto>?> GetSteamGames();
-        Task<List<AchievementSteamDto>> GetAchievementByAppId(int appId);
-        Task<List<AchievementPercentageSteamDto>> GetAchievementPercentageByAppId(int appId);
+        Task<List<GameSteam>?> GetSteamGames();
+        Task<List<AchievementSteam>> GetAchievementByAppId(int appId);
+        Task<List<AchievementPercentageSteam>> GetAchievementPercentageByAppId(int appId);
     }
 }

@@ -1,44 +1,37 @@
 ﻿using CommonV2.Models;
 using CommonV2.Models.Exceptions;
+using Game.Dto;
 using GameService.Infrastructure.Entities;
 using GameService.Infrastructure.Repositories.Interfaces;
-using GameServices.API.BusinessLogics.Interfaces;
-using GameServices.API.Dtos;
-using GameServices.API.Extensions.Entities;
-using GameServices.API.Extensions.Entities.Enums;
+using GameService.API.BusinessLogics.Interfaces;
+using GameService.API.Extensions.Entities;
+using GameService.API.Extensions.Entities.Enums;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace GameServices.API.BusinessLogics.Implementations
+namespace GameService.API.BusinessLogics.Implementations
 {
-    public class GameBL : IGameBL
+    public class GameBL(IGameRepository gameRepository) : IGameBL
     {
-        private readonly IGameRepository _gameRepository;
-
-        public GameBL(IGameRepository gameRepository)
-        {
-            _gameRepository = gameRepository;
-        }
-
         public async Task<Guid> CreateGame(GameDto createGameDto)
         {
-            var game = await _gameRepository.CreateGame(createGameDto.ToEntity(), createGameDto.Categories?.Select(c => c.ToEntity()).ToList());
+            var game = await gameRepository.CreateGame(createGameDto.ToEntity(), createGameDto.Categories?.Select(c => c.ToEntity()).ToList());
             return game.Id;
         }
 
         public async Task DeleteGameById(Guid gameId)
         {
-            var game = await _gameRepository.Find(g => g.Id == gameId);
+            var game = await gameRepository.Find(g => g.Id == gameId);
             if (game is null)
                 throw new NotFoundException($"The game with id [{gameId}] was not found.");
 
-            await _gameRepository.DeleteAndSave(game);
+            await gameRepository.DeleteAndSave(game);
         }
 
         public async Task<GameDto> GetGameById(Guid gameId)
         {
-            var game = await _gameRepository.Find(g => g.Id == gameId, f => f.Include(g => g.Categories).Include(g => g.Achievements));
+            var game = await gameRepository.Find(g => g.Id == gameId, f => f.Include(g => g.Categories).Include(g => g.Achievements));
             if (game is null)
                 throw new NotFoundException($"The game with id [{gameId}] was not found.");
 
@@ -47,8 +40,14 @@ namespace GameServices.API.BusinessLogics.Implementations
 
         public async Task<PaginationResult<GameDto>> SearchGame(SearchGameDto searchGameDto)
         {
-            var gamesSearched = await _gameRepository.Search(searchGameDto.Size, searchGameDto.Page, BuildSearchPredicate(searchGameDto));
-            
+            var gamesSearched = await gameRepository.Search(
+                    searchGameDto.Size,
+                    searchGameDto.Page,
+                    BuildSearchPredicate(searchGameDto),
+                    include: query => query.Include(g => g.Categories!.OrderBy(c => c.Name)),
+                    orderBy: query => query.OrderBy(g => g.Name).ThenBy(g => g.Platform)
+                );
+
             return new()
             {
                 TotalItems = gamesSearched.TotalItems,
@@ -60,8 +59,8 @@ namespace GameServices.API.BusinessLogics.Implementations
             var predicate = PredicateBuilder.New<GameEntity>(g => !g.IsIgnored);
             predicate = predicate.And(g => g.Name.ToLower().Contains(searchGameDto.Name.ToLower()));
             predicate = predicate.And(g => !searchGameDto.Platform.HasValue || g.Platform == searchGameDto.Platform.Value.ToEntity());
-            
-            if(searchGameDto.CategoriesId is not null)
+
+            if (searchGameDto.CategoriesId is not null)
             {
                 foreach (var categoryId in searchGameDto.CategoriesId)
                 {
@@ -74,7 +73,7 @@ namespace GameServices.API.BusinessLogics.Implementations
 
         public async Task UpdateGame(Guid gameId, GameDto gameDto)
         {
-            var game = await _gameRepository.Find(g => g.Id == gameId, f => f.Include(g => g.Categories), noTracking: false);
+            var game = await gameRepository.Find(g => g.Id == gameId, f => f.Include(g => g.Categories), noTracking: false);
             if (game is null)
                 throw new NotFoundException($"The game with id [{gameId}] was not found.");
 
@@ -84,7 +83,7 @@ namespace GameServices.API.BusinessLogics.Implementations
             game.Categories!.RemoveAll(c => !actualCategories.Any(ac => ac.Id == c.Id));
             game.Categories!.AddRange(actualCategories.Where(ac => !game.Categories!.Any(c => c.Id == ac.Id)));
 
-            await _gameRepository.SaveChanges();
+            await gameRepository.SaveChanges();
         }
     }
 }

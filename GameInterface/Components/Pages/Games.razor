@@ -1,0 +1,92 @@
+﻿@page "/"
+@page "/games"
+@inject IGameService GameService
+@inject ICategoryService CategoryService
+
+<MudTable ServerData="SearchGames" Hover="true" Striped="true" Loading="@_loading" LoadingProgressColor="Color.Info" @ref="_table">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Mes jeux</MudText>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>
+            Nom
+            <MudTextField T="string" @bind-Value="@_searchGame" Immediate="true" OnKeyUp="ReloadData" Placeholder="Final Fantasy"></MudTextField>
+        </MudTh>
+        <MudTh>
+            Platform
+            <MudSelect T="PlatformEnumDto?" Clearable="true" ValueChanged="OnPlatformChanged" Placeholder="Ps1">
+                @foreach (PlatformEnumDto? item in _orderedPlatformEnum)
+                {
+                    <MudSelectItem Value="@item">@item</MudSelectItem>
+                }
+            </MudSelect>
+        </MudTh>
+        <MudTh>
+            Catégories
+            <MudSelect T="CategoryDto" Clearable="true" Placeholder="RPG" MultiSelection="true" SelectedValuesChanged="OnSelectedCategoriesChanged">
+                @foreach (var category in _categories)
+                {
+                    <MudSelectItem Value="@category">@category.Name</MudSelectItem>
+                }
+            </MudSelect>
+        </MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Nom">@context.Name</MudTd>
+        <MudTd DataLabel="Platform">@context.Platform</MudTd>
+        <MudTd DataLabel="Catégories">@String.Join(", ", context.Categories?.Select(c => c.Name) ?? [])</MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager RowsPerPageString="Jeux par page: "  AllItemsText="coucou"/>
+    </PagerContent>
+</MudTable>
+
+
+@code {
+    private IEnumerable<GameDto> _gameDtos = [];
+    private List<CategoryDto> _categories = [];
+    private IEnumerable<Guid> _selectedCategories = [];
+    private MudTable<GameDto>? _table;
+    private bool _loading;
+    private string _searchGame = "";
+    private PlatformEnumDto? _searchPlatform;
+    private IEnumerable<PlatformEnumDto> _orderedPlatformEnum = [];
+    private string _rowPerPage = "Jeux par page: ";
+
+    protected override async Task OnInitializedAsync()
+    {
+        _orderedPlatformEnum = ((Enum.GetValues(typeof(PlatformEnumDto)) as PlatformEnumDto[]) ?? []).OrderBy(p => p.ToString());
+        _categories = await CategoryService.GetAllCategories();
+    }
+
+    private async Task<TableData<GameDto>> SearchGames(TableState state, CancellationToken token)
+    {
+        var games = await GameService.SearchGame(new()
+        {
+            Page = ++state.Page,
+            Size = state.PageSize,
+            Name = _searchGame,
+            Platform = _searchPlatform,
+            CategoriesId = _selectedCategories.ToList()
+        });
+
+        return new() { TotalItems = games.TotalItems, Items = games.Items };
+    }
+
+    private void OnPlatformChanged(PlatformEnumDto? platform)
+    {
+        _searchPlatform = platform;
+        ReloadData();
+    }
+
+    private void OnSelectedCategoriesChanged(IEnumerable<CategoryDto> categoryIds)
+    {
+        _selectedCategories = categoryIds.Select(c => c.Id);
+        ReloadData();
+    }
+
+    private void ReloadData()
+    {
+        _table?.ReloadServerData();
+    }
+}
