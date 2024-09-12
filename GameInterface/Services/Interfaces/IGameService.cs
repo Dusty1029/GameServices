@@ -7,5 +7,6 @@ namespace GameInterface.Services.Interfaces
     {
         Task<GameDto> GetGameById(Guid id);
         Task<PaginationResult<GameDto>> SearchGame(SearchGameDto searchGameDto);
+        Task DeleteGameById(Guid gameId);
     }
 }

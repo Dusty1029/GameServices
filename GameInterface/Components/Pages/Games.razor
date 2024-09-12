@@ -2,6 +2,8 @@
 @page "/games"
 @inject IGameService GameService
 @inject ICategoryService CategoryService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
 <MudTable ServerData="SearchGames" Hover="true" Striped="true" Loading="@_loading" LoadingProgressColor="Color.Info" @ref="_table">
     <ToolBarContent>
@@ -30,11 +32,15 @@
                 }
             </MudSelect>
         </MudTh>
+        <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Nom">@context.Name</MudTd>
         <MudTd DataLabel="Platform">@context.Platform</MudTd>
         <MudTd DataLabel="Catégories">@String.Join(", ", context.Categories?.Select(c => c.Name) ?? [])</MudTd>
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="(_) => DeleteGameById(context)" />
+        </MudTd>
     </RowTemplate>
     <PagerContent>
         <MudTablePager RowsPerPageString="Jeux par page: "  AllItemsText="coucou"/>
@@ -52,9 +58,12 @@
     private PlatformEnumDto? _searchPlatform;
     private IEnumerable<PlatformEnumDto> _orderedPlatformEnum = [];
     private string _rowPerPage = "Jeux par page: ";
+    private DialogOptions? _deleteDialogOptions;
 
     protected override async Task OnInitializedAsync()
     {
+        _deleteDialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
         _orderedPlatformEnum = ((Enum.GetValues(typeof(PlatformEnumDto)) as PlatformEnumDto[]) ?? []).OrderBy(p => p.ToString());
         _categories = await CategoryService.GetAllCategories();
     }
@@ -88,5 +97,24 @@
     private void ReloadData()
     {
         _table?.ReloadServerData();
+    }
+
+    private async Task DeleteGameById(GameDto game)
+    {
+        var parameters = new DialogParameters<CustomDialog>
+        {
+            { x => x.ContentText, $"Êtes-vous sûr de vouloir supprimer le jeu {game.Name} ?" },
+            { x => x.ActionButtonText, "Supprimer" },
+            { x => x.Color, Color.Error }
+        };
+        var dialogReference = await DialogService.ShowAsync<CustomDialog>("Suppression", parameters, _deleteDialogOptions);
+        var response = await dialogReference.Result;
+
+        if (!response!.Canceled)
+        {
+            await GameService.DeleteGameById(game.Id);
+            Snackbar.Add($"Le jeu {game.Name} a bien été supprimé.", Severity.Success);
+            ReloadData();
+        }
     }
 }
