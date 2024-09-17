@@ -9,8 +9,9 @@
         public string? Description { get; set; }
         public decimal? Percentage { get; set; }
         public bool Achieved { get; set; }
+        public bool IsIgnored { get; set; }
 
-        public GameEntity? Game { get; set; }
-        public Guid GameId { get; set; }
+        public Guid GameDetailId { get; set; }
+        public GameDetailEntity? GameDetail { get; set; }
     }
 }

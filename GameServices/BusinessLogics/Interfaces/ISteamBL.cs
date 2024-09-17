@@ -6,7 +6,7 @@ namespace GameService.API.BusinessLogics.Interfaces
     {
         Task<Guid> AddSteamGame(SteamGameDto gameSteamDto);
         Task<List<SteamGameDto>> GetMissingSteamGames();
-        Task<Guid> IgnoreSteamGame(SteamGameDto gameSteamDto);
+        Task<int> IgnoreSteamGame(SteamGameDto gameSteamDto, bool isIgnored);
         Task ReloadSteamGame(Guid gameId);
     }
 }

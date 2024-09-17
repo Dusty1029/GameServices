@@ -1,6 +1,5 @@
 ﻿using CommonV2.Extensions;
 using GameService.Infrastructure.Entities;
-using GameService.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -41,10 +40,14 @@ namespace GameService.Infrastructure.Configurations
                    .IsRequired()
                    .HasDefaultValue(false);
 
+            builder.Property(p => p.IsIgnored)
+                   .IsRequired()
+                   .HasDefaultValue(false);
+
             //Relations
-            builder.HasOne(x => x.Game)
+            builder.HasOne(x => x.GameDetail)
                    .WithMany(x => x.Achievements)
-                   .HasForeignKey(x => x.GameId);
+                   .HasForeignKey(x => x.GameDetailId);
 
 
         }

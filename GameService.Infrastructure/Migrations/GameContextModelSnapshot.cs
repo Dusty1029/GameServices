@@ -52,8 +52,13 @@ namespace GameService.Infrastructure.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
 
-                    b.Property<Guid>("GameId")
+                    b.Property<Guid>("GameDetailId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsIgnored")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -72,7 +77,7 @@ namespace GameService.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GameId");
+                    b.HasIndex("GameDetailId");
 
                     b.ToTable("Achievement", (string)null);
                 });
@@ -98,24 +103,6 @@ namespace GameService.Infrastructure.Migrations
                     b.ToTable("Category", (string)null);
 
                     b.HasData(
-                        new
-                        {
-                            Id = new Guid("2346a66c-0f40-4ea6-b61d-582865896b41"),
-                            IsSeed = true,
-                            Name = "Jeux commencés"
-                        },
-                        new
-                        {
-                            Id = new Guid("78b7740c-0a69-4dab-a4b1-14a39457a81a"),
-                            IsSeed = true,
-                            Name = "Jeux terminés"
-                        },
-                        new
-                        {
-                            Id = new Guid("2c9a7b53-183f-4971-9b8a-81c98816f05f"),
-                            IsSeed = true,
-                            Name = "Jeux terminés à 100%"
-                        },
                         new
                         {
                             Id = new Guid("7958d93d-852e-4c14-8b55-9d6620821126"),
@@ -160,24 +147,27 @@ namespace GameService.Infrastructure.Migrations
                         });
                 });
 
-            modelBuilder.Entity("GameService.Infrastructure.Entities.GameEntity", b =>
+            modelBuilder.Entity("GameService.Infrastructure.Entities.GameDetailEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsIgnored")
+                    b.Property<Guid>("GameId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsFinished")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                    b.Property<bool>("IsStarted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
-                    b.Property<int>("Platform")
-                        .HasColumnType("int");
+                    b.Property<Guid>("PlatformId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PlaystationId")
                         .HasMaxLength(256)
@@ -188,18 +178,87 @@ namespace GameService.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("PlatformId");
+
                     b.HasIndex("SteamId")
                         .IsUnique()
                         .HasFilter("[SteamId] IS NOT NULL");
 
-                    b.HasIndex("Name", "Platform")
+                    b.HasIndex("GameId", "PlatformId")
                         .IsUnique();
 
-                    b.HasIndex("PlaystationId", "Platform")
+                    b.HasIndex("PlaystationId", "PlatformId")
                         .IsUnique()
                         .HasFilter("[PlaystationId] IS NOT NULL");
 
+                    b.ToTable("GameDetail", (string)null);
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.GameEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<Guid?>("SerieId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SerieId");
+
                     b.ToTable("Game", (string)null);
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.GoalEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<Guid>("GameDetailId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsFulFilled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GameDetailId");
+
+                    b.ToTable("Goal", (string)null);
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.IgnoredSteamGameEntity", b =>
+                {
+                    b.Property<int>("SteamId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("SteamId");
+
+                    b.ToTable("IgnoredSteamGame", (string)null);
                 });
 
             modelBuilder.Entity("GameService.Infrastructure.Entities.ParameterEntity", b =>
@@ -231,6 +290,116 @@ namespace GameService.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("GameService.Infrastructure.Entities.PlatformEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsSeed")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<int?>("PlatformEnum")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("PlatformEnum")
+                        .IsUnique()
+                        .HasFilter("[PlatformEnum] IS NOT NULL");
+
+                    b.ToTable("Platform", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("450ba6e2-97a6-4dcd-87d5-607f60385821"),
+                            IsSeed = true,
+                            Name = "Steam",
+                            PlatformEnum = 0
+                        },
+                        new
+                        {
+                            Id = new Guid("9b77ae73-ee99-46f3-a84d-f337ced142a8"),
+                            IsSeed = true,
+                            Name = "PS VITA",
+                            PlatformEnum = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("793511b2-5d1c-4b47-b6a7-4ced103b0be3"),
+                            IsSeed = true,
+                            Name = "PS3",
+                            PlatformEnum = 2
+                        },
+                        new
+                        {
+                            Id = new Guid("43d4fe37-f799-4d61-befb-404d76f7a759"),
+                            IsSeed = true,
+                            Name = "PS4",
+                            PlatformEnum = 3
+                        },
+                        new
+                        {
+                            Id = new Guid("db5275b2-1507-4b47-b721-b516b6b5c0d0"),
+                            IsSeed = true,
+                            Name = "PS5",
+                            PlatformEnum = 4
+                        });
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.SerieEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<Guid?>("ParentSerieId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentSerieId");
+
+                    b.ToTable("Serie", (string)null);
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.WishGameEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<Guid>("PlatformId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlatformId");
+
+                    b.ToTable("WishGame", (string)null);
+                });
+
             modelBuilder.Entity("GameCategory", b =>
                 {
                     b.HasOne("GameService.Infrastructure.Entities.CategoryEntity", null)
@@ -248,18 +417,98 @@ namespace GameService.Infrastructure.Migrations
 
             modelBuilder.Entity("GameService.Infrastructure.Entities.AchievementEntity", b =>
                 {
-                    b.HasOne("GameService.Infrastructure.Entities.GameEntity", "Game")
+                    b.HasOne("GameService.Infrastructure.Entities.GameDetailEntity", "GameDetail")
                         .WithMany("Achievements")
+                        .HasForeignKey("GameDetailId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GameDetail");
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.GameDetailEntity", b =>
+                {
+                    b.HasOne("GameService.Infrastructure.Entities.GameEntity", "Game")
+                        .WithMany("GameDetails")
                         .HasForeignKey("GameId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("GameService.Infrastructure.Entities.PlatformEntity", "Platform")
+                        .WithMany("GameDetails")
+                        .HasForeignKey("PlatformId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Game");
+
+                    b.Navigation("Platform");
                 });
 
             modelBuilder.Entity("GameService.Infrastructure.Entities.GameEntity", b =>
                 {
+                    b.HasOne("GameService.Infrastructure.Entities.SerieEntity", "Serie")
+                        .WithMany("Games")
+                        .HasForeignKey("SerieId");
+
+                    b.Navigation("Serie");
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.GoalEntity", b =>
+                {
+                    b.HasOne("GameService.Infrastructure.Entities.GameDetailEntity", "GameDetail")
+                        .WithMany("Goals")
+                        .HasForeignKey("GameDetailId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GameDetail");
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.SerieEntity", b =>
+                {
+                    b.HasOne("GameService.Infrastructure.Entities.SerieEntity", "ParentSerie")
+                        .WithMany("ChildrenSeries")
+                        .HasForeignKey("ParentSerieId");
+
+                    b.Navigation("ParentSerie");
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.WishGameEntity", b =>
+                {
+                    b.HasOne("GameService.Infrastructure.Entities.PlatformEntity", "Platform")
+                        .WithMany("WishGames")
+                        .HasForeignKey("PlatformId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Platform");
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.GameDetailEntity", b =>
+                {
                     b.Navigation("Achievements");
+
+                    b.Navigation("Goals");
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.GameEntity", b =>
+                {
+                    b.Navigation("GameDetails");
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.PlatformEntity", b =>
+                {
+                    b.Navigation("GameDetails");
+
+                    b.Navigation("WishGames");
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.SerieEntity", b =>
+                {
+                    b.Navigation("ChildrenSeries");
+
+                    b.Navigation("Games");
                 });
 #pragma warning restore 612, 618
         }

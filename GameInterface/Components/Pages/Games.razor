@@ -2,6 +2,7 @@
 @page "/games"
 @inject IGameService GameService
 @inject ICategoryService CategoryService
+@inject IPlatformService PlatformService
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 
@@ -12,14 +13,14 @@
     <HeaderContent>
         <MudTh>
             Nom
-            <MudTextField T="string" @bind-Value="@_searchGame" Immediate="true" OnKeyUp="ReloadData" Placeholder="Final Fantasy"></MudTextField>
+            <MudTextField T="string" Immediate="true" ValueChanged="OnSearchGameChanged" Placeholder="Final Fantasy"></MudTextField>
         </MudTh>
         <MudTh>
             Platform
-            <MudSelect T="PlatformEnumDto?" Clearable="true" ValueChanged="OnPlatformChanged" Placeholder="Ps1">
-                @foreach (PlatformEnumDto? item in _orderedPlatformEnum)
+            <MudSelect T="PlatformDto" Clearable="true" ValueChanged="OnPlatformChanged" Placeholder="PS1">
+                @foreach (var platform in _platforms)
                 {
-                    <MudSelectItem Value="@item">@item</MudSelectItem>
+                    <MudSelectItem Value="@platform">@platform.Name</MudSelectItem>
                 }
             </MudSelect>
         </MudTh>
@@ -51,12 +52,12 @@
 @code {
     private IEnumerable<GameDto> _gameDtos = [];
     private List<CategoryDto> _categories = [];
+    private List<PlatformDto> _platforms = [];
     private IEnumerable<Guid> _selectedCategories = [];
+    private Guid? _selectedPlatforms;
     private MudTable<GameDto>? _table;
     private bool _loading;
     private string _searchGame = "";
-    private PlatformEnumDto? _searchPlatform;
-    private IEnumerable<PlatformEnumDto> _orderedPlatformEnum = [];
     private string _rowPerPage = "Jeux par page: ";
     private DialogOptions? _deleteDialogOptions;
 
@@ -64,8 +65,13 @@
     {
         _deleteDialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
         Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-        _orderedPlatformEnum = ((Enum.GetValues(typeof(PlatformEnumDto)) as PlatformEnumDto[]) ?? []).OrderBy(p => p.ToString());
-        _categories = await CategoryService.GetAllCategories();
+        var categories = CategoryService.GetAllCategories();
+        var platforms = PlatformService.GetAllPlatforms();
+
+        await Task.WhenAll(categories, platforms);
+
+        _categories = categories.Result;
+        _platforms = platforms.Result;
     }
 
     private async Task<TableData<GameDto>> SearchGames(TableState state, CancellationToken token)
@@ -75,22 +81,28 @@
             Page = ++state.Page,
             Size = state.PageSize,
             Name = _searchGame,
-            Platform = _searchPlatform,
+            PlatformId = _selectedPlatforms,
             CategoriesId = _selectedCategories.ToList()
         });
 
         return new() { TotalItems = games.TotalItems, Items = games.Items };
     }
 
-    private void OnPlatformChanged(PlatformEnumDto? platform)
+    private void OnPlatformChanged(PlatformDto platform)
     {
-        _searchPlatform = platform;
+        _selectedPlatforms = platform?.Id;
         ReloadData();
     }
 
     private void OnSelectedCategoriesChanged(IEnumerable<CategoryDto> categoryIds)
     {
         _selectedCategories = categoryIds.Select(c => c.Id);
+        ReloadData();
+    }
+
+    private void OnSearchGameChanged(string searchGame)
+    {
+        _searchGame = searchGame;
         ReloadData();
     }
 

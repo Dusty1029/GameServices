@@ -6,12 +6,9 @@ using GameService.Infrastructure.Repositories.Interfaces;
 
 namespace GameService.Infrastructure.Repositories.Implementations
 {
-    public class ParameterRepository : GenericRepository<GameContext, ParameterEntity>, IParameterRepository
+    public class ParameterRepository(GameContext context, ICancellationTokenService cancellationTokenService) :
+        GenericRepository<GameContext, ParameterEntity>(context, cancellationTokenService), IParameterRepository
     {
-        public ParameterRepository(GameContext context, ICancellationTokenService cancellationTokenService) : base(context, cancellationTokenService)
-        {
-        }
-
         public Task<string?> GetPlaystationToken() => 
             FindSelect(p => p.ParameterEnum == ParameterEnumEntity.PlaystationToken, f => f.Select(p => p.Value));
 

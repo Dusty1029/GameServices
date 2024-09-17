@@ -12,6 +12,9 @@ namespace GameService.Infrastructure.Extensions
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IGameRepository, GameRepository>();
             services.AddScoped<IParameterRepository, ParameterRepository>();
+            services.AddScoped<IGameDetailRepository, GameDetailRepository>();
+            services.AddScoped<IIgnoredSteamGameRepository, IgnoredSteamGameRepository>();
+            services.AddScoped<IPlatformRepository, PlatformRepository>();
         }
     }
 }

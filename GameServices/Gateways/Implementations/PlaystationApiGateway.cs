@@ -98,13 +98,13 @@ namespace GameService.API.Gateways.Implementations
 
         private async Task<string?> GetToken(string code)
         {
-            var body = new FormUrlEncodedContent(new[]
-            {
+            var body = new FormUrlEncodedContent(
+            [
                 new KeyValuePair<string, string>("code", code),
                 new KeyValuePair<string, string>("redirect_uri", "com.scee.psxandroid.scecompcall://redirect"),
                 new KeyValuePair<string, string>("grant_type", "authorization_code"),
                 new KeyValuePair<string, string>("token_format", "jwt")
-            });
+            ]);
 
             string url = $"{_playstationOption.TokenUrl}token";
             try

@@ -1,48 +1,69 @@
 ﻿@page "/steamGames"
 @inject ISteamService SteamService
+@inject ISnackbar Snackbar
 @rendermode InteractiveServer
 
-<h3>Jeux steam à récupérer. </h3>
-
-@if (SteamGameDtos is null)
-{
-    <Loading />
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Ajouter</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var game in SteamGameDtos)
-            {
-                <tr>
-                    <td>@game.Name</td>
-                    <td>
-                        <button @onclick="() => AddSteamGame(game)"> Ajouter </button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<MudTable Items="@SteamGameDtos" Hover="true" Striped="true" Loading="@_loading" LoadingProgressColor="Color.Info" Filter="new Func<SteamGameDto,bool>(FilterFunc)">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Jeux Steam à récupérer</MudText>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>
+            Nom
+            <MudTextField T="string" @bind-Value="@_searchGame" Immediate="true" Placeholder="Final Fantasy"></MudTextField>
+        </MudTh>
+        <MudTh></MudTh>
+        <MudTh></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Nom">@context.Name</MudTd>
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="(_) => AddSteamGame(context)" />
+        </MudTd>
+        <MudTd>
+            <MudTooltip Text="Ignorer">
+                <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" OnClick="(_) => IgnoreSteamGame(context)" />
+            </MudTooltip>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
 
 
 @code {
     private List<SteamGameDto> SteamGameDtos { get; set; } = [];
+    private bool _loading;
+    private string _searchGame = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
+        _loading = true;
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
         SteamGameDtos = await SteamService.GetMissingSteamGames();
+        _loading = false;
     }
 
     private async Task AddSteamGame(SteamGameDto steamGame)
     {
         await SteamService.AddSteamGame(steamGame);
+        Snackbar.Add($"Le jeu {steamGame.Name} a bien été ajouté à votre bibliothèque.", Severity.Success);
         SteamGameDtos?.Remove(steamGame);
+    }
+
+    private async Task IgnoreSteamGame(SteamGameDto steamGame)
+    {
+        await SteamService.IgnoreSteamGame(steamGame, true);
+        Snackbar.Add($"Le jeu {steamGame.Name} a bien été ignoré.", Severity.Success);
+        SteamGameDtos?.Remove(steamGame);
+    }
+
+    private bool FilterFunc(SteamGameDto element) => FilterFunc(element, _searchGame);
+
+    private bool FilterFunc(SteamGameDto game, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (game.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 }

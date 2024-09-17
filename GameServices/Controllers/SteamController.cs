@@ -19,9 +19,9 @@ namespace GameService.API.Controllers
             => controllerExecutor.ExecuteAsync(this, () => steamBL.AddSteamGame(steamGameDto));
 
         [HttpPost]
-        [Route("ignore")]
-        public Task<IActionResult> IgnoreSteamGame([FromBody] SteamGameDto steamGameDto)
-            => controllerExecutor.ExecuteAsync(this, () => steamBL.IgnoreSteamGame(steamGameDto));
+        [Route("ignore/{isIgnored}")]
+        public Task<IActionResult> IgnoreSteamGame([FromBody] SteamGameDto steamGameDto, [FromRoute] bool isIgnored)
+            => controllerExecutor.ExecuteAsync(this, () => steamBL.IgnoreSteamGame(steamGameDto, isIgnored));
 
         [HttpPut]
         [Route("game/{gameId}/reload")]

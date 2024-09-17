@@ -10,7 +10,7 @@ namespace GameService.API.Controllers
     public class GameController(IControllerExecutor controllerExecutor,
         IGameBL gameBL) : ControllerBase
     {
-        [HttpPost]
+        /*[HttpPost]
         public Task<IActionResult> CreateGame([FromBody] GameDto createGameDto)
             => controllerExecutor.ExecuteAsync(this, () => gameBL.CreateGame(createGameDto));
 
@@ -22,7 +22,7 @@ namespace GameService.API.Controllers
         [HttpGet]
         [Route("{gameId}")]
         public Task<IActionResult> GetGameById([FromRoute] Guid gameId)
-            => controllerExecutor.ExecuteAsync(this, () => gameBL.GetGameById(gameId));
+            => controllerExecutor.ExecuteAsync(this, () => gameBL.GetGameById(gameId));*/
 
         [HttpDelete]
         [Route("{gameId}")]

@@ -15,7 +15,7 @@ namespace GameService.API.Extensions.Entities
             achievementEntity.Percentage = achievementDto.Percentage;
             achievementEntity.Description = achievementDto.Description;
             achievementEntity.Name = achievementDto.Name;
-            achievementEntity.GameId = achievementDto.GameId;
+            achievementEntity.GameDetailId = achievementDto.GameId;
 
             return achievementEntity;
         }
@@ -43,7 +43,7 @@ namespace GameService.API.Extensions.Entities
             Id = achievementEntity.Id,
             Description = achievementEntity.Description,
             Name = achievementEntity.Name,
-            GameId = achievementEntity.GameId,
+            GameId = achievementEntity.GameDetailId,
             Percentage = achievementEntity.Percentage,
             Achievement = achievementEntity.Achieved
         };

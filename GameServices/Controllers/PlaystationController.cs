@@ -9,7 +9,7 @@ namespace GameService.API.Controllers
     [Route("api/v1/[controller]")]
     public class PlaystationController(IControllerExecutor controllerExecutor, IPlaystationBL playstationBL) : ControllerBase
     {
-        [HttpPut]
+        /*[HttpPut]
         [Route("token/{npsso}")]
         public Task<IActionResult> RefreshToken([FromRoute] string npsso)
             => controllerExecutor.ExecuteAsync(this, () => playstationBL.RefreshToken(npsso));
@@ -30,6 +30,6 @@ namespace GameService.API.Controllers
         [HttpPut]
         [Route("game/{gameId}/reload")]
         public Task<IActionResult> ReloadPlaystationGame([FromRoute] Guid gameId)
-            => controllerExecutor.ExecuteAsync(this, () => playstationBL.ReloadPlaystationGame(gameId));
+            => controllerExecutor.ExecuteAsync(this, () => playstationBL.ReloadPlaystationGame(gameId));*/
     }
 }

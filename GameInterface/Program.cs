@@ -28,6 +28,11 @@ builder.Services.AddHttpClient<ICategoryService, CategoryService>(client =>
     client.BaseAddress = new Uri($"{baseUri}category/");
 });
 
+builder.Services.AddHttpClient<IPlatformService, PlatformService>(client =>
+{
+    client.BaseAddress = new Uri($"{baseUri}platform/");
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

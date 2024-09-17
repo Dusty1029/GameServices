@@ -1,6 +1,5 @@
 ﻿using CommonV2.Extensions;
 using GameService.Infrastructure.Entities;
-using GameService.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -18,39 +17,19 @@ namespace GameService.Infrastructure.Configurations
                    .HasMaxLength(256)
                    .IsRequired();
 
-            builder.Property(x => x.SteamId)
-                   .IsRequired(false);
-
-            builder.Property(x => x.PlaystationId)
-                   .HasMaxLength(256)
-                   .IsRequired(false);
-
-            builder.Property(x => x.Platform)
-                   .IsRequired();
-
-            builder.Property(x => x.IsIgnored) 
-                   .HasDefaultValue(false)
-                   .IsRequired();
-
             //Relations
-            builder.HasMany(x => x.Achievements)
-                   .WithOne(x => x.Game)
-                   .HasForeignKey(x => x.GameId);
+
+            builder.HasOne(x => x.Serie)
+                   .WithMany(x => x.Games)
+                   .HasForeignKey(x => x.SerieId);
 
             builder.HasMany(x => x.Categories)
                    .WithMany(x => x.Games)
                    .UsingEntity($"{nameof(GameEntity).ToTableName()}{nameof(CategoryEntity).ToTableName()}");
 
-            //Indexes
-            builder.HasIndex(x => x.SteamId)
-                   .IsUnique();
-
-            builder.HasIndex(x => new { x.PlaystationId, x.Platform })
-                   .IsUnique();
-
-            builder.HasIndex(x => new { x.Name, x.Platform})
-                   .IsUnique();
-
+            builder.HasMany(x => x.GameDetails)
+                   .WithOne(x => x.Game)
+                   .HasForeignKey(x => x.GameId);
         }
     }
 }

@@ -5,12 +5,9 @@ using GameService.Infrastructure.Repositories.Interfaces;
 
 namespace GameService.Infrastructure.Repositories.Implementations
 {
-    public class GameRepository : GenericRepository<GameContext, GameEntity>, IGameRepository
+    public class GameRepository(GameContext context, ICancellationTokenService cancellationTokenService) :
+        GenericRepository<GameContext, GameEntity>(context, cancellationTokenService), IGameRepository
     {
-        public GameRepository(GameContext context, ICancellationTokenService cancellationTokenService) : base(context, cancellationTokenService)
-        {
-        }
-
         public async Task<GameEntity> CreateGame(GameEntity gameEntity, List<CategoryEntity>? categories)
         {
             var transaction = await Context.Database.BeginTransactionAsync();

@@ -1,6 +1,5 @@
 ﻿using CommonV2.Extensions;
 using GameService.Infrastructure.Entities;
-using GameService.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -27,24 +26,6 @@ namespace GameService.Infrastructure.Configurations
 
         private static List<CategoryEntity> CategoriesSeeded => new() 
         {
-            new()
-            {
-                Id = new Guid("2346a66c-0f40-4ea6-b61d-582865896b41"),
-                Name = "Jeux commencés",
-                IsSeed = true
-            },
-            new()
-            {
-                Id = new Guid("78b7740c-0a69-4dab-a4b1-14a39457a81a"),
-                Name = "Jeux terminés",
-                IsSeed = true
-            },
-            new()
-            {
-                Id = new Guid("2c9a7b53-183f-4971-9b8a-81c98816f05f"),
-                Name = "Jeux terminés à 100%",
-                IsSeed = true
-            },
             new()
             {
                 Id = new Guid("7958d93d-852e-4c14-8b55-9d6620821126"),

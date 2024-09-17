@@ -13,7 +13,7 @@ namespace GameService.API.BusinessLogics.Implementations
         IParameterRepository parameterRepository,
         IGameRepository gameRepository) : IPlaystationBL
     {
-        public async Task<Guid> AddPlaystationGame(GamePlaystation gamePlaystationDto)
+        /*public async Task<Guid> AddPlaystationGame(GamePlaystation gamePlaystationDto)
         {
             var actualToken = (await parameterRepository.GetPlaystationToken()) ?? "";
             var platformEnum = Enum.Parse<PlatformEnumEntity>(gamePlaystationDto.trophyTitlePlatform);
@@ -85,6 +85,6 @@ namespace GameService.API.BusinessLogics.Implementations
             });
 
             await gameRepository.SaveChanges();
-        }
+        }*/
     }
 }

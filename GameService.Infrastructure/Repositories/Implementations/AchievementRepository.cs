@@ -5,10 +5,8 @@ using GameService.Infrastructure.Repositories.Interfaces;
 
 namespace GameService.Infrastructure.Repositories.Implementations
 {
-    public class AchievementRepository : GenericRepository<GameContext, AchievementEntity>, IAchievementRepository
+    public class AchievementRepository(GameContext context, ICancellationTokenService cancellationTokenService) :
+        GenericRepository<GameContext, AchievementEntity>(context, cancellationTokenService), IAchievementRepository
     {
-        public AchievementRepository(GameContext context, ICancellationTokenService cancellationTokenService) : base(context, cancellationTokenService)
-        {
-        }
     }
 }
