@@ -44,7 +44,7 @@
         </MudTd>
     </RowTemplate>
     <PagerContent>
-        <MudTablePager RowsPerPageString="Jeux par page: "  AllItemsText="coucou"/>
+        <MudTablePager RowsPerPageString="Jeux par page: "/>
     </PagerContent>
 </MudTable>
 
@@ -58,7 +58,6 @@
     private MudTable<GameDto>? _table;
     private bool _loading;
     private string _searchGame = "";
-    private string _rowPerPage = "Jeux par page: ";
     private DialogOptions? _deleteDialogOptions;
 
     protected override async Task OnInitializedAsync()
@@ -76,6 +75,7 @@
 
     private async Task<TableData<GameDto>> SearchGames(TableState state, CancellationToken token)
     {
+        _loading = true;
         var games = await GameService.SearchGame(new()
         {
             Page = ++state.Page,
@@ -84,6 +84,7 @@
             PlatformId = _selectedPlatforms,
             CategoriesId = _selectedCategories.ToList()
         });
+        _loading = false;
 
         return new() { TotalItems = games.TotalItems, Items = games.Items };
     }

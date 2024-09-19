@@ -13,11 +13,11 @@ namespace GameService.API.BusinessLogics.Implementations
 {
     public class GameBL(IGameRepository gameRepository, IGameDetailRepository gameDetailRepository) : IGameBL
     {
-        /*public async Task<Guid> CreateGame(GameDto createGameDto)
+        public async Task<Guid> CreateGame(GameDto createGameDto)
         {
             var game = await gameRepository.CreateGame(createGameDto.ToEntity(), createGameDto.Categories?.Select(c => c.ToEntity()).ToList());
             return game.Id;
-        }*/
+        }
 
         public async Task DeleteGameById(Guid gameDetailId)
         {

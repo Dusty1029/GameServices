@@ -20,6 +20,7 @@ namespace GameService.API.BusinessLogics.Implementations
             var steamPlatformId = platformRepository.FindSelect(p => p.PlatformEnum == PlatformEnumEntity.Steam, f => f.Select(p => p.Id));
             var achievementsResult = steamApiGateway.GetAchievementByAppId(gameSteamDto.SteamId);
             var percentagesResult = steamApiGateway.GetAchievementPercentageByAppId(gameSteamDto.SteamId);
+
             await Task.WhenAll(achievementsResult, percentagesResult, steamPlatformId);
 
             var game = await gameRepository.InsertAndSave(gameSteamDto.ToEntity(achievementsResult.Result, percentagesResult.Result, steamPlatformId.Result));
@@ -30,10 +31,12 @@ namespace GameService.API.BusinessLogics.Implementations
         public async Task<List<SteamGameDto>> GetMissingSteamGames()
         {
             var steamIds = await gameDetailRepository.GetSelect(f => f.Select(g => g.SteamId), g => g.SteamId != null);
-            var ignoredSteamIds = await ignoredSteamGameRepository.GetSelect(i => i.Select(i => (int?)i.SteamId));
-            var steamGames = await steamApiGateway.GetSteamGames();
+            var ignoredSteamIds = ignoredSteamGameRepository.GetSelect(i => i.Select(i => (int?)i.SteamId));
+            var steamGames = steamApiGateway.GetSteamGames();
 
-            return steamGames?.Where(sg => !steamIds.Union(ignoredSteamIds).Contains(sg.appid)).OrderBy(sg => sg.name).Select(sg => sg.ToDto()).ToList() ?? [];
+            await Task.WhenAll(ignoredSteamIds, steamGames);
+
+            return steamGames.Result?.Where(sg => !steamIds.Union(ignoredSteamIds.Result).Contains(sg.appid)).OrderBy(sg => sg.name).Select(sg => sg.ToDto()).ToList() ?? [];
         }
 
         public async Task<int> IgnoreSteamGame(SteamGameDto gameSteamDto, bool isIgnored)
@@ -57,6 +60,7 @@ namespace GameService.API.BusinessLogics.Implementations
 
             var achievementsResult = steamApiGateway.GetAchievementByAppId(game.SteamId.Value);
             var percentagesResult = steamApiGateway.GetAchievementPercentageByAppId(game.SteamId.Value);
+
             await Task.WhenAll(achievementsResult, percentagesResult);
 
             game.Achievements?.ForEach(a =>

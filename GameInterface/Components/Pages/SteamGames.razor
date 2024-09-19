@@ -1,4 +1,5 @@
-﻿@page "/steamGames"
+﻿@page "/"
+@page "/steamGames"
 @inject ISteamService SteamService
 @inject ISnackbar Snackbar
 @rendermode InteractiveServer
@@ -18,11 +19,13 @@
     <RowTemplate>
         <MudTd DataLabel="Nom">@context.Name</MudTd>
         <MudTd>
-            <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="(_) => AddSteamGame(context)" />
+            <MudTooltip Text="Ajouter à la bibliothèque">
+                <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="(_) => AddSteamGame(context)" />
+            </MudTooltip>
         </MudTd>
         <MudTd>
             <MudTooltip Text="Ignorer">
-                <MudIconButton Icon="@Icons.Material.Filled.RemoveRedEye" OnClick="(_) => IgnoreSteamGame(context)" />
+                <MudIconButton Icon="@Icons.Material.Filled.VideogameAssetOff" OnClick="(_) => IgnoreSteamGame(context)" />
             </MudTooltip>
         </MudTd>
     </RowTemplate>
