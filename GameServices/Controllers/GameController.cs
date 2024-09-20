@@ -11,18 +11,18 @@ namespace GameService.API.Controllers
         IGameBL gameBL) : ControllerBase
     {
         [HttpPost]
-        public Task<IActionResult> CreateGame([FromBody] GameDto createGameDto)
+        public Task<IActionResult> CreateGame([FromBody] CreateGameDto createGameDto)
             => controllerExecutor.ExecuteAsync(this, () => gameBL.CreateGame(createGameDto));
 
         /*[HttpPut]
         [Route("{gameId}")]
         public Task<IActionResult> UpdateGame([FromRoute] Guid gameId, [FromBody] GameDto gameDto)
-            => controllerExecutor.ExecuteAsync(this, () => gameBL.UpdateGame(gameId, gameDto));
+            => controllerExecutor.ExecuteAsync(this, () => gameBL.UpdateGame(gameId, gameDto));*/
 
         [HttpGet]
         [Route("{gameId}")]
         public Task<IActionResult> GetGameById([FromRoute] Guid gameId)
-            => controllerExecutor.ExecuteAsync(this, () => gameBL.GetGameById(gameId));*/
+            => controllerExecutor.ExecuteAsync(this, () => gameBL.GetGameById(gameId));
 
         [HttpDelete]
         [Route("{gameId}")]

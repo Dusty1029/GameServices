@@ -1,7 +1,59 @@
 ﻿@page "/games/create"
 
-<h3>GameCreation</h3>
+@inject IPlatformService PlatformService
+@inject ICategoryService CategoryService
+@inject IGameService GameService
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+<div class="pa-4">
+    <MudPaper Class="pa-2">
+        <MudText Typo="Typo.h6">Création d'un jeu</MudText>
+        <MudForm Model="_createGame" @ref="_form">
+            <MudTextField Class="pa-2" @bind-Value="_createGame.Name" Immediate="true" Label="Nom" />
+            <MudSelect Class="pa-2" @bind-Value="_createGame.Platform" Label="Platform">
+                @foreach (var platform in _platforms)
+                {
+                    <MudSelectItem Value="platform">@platform.Name</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect Class="pa-2" @bind-SelectedValues="_createGame.Categories" Label="Categories" MultiSelection="true">
+                @foreach (var category in _categories)
+                {
+                    <MudSelectItem Value="category">@category.Name</MudSelectItem>
+                }
+            </MudSelect>
+            <div class="pa-2 d-flex align-center justify-space-between">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="CreateGame">Créer</MudButton>
+            </div>
+        </MudForm>
+    </MudPaper>
+</div>
+
 
 @code {
+    private MudForm? _form;
+    private CreateGameDto _createGame = new();
+    private List<PlatformDto> _platforms = [];
+    private List<CategoryDto> _categories = [];
 
+    protected override async Task OnInitializedAsync()
+    {
+        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
+
+        var categories = CategoryService.GetAllCategories();
+        var platforms = PlatformService.GetAllPlatforms();
+
+        await Task.WhenAll(categories, platforms);
+
+        _categories = categories.Result;
+        _platforms = platforms.Result;
+    }
+
+    private async Task CreateGame()
+    {
+        await GameService.CreateGame(_createGame);
+        Snackbar.Add($"Le jeu {_createGame.Name} a bien été créé.", Severity.Success);
+        Navigation.NavigateTo("/games");
+    }
 }

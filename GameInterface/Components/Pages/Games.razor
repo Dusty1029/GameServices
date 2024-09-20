@@ -5,19 +5,21 @@
 @inject IPlatformService PlatformService
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject NavigationManager Navigation
 
 <MudTable ServerData="SearchGames" Hover="true" Striped="true" Loading="@_loading" LoadingProgressColor="Color.Info" @ref="_table">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">Mes jeux</MudText>
+        <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <MudText Typo="Typo.h6">Mes jeux</MudText>
+            <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="NavigateToGameCreation" />
+        </MudStack>
     </ToolBarContent>
     <HeaderContent>
         <MudTh>
-            Nom
-            <MudTextField T="string" Immediate="true" ValueChanged="OnSearchGameChanged" Placeholder="Final Fantasy"></MudTextField>
+            <MudTextField T="string" Label="Nom" Immediate="true" ValueChanged="OnSearchGameChanged" Placeholder="Final Fantasy"></MudTextField>
         </MudTh>
         <MudTh>
-            Platform
-            <MudSelect T="PlatformDto" Clearable="true" ValueChanged="OnPlatformChanged" Placeholder="PS1">
+            <MudSelect T="PlatformDto" Label="Platform" Clearable="true" ValueChanged="OnPlatformChanged" Placeholder="PS1">
                 @foreach (var platform in _platforms)
                 {
                     <MudSelectItem Value="@platform">@platform.Name</MudSelectItem>
@@ -25,8 +27,7 @@
             </MudSelect>
         </MudTh>
         <MudTh>
-            Catégories
-            <MudSelect T="CategoryDto" Clearable="true" Placeholder="RPG" MultiSelection="true" SelectedValuesChanged="OnSelectedCategoriesChanged">
+            <MudSelect T="CategoryDto" Label="Catégories" Clearable="true" Placeholder="RPG" MultiSelection="true" SelectedValuesChanged="OnSelectedCategoriesChanged">
                 @foreach (var category in _categories)
                 {
                     <MudSelectItem Value="@category">@category.Name</MudSelectItem>
@@ -129,5 +130,10 @@
             Snackbar.Add($"Le jeu {game.Name} a bien été supprimé.", Severity.Success);
             ReloadData();
         }
+    }
+
+    private void NavigateToGameCreation()
+    {
+        Navigation.NavigateTo("/games/create");
     }
 }

@@ -11,11 +11,27 @@ using System.Linq.Expressions;
 
 namespace GameService.API.BusinessLogics.Implementations
 {
-    public class GameBL(IGameRepository gameRepository, IGameDetailRepository gameDetailRepository) : IGameBL
+    public class GameBL(IGameRepository gameRepository, 
+        IPlatformRepository platformRepository,
+        ICategoryRepository categoryRepository,
+        IGameDetailRepository gameDetailRepository) : IGameBL
     {
-        public async Task<Guid> CreateGame(GameDto createGameDto)
+        public async Task<Guid> CreateGame(CreateGameDto createGameDto)
         {
-            var game = await gameRepository.CreateGame(createGameDto.ToEntity(), createGameDto.Categories?.Select(c => c.ToEntity()).ToList());
+            if (!await platformRepository.Exists(p => p.Id == createGameDto.Platform!.Id)) 
+                throw new NotFoundException($"The platform with id [{createGameDto.Platform!.Id}] was not found.");
+
+            var categories = new List<CategoryEntity>();
+            if (createGameDto.Categories is not null)
+            {
+                var categoryIds = createGameDto.Categories.Select(c => c.Id);
+                categories = await categoryRepository.Get(c => categoryIds.Contains(c.Id));
+                var missingCategories = categoryIds.Except(categories.Select(c => c.Id));
+                if (missingCategories.Any())
+                    throw new NotFoundException($"The categories with id [{string.Join(", ", missingCategories)}] was not found.");
+            }
+
+            var game = await gameRepository.CreateGame(createGameDto.ToEntity(), categories);
             return game.Id;
         }
 
@@ -34,14 +50,14 @@ namespace GameService.API.BusinessLogics.Implementations
             }
         }
 
-        /*public async Task<GameDto> GetGameById(Guid gameId)
+        public async Task<GameDto> GetGameById(Guid gameId)
         {
-            var game = await gameRepository.Find(g => g.Id == gameId, f => f.Include(g => g.Categories).Include(g => g.Achievements));
+            var game = await gameDetailRepository.Find(g => g.Id == gameId, f => f.Include(g => g.Game).ThenInclude(g => g.Categories).Include(g => g.Achievements).Include(g => g.Platform));
             if (game is null)
                 throw new NotFoundException($"The game with id [{gameId}] was not found.");
 
             return game.ToDto();
-        }*/
+        }
 
         public async Task<PaginationResult<GameDto>> SearchGame(SearchGameDto searchGameDto)
         {

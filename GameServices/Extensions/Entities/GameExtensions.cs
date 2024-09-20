@@ -16,6 +16,18 @@ namespace GameService.API.Extensions.Entities
             Achievements = entity.Achievements?.Select(a => a.ToDto())?.ToList()
         };
 
+        public static GameEntity ToEntity(this CreateGameDto createGame) => new()
+        {
+            Name = createGame.Name,
+            GameDetails =
+            [
+                new()
+                {
+                    PlatformId = createGame.Platform!.Id
+                }
+            ]
+        };
+
         public static GameEntity ToEntity(this GameDto gameDto, GameEntity? gameEntity = null)
         {
             gameEntity ??= new();
