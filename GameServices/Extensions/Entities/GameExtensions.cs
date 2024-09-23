@@ -2,18 +2,26 @@
 using GameService.API.Models.PlaystationGateway;
 using GameService.API.Models.SteamGateway;
 using GameService.Infrastructure.Entities;
+using LinqKit;
 
 namespace GameService.API.Extensions.Entities
 {
     public static class GameExtensions
     {
-        public static GameDto ToDto(this GameDetailEntity entity) => new()
+        public static GameDto ToDto(this GameEntity entity) => new()
         {
             Id = entity.Id,
-            Name = entity.Game?.Name,
-            Platform = entity.Platform?.Name,
-            Categories = entity.Game?.Categories?.Select(c => c.ToDto())?.ToList(),
-            Achievements = entity.Achievements?.Select(a => a.ToDto())?.ToList()
+            Name = entity.Name,
+            Categories = entity.Categories!.Select(c => c.ToDto()),
+            GameDetails = entity.GameDetails!.Select(gd => gd.ToDto()).OrderByDescending(gd => gd.AchievementCompletion)
+        };
+
+        public static SearchGameItemDto ToSearchItemDto(this GameEntity entity) => new()
+        {
+            Id = entity.Id,
+            Name = entity.Name,
+            Platforms = string.Join(", ", entity.GameDetails!.Select(gd => gd.Platform!.Name)),
+            Categories = string.Join(", ", entity.Categories!.Select(c => c.Name))
         };
 
         public static GameEntity ToEntity(this CreateGameDto createGame) => new()
@@ -28,15 +36,10 @@ namespace GameService.API.Extensions.Entities
             ]
         };
 
-        public static GameEntity ToEntity(this GameDto gameDto, GameEntity? gameEntity = null)
+        public static void ToEntity(this UpdateGameDto gameDto, GameEntity gameEntity)
         {
-            gameEntity ??= new();
-
-            gameEntity.Id = gameDto.Id;
             gameEntity.Name = gameDto.Name;
-            //gameEntity.Platform = gameDto.Platform.ToEntity();
-
-            return gameEntity;
+            gameDto.GameDetails.ForEach(gd => gd.ToEntity(gameEntity.GameDetails!.First(gde => gde.Id == gd.Id)));
         }
 
         public static GameEntity ToEntity(this ResponseAchievementSteam responseAchievementSteamDto, int appId, List<AchievementPercentageSteam> achievementPercentages) => new()
@@ -60,15 +63,6 @@ namespace GameService.API.Extensions.Entities
             //Platform = Enum.Parse<PlatformEnumEntity>(gamePlaystationDto.trophyTitlePlatform),
             //PlaystationId = gamePlaystationDto.npCommunicationId,
             //Achievements = trophies.Select(t => t.ToEntity(trophiesEarned.First(te => te.trophyId == t.trophyId))).ToList()
-        };
-
-        public static GameDto ToDto(this GameEntity gameEntity) => new()
-        {
-            Id = gameEntity.Id,
-            Name = gameEntity.Name,
-            //Platform = gameEntity.Platform.ToDto(),
-            Categories = gameEntity.Categories?.Select(c => c.ToDto())?.ToList(),
-            //Achievements = gameEntity.Achievements?.Select(a => a.ToDto())?.ToList()
         };
     }
 }

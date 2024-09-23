@@ -13,6 +13,7 @@ namespace GameService.API.BusinessLogics.Implementations
         IGameDetailRepository gameDetailRepository,
         IIgnoredSteamGameRepository ignoredSteamGameRepository,
         IPlatformRepository platformRepository,
+        IAchievementRepository achievementRepository,
         ISteamApiGateway steamApiGateway) : ISteamBL
     {
         public async Task<Guid> AddSteamGame(SteamGameDto gameSteamDto)
@@ -52,22 +53,33 @@ namespace GameService.API.BusinessLogics.Implementations
 
         public async Task ReloadSteamGame(Guid gameDetailId)
         {
-            var game = await gameDetailRepository.Find(g => g.Id == gameDetailId, f => f.Include(g => g.Achievements), noTracking: false) ??
+            var gameDetail = await gameDetailRepository.Find(g => g.Id == gameDetailId, f => f.Include(g => g.Achievements), noTracking: false) ??
                 throw new NotFoundException($"The game with id [{gameDetailId}] was not found.");
 
-            if (!game.SteamId.HasValue)
+            if (!gameDetail.SteamId.HasValue)
                 throw new ValidationException($"The game with id [{gameDetailId}] has no steamId and can't be reloaded.");
 
-            var achievementsResult = steamApiGateway.GetAchievementByAppId(game.SteamId.Value);
-            var percentagesResult = steamApiGateway.GetAchievementPercentageByAppId(game.SteamId.Value);
+            var achievements = steamApiGateway.GetAchievementByAppId(gameDetail.SteamId.Value);
+            var percentages = steamApiGateway.GetAchievementPercentageByAppId(gameDetail.SteamId.Value);
 
-            await Task.WhenAll(achievementsResult, percentagesResult);
+            await Task.WhenAll(achievements, percentages);
 
-            game.Achievements?.ForEach(a =>
+            var achievementsResult = achievements.Result;
+            var percentagesResult = percentages.Result;
+
+            gameDetail.Achievements!.ForEach(a =>
             {
-                a.Achieved = achievementsResult.Result.FirstOrDefault(ac => ac.apiname == a.SteamName)?.achieved != 0;
-                a.Percentage = percentagesResult.Result.FirstOrDefault(p => p.name == a.SteamName)?.percent;
+                a.Achieved = achievementsResult.FirstOrDefault(ac => ac.apiname == a.SteamName)?.achieved != 0;
+                a.Percentage = percentagesResult.FirstOrDefault(p => p.name == a.SteamName)?.percent;
             });
+
+            achievementsResult.RemoveAll(a => gameDetail.Achievements!.Select(a => a.SteamName).Contains(a.apiname));
+            if (achievementsResult.Count != 0)
+            {
+                var achievementsEntity = achievementsResult.Select(a => a.ToEntity(percentagesResult.FirstOrDefault(p => p.name == a.apiname)?.percent)).ToList();
+                achievementsEntity.ForEach(ae => ae.GameDetailId = gameDetail.Id);
+                await achievementRepository.InsertRange(achievementsEntity);
+            }
 
             await gameRepository.SaveChanges();
         }

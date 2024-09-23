@@ -5,10 +5,11 @@ namespace GameService.API.BusinessLogics.Interfaces
 {
     public interface IGameBL
     {
+        Task<Guid> AddPlatformToAGame(Guid gameId, Guid platformId);
         Task<Guid> CreateGame(CreateGameDto createGameDto);
-        Task DeleteGameById(Guid gameDetailId);
+        Task DeleteGameByGameDetailId(Guid gameDetailId);
         Task<GameDto> GetGameById(Guid gameId);
-        Task<PaginationResult<GameDto>> SearchGame(SearchGameDto searchGameDto);
-        //Task UpdateGame(Guid gameId, GameDto gameDto);
+        Task<PaginationResult<SearchGameItemDto>> SearchGame(SearchGameDto searchGameDto);
+        Task UpdateGame(Guid gameId, UpdateGameDto gameDto);
     }
 }

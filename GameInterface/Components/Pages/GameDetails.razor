@@ -1,0 +1,246 @@
+﻿@page "/games/{GameId:guid}"
+
+@inject ICategoryService CategoryService
+@inject IGameService GameService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject IPlatformService PlatformService
+@inject ISteamService SteamService
+@inject NavigationManager NavigationManager
+
+<MudGrid class="pa-4">
+    @if (!_editMode)
+    {
+        <MudItem xs="11" />
+        <MudItem xs="1">
+            <MudMenu Icon="@Icons.Material.Filled.ArrowDropDown" Label="Actions" Style="align-self: auto;">
+                <MudButton OnClick="() => _editMode = !_editMode">Modifier</MudButton>
+                <MudButton OnClick="AddPlatform">Ajouter une platform</MudButton>
+            </MudMenu>
+        </MudItem>
+    }
+    <MudItem xs="12">
+        <MudPaper Elevation="2">
+            @if (!_editMode)
+            {
+                <MudText Align="Align.Center" Typo="Typo.h5">@_game?.Name</MudText>
+                <MudList T="CategoryDto">
+                    @if (@_game?.Categories.Count() > 0)
+                    {
+                        @foreach (var category in @_game!.Categories)
+                        {
+                            <MudListItem Text="@category.Name" />
+                        }
+                    }
+                    else
+                    {
+                        <MudListItem Text="Aucune catégorie"></MudListItem>
+                    }
+                </MudList>
+            }
+            else
+            {
+                <MudForm Model="_updateGame" @ref="_form">
+                    <MudTextField Class="pa-2" @bind-Value="_updateGame.Name" Immediate="true" Label="Nom" />
+                    <MudSelect Class="pa-2" @bind-SelectedValues="_updateGame.Categories" Label="Categories" MultiSelection="true">
+                        @foreach (var category in _categories)
+                        {
+                            <MudSelectItem Value="category">@category.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudForm>
+            }            
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12">
+        <MudPaper Elevation="2">
+            <MudTabs>
+                @foreach (var gameDetail in _game?.GameDetails ?? [])
+                {
+                    <MudTabPanel Text="@gameDetail.PlatformAndPercentage">
+                        <MudGrid>
+                            <MudItem xs="4">
+                                <MudCheckBox @bind-Value="@gameDetail.IsStarted" Disabled="!_editMode" Label="Commencé"></MudCheckBox>
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudCheckBox @bind-Value="@gameDetail.IsFinished" Disabled="!_editMode" Label="Terminé"></MudCheckBox>
+                            </MudItem>
+                            <MudItem xs="4">
+                                <MudTooltip Text="Supprimer la platform">
+                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="(_) => DeleteGameById(gameDetail)" />
+                                </MudTooltip>
+                                @if (gameDetail.Platform.PlatformEnum.HasValue)
+                                {
+                                    <MudTooltip Text="Recharger les succès">
+                                        <MudIconButton Icon="@Icons.Material.Filled.Refresh" OnClick="(_) => RefreshGame(gameDetail)" />
+                                    </MudTooltip>
+                                }
+                            </MudItem>
+                        </MudGrid>
+                         <MudList T="GameDetailDto">
+                            @if (gameDetail.Achievements.Count() > 0)
+                            {
+                                <MudListItem Text="Succès">
+                                    <NestedList>
+                                        @foreach (var achievement in gameDetail.Achievements)
+                                        {
+                                            <MudListItem>
+                                                <MudGrid>
+                                                    <MudItem xs="9" Style="display: flex; align-items: center">
+                                                        <MudTooltip Text="@achievement.Description">
+                                                            <MudText>@achievement.PercentageAndName</MudText>
+                                                        </MudTooltip>
+                                                    </MudItem>
+                                                    <MudItem xs="3">
+                                                        <MudCheckBox @bind-Value="@achievement.Achieved" Disabled="!gameDetail.Platform.PlatformEnum.HasValue"></MudCheckBox>
+                                                    </MudItem>
+                                                </MudGrid>
+                                            </MudListItem>
+                                        }
+                                    </NestedList>
+                                </MudListItem>
+                            }
+                            else
+                            {
+                                <MudListItem Text="Pas de succès" />
+                            }
+
+                            <MudListItem Text="Pas d'objectifs">
+
+                            </MudListItem>
+                         </MudList>
+                    </MudTabPanel>
+                }
+            </MudTabs>
+        </MudPaper>
+    </MudItem>
+    @if (_editMode)
+    {
+        <MudItem xs="9" />
+        <MudItem xs="3"  >
+                <MudButtonGroup Color="Color.Primary" Variant="Variant.Filled" OverrideStyles="false">
+                    <MudButton Variant="Variant.Filled" Color="Color.Default"  OnClick="() => _editMode = !_editMode">Annuler</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary"  OnClick="SaveChanges">Sauver</MudButton>
+                </MudButtonGroup>
+        </MudItem>
+    }
+    
+</MudGrid>
+
+@code {
+    [Parameter]
+    public Guid GameId { get; set; }
+
+    [SupplyParameterFromQuery]
+    private bool? Updated { get; set; }
+
+    private UpdateGameDto _updateGame = new();
+    private MudForm? _form;
+    private List<CategoryDto> _categories = [];
+    private List<PlatformDto>? _platforms;
+    private GameDto? _game;
+    private bool _editMode = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPage();
+    }
+
+    private async Task LoadPage()
+    {
+        var categories = CategoryService.GetAllCategories();
+        var game = GameService.GetGameById(GameId);
+
+        await Task.WhenAll(categories, game);
+
+        _categories = categories.Result;
+        _game = game.Result;
+        _updateGame = new()
+            {
+                Id = _game.Id,
+                Name = _game.Name,
+                Categories = _categories.Where(c => _game.Categories.Select(ca => ca.Id).Contains(c.Id)),
+                GameDetails = _game.GameDetails.Select(gd => new UpdateGameDetailDto { Id = gd.Id, IsFinished = gd.IsFinished, IsStarted = gd.IsStarted })
+            };
+    }
+
+    private async Task ReloadPage(string? snackBarMessage = null)
+    {
+        if (snackBarMessage is not null)
+            Snackbar.Add(snackBarMessage, Severity.Success);
+
+        await LoadPage();
+    }
+
+    private async Task SaveChanges()
+    {
+        _updateGame.GameDetails = _game!.GameDetails.Select(gd => new UpdateGameDetailDto { Id = gd.Id, IsFinished = gd.IsFinished, IsStarted = gd.IsStarted });
+        await GameService.UpdateGame(GameId, _updateGame);
+        await ReloadPage($"Le jeu {_game.Name} a bien été modifié");
+        _editMode = false;
+    }
+
+    private async Task DeleteGameById(GameDetailDto game)
+    {
+        var parameters = new DialogParameters<CustomDialog>
+        {
+            { x => x.ContentText, _game!.GameDetails.Count() > 1 ? $"Êtes-vous sûr de vouloir supprimer la platform {game.Platform.Name} ?" : $"Êtes-vous sûr de vouloir supprimer le jeu {_game.Name} ?" },
+            { x => x.ActionButtonText, "Supprimer" },
+            { x => x.Color, Color.Error }
+        };
+        var dialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialogReference = await DialogService.ShowAsync<CustomDialog>("Suppression", parameters, dialogOptions);
+        var response = await dialogReference.Result;
+
+        if (!response!.Canceled)
+        {
+            await GameService.DeleteGameById(game.Id);
+
+            if (_game!.GameDetails.Count() > 1)
+            {
+                await ReloadPage($"La platform {game.Platform.Name} a bien été supprimée du jeu {_game.Name}");
+            }
+            else
+            {
+                Snackbar.Add($"Le jeu {_game.Name} a bien été supprimé", Severity.Success);
+                NavigationManager.NavigateTo("/games");
+            }
+        }
+    }
+
+    private async Task RefreshGame(GameDetailDto game)
+    {
+        if (game.Platform.PlatformEnum == PlatformEnumDto.Steam)
+        {
+            await SteamService.ReloadSteamGame(game.Id);
+        }
+        else
+        {
+
+        }
+        await ReloadPage($"Les succès de la platform {game.Platform.Name} du jeu {_game!.Name} ont bien été rechargé");
+    }
+
+    private async Task AddPlatform()
+    {
+        _platforms ??= await PlatformService.GetAllPlatforms();
+        _platforms.RemoveAll(p => _game!.GameDetails.Select(gd => gd.Platform.Id).Contains(p.Id));
+
+        var parameters = new DialogParameters<AddPlatformToAGameDialog>
+        {
+            { x => x.Platforms, _platforms }
+        };
+        var dialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large };
+
+        var dialogReference = await DialogService.ShowAsync<AddPlatformToAGameDialog>("Ajout", parameters, dialogOptions);
+        var response = await dialogReference.Result;
+
+        if (!response!.Canceled)
+        {
+            var result = (PlatformDto)response!.Data!;
+            await GameService.AddPlatformToAGame(GameId, result.Id);
+            await ReloadPage($"La platform {result.Name} a bien été ajoutée au jeu {_game!.Name}");
+        }
+    }
+}

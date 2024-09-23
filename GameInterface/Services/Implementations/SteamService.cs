@@ -12,9 +12,6 @@ namespace GameInterface.Services.Implementations
 
         public Task<int> IgnoreSteamGame(SteamGameDto gameSteamDto, bool isIgnored) => httpClient.Post<int>(gameSteamDto, $"ignore/{isIgnored}");
 
-        public Task ReloadSteamGame(Guid gameId)
-        {
-            throw new NotImplementedException();
-        }
+        public Task ReloadSteamGame(Guid gameDetailId) => httpClient.Put(path: $"game/{gameDetailId}/reload");
     }
 }

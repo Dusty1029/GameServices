@@ -15,12 +15,11 @@ namespace GameService.API.Extensions.Entities
             achievementEntity.Percentage = achievementDto.Percentage;
             achievementEntity.Description = achievementDto.Description;
             achievementEntity.Name = achievementDto.Name;
-            achievementEntity.GameDetailId = achievementDto.GameId;
 
             return achievementEntity;
         }
 
-        public static AchievementEntity ToEntity(this AchievementSteam achievementSteamDto, decimal? percentage) => new()
+        public static AchievementEntity ToEntity(this AchievementSteam achievementSteamDto, decimal? percentage = null) => new()
         {
             Achieved = achievementSteamDto.achieved != 0,
             Description = achievementSteamDto.description,
@@ -43,9 +42,8 @@ namespace GameService.API.Extensions.Entities
             Id = achievementEntity.Id,
             Description = achievementEntity.Description,
             Name = achievementEntity.Name,
-            GameId = achievementEntity.GameDetailId,
             Percentage = achievementEntity.Percentage,
-            Achievement = achievementEntity.Achieved
+            Achieved = achievementEntity.Achieved
         };
     }
 }

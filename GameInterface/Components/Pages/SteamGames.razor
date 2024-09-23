@@ -39,7 +39,6 @@
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
         SteamGameDtos = await SteamService.GetMissingSteamGames();
         _loading = false;
     }

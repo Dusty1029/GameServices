@@ -14,10 +14,15 @@ namespace GameService.API.Controllers
         public Task<IActionResult> CreateGame([FromBody] CreateGameDto createGameDto)
             => controllerExecutor.ExecuteAsync(this, () => gameBL.CreateGame(createGameDto));
 
-        /*[HttpPut]
+        [HttpPost]
+        [Route("{gameId}/platform/{platformId}")]
+        public Task<IActionResult> AddPlatformToAGame([FromRoute] Guid gameId, [FromRoute] Guid platformId)
+            => controllerExecutor.ExecuteAsync(this, () => gameBL.AddPlatformToAGame(gameId, platformId));
+
+        [HttpPut]
         [Route("{gameId}")]
-        public Task<IActionResult> UpdateGame([FromRoute] Guid gameId, [FromBody] GameDto gameDto)
-            => controllerExecutor.ExecuteAsync(this, () => gameBL.UpdateGame(gameId, gameDto));*/
+        public Task<IActionResult> UpdateGame([FromRoute] Guid gameId, [FromBody] UpdateGameDto gameDto)
+            => controllerExecutor.ExecuteAsync(this, () => gameBL.UpdateGame(gameId, gameDto));
 
         [HttpGet]
         [Route("{gameId}")]
@@ -27,7 +32,7 @@ namespace GameService.API.Controllers
         [HttpDelete]
         [Route("{gameId}")]
         public Task<IActionResult> DeleteGameById([FromRoute] Guid gameId)
-            => controllerExecutor.ExecuteAsync(this, () => gameBL.DeleteGameById(gameId));
+            => controllerExecutor.ExecuteAsync(this, () => gameBL.DeleteGameByGameDetailId(gameId));
 
         [HttpPost]
         [Route("search")]

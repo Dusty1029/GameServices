@@ -1,6 +1,7 @@
 using GameInterface.Components;
 using GameInterface.Services.Implementations;
 using GameInterface.Services.Interfaces;
+using MudBlazor;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddMudServices();
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopRight;
+    config.SnackbarConfiguration.ClearAfterNavigation = false;
+});
 
 var baseUri = builder.Configuration["GameService:BaseUrl"];
 
@@ -32,6 +37,7 @@ builder.Services.AddHttpClient<IPlatformService, PlatformService>(client =>
 {
     client.BaseAddress = new Uri($"{baseUri}platform/");
 });
+
 
 var app = builder.Build();
 

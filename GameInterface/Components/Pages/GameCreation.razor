@@ -39,8 +39,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Snackbar.Configuration.PositionClass = Defaults.Classes.Position.TopRight;
-
         var categories = CategoryService.GetAllCategories();
         var platforms = PlatformService.GetAllPlatforms();
 

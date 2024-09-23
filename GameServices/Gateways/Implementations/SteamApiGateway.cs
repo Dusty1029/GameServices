@@ -31,7 +31,7 @@ namespace GameService.API.Gateways.Implementations
         public async Task<List<AchievementSteam>> GetAchievementByAppId(int appId)
         {
             try
-            {
+            { 
                 var builder = new UriBuilder(_steamOptions.Url + "/ISteamUserStats/GetPlayerAchievements/v0001/");
                 var query = HttpUtility.ParseQueryString(builder.Query);
                 AddBasicQueryParams(query);
