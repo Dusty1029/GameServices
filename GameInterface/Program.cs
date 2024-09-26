@@ -28,6 +28,11 @@ builder.Services.AddHttpClient<ISteamService, SteamService>(client =>
     client.BaseAddress = new Uri($"{baseUri}steam/");
 });
 
+builder.Services.AddHttpClient<IPlaystationService, PlaystationService>(client =>
+{
+    client.BaseAddress = new Uri($"{baseUri}playstation/");
+});
+
 builder.Services.AddHttpClient<ICategoryService, CategoryService>(client =>
 {
     client.BaseAddress = new Uri($"{baseUri}category/");

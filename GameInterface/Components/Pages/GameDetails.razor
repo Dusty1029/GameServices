@@ -6,6 +6,7 @@
 @inject IDialogService DialogService
 @inject IPlatformService PlatformService
 @inject ISteamService SteamService
+@inject IPlaystationService PlaystationService
 @inject NavigationManager NavigationManager
 
 <MudGrid class="pa-4">
@@ -209,17 +210,17 @@
         }
     }
 
-    private async Task RefreshGame(GameDetailDto game)
+    private async Task RefreshGame(GameDetailDto gameDetail)
     {
-        if (game.Platform.PlatformEnum == PlatformEnumDto.Steam)
+        if (gameDetail.Platform.PlatformEnum == PlatformEnumDto.Steam)
         {
-            await SteamService.ReloadSteamGame(game.Id);
+            await SteamService.ReloadSteamGame(gameDetail.Id);
         }
         else
         {
-
+            await PlaystationService.ReloadPlaystationGame(gameDetail.Id);
         }
-        await ReloadPage($"Les succès de la platform {game.Platform.Name} du jeu {_game!.Name} ont bien été rechargé");
+        await ReloadPage($"Les succès de la platform {gameDetail.Platform.Name} du jeu {_game!.Name} ont bien été rechargé");
     }
 
     private async Task AddPlatform()

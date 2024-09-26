@@ -4,6 +4,7 @@ using GameService.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GameService.Infrastructure.Migrations
 {
     [DbContext(typeof(GameContext))]
-    partial class GameContextModelSnapshot : ModelSnapshot
+    [Migration("20240925150749_AddIgnoredGameTable")]
+    partial class AddIgnoredGameTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -257,9 +260,6 @@ namespace GameService.Infrastructure.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<Guid>("PlatformId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("PlaystationId")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -270,8 +270,6 @@ namespace GameService.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Name");
-
-                    b.HasIndex("PlatformId");
 
                     b.HasIndex("PlaystationId")
                         .IsUnique()
@@ -488,17 +486,6 @@ namespace GameService.Infrastructure.Migrations
                     b.Navigation("GameDetail");
                 });
 
-            modelBuilder.Entity("GameService.Infrastructure.Entities.IgnoredGameEntity", b =>
-                {
-                    b.HasOne("GameService.Infrastructure.Entities.PlatformEntity", "Platform")
-                        .WithMany("IgnoredGames")
-                        .HasForeignKey("PlatformId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Platform");
-                });
-
             modelBuilder.Entity("GameService.Infrastructure.Entities.SerieEntity", b =>
                 {
                     b.HasOne("GameService.Infrastructure.Entities.SerieEntity", "ParentSerie")
@@ -534,8 +521,6 @@ namespace GameService.Infrastructure.Migrations
             modelBuilder.Entity("GameService.Infrastructure.Entities.PlatformEntity", b =>
                 {
                     b.Navigation("GameDetails");
-
-                    b.Navigation("IgnoredGames");
 
                     b.Navigation("WishGames");
                 });

@@ -5,8 +5,8 @@ using GameService.Infrastructure.Repositories.Interfaces;
 
 namespace GameService.Infrastructure.Repositories.Implementations
 {
-    public class IgnoredSteamGameRepository(GameContext context, ICancellationTokenService cancellationTokenService) :
-        GenericRepository<GameContext, IgnoredSteamGameEntity>(context, cancellationTokenService), IIgnoredSteamGameRepository
+    public class IgnoredGameRepository(GameContext context, ICancellationTokenService cancellationTokenService) :
+        GenericRepository<GameContext, IgnoredGameEntity>(context, cancellationTokenService), IIgnoredGameRepository
     {
 
     }

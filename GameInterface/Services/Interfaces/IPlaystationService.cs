@@ -1,8 +1,8 @@
 ﻿using Game.Dto;
 
-namespace GameService.API.BusinessLogics.Interfaces
+namespace GameInterface.Services.Interfaces
 {
-    public interface IPlaystationBL
+    public interface IPlaystationService
     {
         Task<Guid> AddPlaystationGame(PlaystationGameDto gamePlaystationDto);
         Task IgnorePlaystationGame(PlaystationGameDto gamePlaystationDto, bool isIgnored);

@@ -10,5 +10,6 @@ namespace GameService.Infrastructure.Entities
         public PlatformEnumEntity? PlatformEnum { get; set; }
         public List<GameDetailEntity>? GameDetails { get; set; }
         public List<WishGameEntity>? WishGames { get; set; }
+        public List<IgnoredGameEntity>? IgnoredGames { get; set; }
     }
 }

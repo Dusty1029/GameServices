@@ -3,7 +3,7 @@ using GameService.Infrastructure.Entities;
 
 namespace GameService.Infrastructure.Repositories.Interfaces
 {
-    public interface IIgnoredSteamGameRepository : IGenericRepository<GameContext, IgnoredSteamGameEntity>
+    public interface IIgnoredGameRepository : IGenericRepository<GameContext, IgnoredGameEntity>
     {
     }
 }

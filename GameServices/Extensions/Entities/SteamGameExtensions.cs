@@ -1,7 +1,6 @@
 ﻿using Game.Dto;
 using GameService.API.Models.SteamGateway;
 using GameService.Infrastructure.Entities;
-using GameService.Infrastructure.Entities.Enums;
 
 namespace GameService.API.Extensions.Entities
 {
@@ -27,7 +26,7 @@ namespace GameService.API.Extensions.Entities
             ]
         };
 
-        public static IgnoredSteamGameEntity ToEntity(this SteamGameDto steamGameDto) => new()
+        public static IgnoredGameEntity ToEntity(this SteamGameDto steamGameDto) => new()
         {
             Name = steamGameDto.Name,
             SteamId = steamGameDto.SteamId

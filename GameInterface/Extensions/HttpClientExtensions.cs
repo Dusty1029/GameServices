@@ -9,6 +9,7 @@
             var response = await httpClient.PostAsJsonAsync(path, body);
             return (await response.Content.ReadFromJsonAsync<TResult>())!;
         }
+        public static Task Post(this HttpClient httpClient, object? body = null, string path = "") => httpClient.PostAsJsonAsync(path, body);
         public static async Task<TResult> Put<TResult>(this HttpClient httpClient, object? body = null, string path = "")
         {
             var response = await httpClient.PutAsJsonAsync(path, body);

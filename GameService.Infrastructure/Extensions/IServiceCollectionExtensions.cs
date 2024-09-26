@@ -13,7 +13,7 @@ namespace GameService.Infrastructure.Extensions
             services.AddScoped<IGameRepository, GameRepository>();
             services.AddScoped<IParameterRepository, ParameterRepository>();
             services.AddScoped<IGameDetailRepository, GameDetailRepository>();
-            services.AddScoped<IIgnoredSteamGameRepository, IgnoredSteamGameRepository>();
+            services.AddScoped<IIgnoredGameRepository, IgnoredGameRepository>();
             services.AddScoped<IPlatformRepository, PlatformRepository>();
         }
     }

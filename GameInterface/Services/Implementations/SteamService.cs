@@ -10,7 +10,7 @@ namespace GameInterface.Services.Implementations
 
         public Task<List<SteamGameDto>> GetMissingSteamGames() => httpClient.Get<List<SteamGameDto>>();
 
-        public Task<int> IgnoreSteamGame(SteamGameDto gameSteamDto, bool isIgnored) => httpClient.Post<int>(gameSteamDto, $"ignore/{isIgnored}");
+        public Task IgnoreSteamGame(SteamGameDto gameSteamDto, bool isIgnored) => httpClient.Post(gameSteamDto, $"ignore/{isIgnored}");
 
         public Task ReloadSteamGame(Guid gameDetailId) => httpClient.Put(path: $"game/{gameDetailId}/reload");
     }

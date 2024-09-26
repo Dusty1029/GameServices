@@ -1,6 +1,6 @@
 ﻿using CommonV2.Helpers.Controller;
+using Game.Dto;
 using GameService.API.BusinessLogics.Interfaces;
-using GameService.API.Models.PlaystationGateway;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GameService.API.Controllers
@@ -9,7 +9,7 @@ namespace GameService.API.Controllers
     [Route("api/v1/[controller]")]
     public class PlaystationController(IControllerExecutor controllerExecutor, IPlaystationBL playstationBL) : ControllerBase
     {
-        /*[HttpPut]
+        [HttpPut]
         [Route("token/{npsso}")]
         public Task<IActionResult> RefreshToken([FromRoute] string npsso)
             => controllerExecutor.ExecuteAsync(this, () => playstationBL.RefreshToken(npsso));
@@ -17,19 +17,19 @@ namespace GameService.API.Controllers
         [HttpGet]
         public Task<IActionResult> GetMissingSteamGames()
             => controllerExecutor.ExecuteAsync(this, () => playstationBL.GetMissingPlaystationGames());
-
+        
         [HttpPost]
-        public Task<IActionResult> AddPlaystationGame([FromBody] GamePlaystation gamePlaystationDto)
+        public Task<IActionResult> AddPlaystationGame([FromBody] PlaystationGameDto gamePlaystationDto)
             => controllerExecutor.ExecuteAsync(this, () => playstationBL.AddPlaystationGame(gamePlaystationDto));
 
         [HttpPost]
-        [Route("ignore")]
-        public Task<IActionResult> IgnorePlaystationGame([FromBody] GamePlaystation gameSteamDto)
-            => controllerExecutor.ExecuteAsync(this, () => playstationBL.IgnorePlaystationGame(gameSteamDto));
+        [Route("ignore/{isIgnored}")]
+        public Task<IActionResult> IgnorePlaystationGame([FromBody] PlaystationGameDto gamePlaystationDto, [FromRoute] bool isIgnored)
+            => controllerExecutor.ExecuteAsync(this, () => playstationBL.IgnorePlaystationGame(gamePlaystationDto, isIgnored));
 
         [HttpPut]
-        [Route("game/{gameId}/reload")]
-        public Task<IActionResult> ReloadPlaystationGame([FromRoute] Guid gameId)
-            => controllerExecutor.ExecuteAsync(this, () => playstationBL.ReloadPlaystationGame(gameId));*/
+        [Route("game/{gameDetailId}/reload")]
+        public Task<IActionResult> ReloadPlaystationGame([FromRoute] Guid gameDetailId)
+            => controllerExecutor.ExecuteAsync(this, () => playstationBL.ReloadPlaystationGame(gameDetailId));
     }
 }

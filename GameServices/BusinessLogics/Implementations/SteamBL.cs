@@ -11,14 +11,14 @@ namespace GameService.API.BusinessLogics.Implementations
 {
     public class SteamBL(IGameRepository gameRepository,
         IGameDetailRepository gameDetailRepository,
-        IIgnoredSteamGameRepository ignoredSteamGameRepository,
+        IIgnoredGameRepository ignoredGameRepository,
         IPlatformRepository platformRepository,
         IAchievementRepository achievementRepository,
         ISteamApiGateway steamApiGateway) : ISteamBL
     {
         public async Task<Guid> AddSteamGame(SteamGameDto gameSteamDto)
         {
-            var steamPlatformId = platformRepository.FindSelect(p => p.PlatformEnum == PlatformEnumEntity.Steam, f => f.Select(p => p.Id));
+            var steamPlatformId = GetSteamPlatformId();
             var achievementsResult = steamApiGateway.GetAchievementByAppId(gameSteamDto.SteamId);
             var percentagesResult = steamApiGateway.GetAchievementPercentageByAppId(gameSteamDto.SteamId);
 
@@ -32,7 +32,7 @@ namespace GameService.API.BusinessLogics.Implementations
         public async Task<List<SteamGameDto>> GetMissingSteamGames()
         {
             var steamIds = await gameDetailRepository.GetSelect(f => f.Select(g => g.SteamId), g => g.SteamId != null);
-            var ignoredSteamIds = ignoredSteamGameRepository.GetSelect(i => i.Select(i => (int?)i.SteamId));
+            var ignoredSteamIds = ignoredGameRepository.GetSelect(i => i.Select(i => (int?)i.SteamId));
             var steamGames = steamApiGateway.GetSteamGames();
 
             await Task.WhenAll(ignoredSteamIds, steamGames);
@@ -40,15 +40,22 @@ namespace GameService.API.BusinessLogics.Implementations
             return steamGames.Result?.Where(sg => !steamIds.Union(ignoredSteamIds.Result).Contains(sg.appid)).OrderBy(sg => sg.name).Select(sg => sg.ToDto()).ToList() ?? [];
         }
 
-        public async Task<int> IgnoreSteamGame(SteamGameDto gameSteamDto, bool isIgnored)
+        public async Task IgnoreSteamGame(SteamGameDto gameSteamDto, bool isIgnored)
         {
             if (isIgnored)
             {
+                var steamPlatformId = await GetSteamPlatformId();
                 var ignoredSteamGame = gameSteamDto.ToEntity();
-                await ignoredSteamGameRepository.InsertAndSave(ignoredSteamGame);
+                ignoredSteamGame.PlatformId = steamPlatformId;
+                await ignoredGameRepository.InsertAndSave(ignoredSteamGame);
             }
+            else
+            {
+                var ignoredGameEntity = await ignoredGameRepository.Find(ig => ig.SteamId == gameSteamDto.SteamId) ??
+                    throw new NotFoundException($"The game with steam id [{gameSteamDto.SteamId}] was not found.");
 
-            return gameSteamDto.SteamId;
+                await ignoredGameRepository.DeleteAndSave(ignoredGameEntity);
+            }
         }
 
         public async Task ReloadSteamGame(Guid gameDetailId)
@@ -83,5 +90,7 @@ namespace GameService.API.BusinessLogics.Implementations
 
             await gameRepository.SaveChanges();
         }
+
+        private Task<Guid> GetSteamPlatformId() => platformRepository.FindSelect(p => p.PlatformEnum == PlatformEnumEntity.Steam, f => f.Select(p => p.Id));
     }
 }

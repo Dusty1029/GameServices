@@ -1,70 +1,40 @@
 ﻿@page "/steamGames"
 @inject ISteamService SteamService
 @inject ISnackbar Snackbar
-@rendermode InteractiveServer
 
-<MudTable Items="@SteamGameDtos" Hover="true" Striped="true" Loading="@_loading" LoadingProgressColor="Color.Info" Filter="new Func<SteamGameDto,bool>(FilterFunc)">
-    <ToolBarContent>
-        <MudText Typo="Typo.h6">Jeux Steam à récupérer</MudText>
-    </ToolBarContent>
-    <HeaderContent>
-        <MudTh>
-            Nom
-            <MudTextField T="string" @bind-Value="@_searchGame" Immediate="true" Placeholder="Final Fantasy"></MudTextField>
-        </MudTh>
-        <MudTh></MudTh>
-        <MudTh></MudTh>
-    </HeaderContent>
-    <RowTemplate>
-        <MudTd DataLabel="Nom">@context.Name</MudTd>
-        <MudTd>
-            <MudTooltip Text="Ajouter à la bibliothèque">
-                <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="(_) => AddSteamGame(context)" />
-            </MudTooltip>
-        </MudTd>
-        <MudTd>
-            <MudTooltip Text="Ignorer">
-                <MudIconButton Icon="@Icons.Material.Filled.VideogameAssetOff" OnClick="(_) => IgnoreSteamGame(context)" />
-            </MudTooltip>
-        </MudTd>
-    </RowTemplate>
-</MudTable>
+<GamesLoaderComponent Title="Jeux steam à récupérer"
+    Games="LoaderSteamGames"
+    LoadGame="LoadSteamGames"
+    AddGame="AddSteamGame"
+    IgnoreGame="IgnoreSteamGame">
+</GamesLoaderComponent>
 
 
 @code {
+    private List<GameLoader> LoaderSteamGames { get; set; } = [];
     private List<SteamGameDto> SteamGameDtos { get; set; } = [];
-    private bool _loading;
-    private string _searchGame = string.Empty;
 
-    protected override async Task OnInitializedAsync()
+    private async Task LoadSteamGames()
     {
-        _loading = true;
         SteamGameDtos = await SteamService.GetMissingSteamGames();
-        _loading = false;
+        LoaderSteamGames = SteamGameDtos.Select(sg => sg.ToGameLoader()).ToList();
     }
 
-    private async Task AddSteamGame(SteamGameDto steamGame)
+    private async Task AddSteamGame(GameLoader steamGame)
     {
-        await SteamService.AddSteamGame(steamGame);
+        var steamGameDto = FindSteamGame(steamGame);
+        await SteamService.AddSteamGame(steamGameDto);
         Snackbar.Add($"Le jeu {steamGame.Name} a bien été ajouté à votre bibliothèque.", Severity.Success);
-        SteamGameDtos?.Remove(steamGame);
+        SteamGameDtos.Remove(steamGameDto);
     }
 
-    private async Task IgnoreSteamGame(SteamGameDto steamGame)
+    private async Task IgnoreSteamGame(GameLoader steamGame)
     {
-        await SteamService.IgnoreSteamGame(steamGame, true);
+        var steamGameDto = FindSteamGame(steamGame);
+        await SteamService.IgnoreSteamGame(steamGameDto, true);
         Snackbar.Add($"Le jeu {steamGame.Name} a bien été ignoré.", Severity.Success);
-        SteamGameDtos?.Remove(steamGame);
+        SteamGameDtos.Remove(steamGameDto);
     }
 
-    private bool FilterFunc(SteamGameDto element) => FilterFunc(element, _searchGame);
-
-    private bool FilterFunc(SteamGameDto game, string searchString)
-    {
-        if (string.IsNullOrWhiteSpace(searchString))
-            return true;
-        if (game.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        return false;
-    }
+    private SteamGameDto FindSteamGame(GameLoader gameLoader) => SteamGameDtos.First(sg => sg.SteamId == int.Parse(gameLoader.Id));
 }

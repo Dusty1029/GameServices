@@ -2,10 +2,9 @@
     <MudText Typo="Typo.h6" Class="px-4">@TitleMenu</MudText>
     <MudNavLink Href="/" Icon="@Icons.Material.Filled.VideogameAsset" IconColor="Color.Inherit" Match="NavLinkMatch.All">Jeux</MudNavLink>
     <MudNavLink Href="/steamGames" Icon="@Icons.Custom.Brands.Steam" IconColor="Color.Inherit" Match="NavLinkMatch.Prefix">Steam</MudNavLink>
-    <MudNavLink Href="/weather" Match="NavLinkMatch.Prefix">Weather</MudNavLink>
+    <MudNavLink Href="/playstationGames" Icon="@Icons.Material.Filled.VideogameAsset" IconColor="Color.Inherit" Match="NavLinkMatch.Prefix">Playstation</MudNavLink>
 </MudNavMenu>
 
 @code {
     [Parameter] public string TitleMenu { get; set; } = string.Empty;
-    private string playstationIcon = @"";
 }
