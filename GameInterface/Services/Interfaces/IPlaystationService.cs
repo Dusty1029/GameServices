@@ -1,13 +1,14 @@
 ﻿using Game.Dto;
+using GameInterface.Models;
 
 namespace GameInterface.Services.Interfaces
 {
     public interface IPlaystationService
     {
-        Task<Guid> AddPlaystationGame(PlaystationGameDto gamePlaystationDto);
-        Task IgnorePlaystationGame(PlaystationGameDto gamePlaystationDto, bool isIgnored);
-        Task ReloadPlaystationGame(Guid gameDetailId);
-        Task<List<PlaystationGameDto>> GetMissingPlaystationGames();
-        Task RefreshToken(string npsso);
+        Task<ApiResult<Guid>> AddPlaystationGame(PlaystationGameDto gamePlaystationDto);
+        Task<ApiResult> IgnorePlaystationGame(PlaystationGameDto gamePlaystationDto, bool isIgnored);
+        Task<ApiResult> ReloadPlaystationGame(Guid gameDetailId);
+        Task<ApiResult<List<PlaystationGameDto>>> GetMissingPlaystationGames();
+        Task<ApiResult> RefreshToken(string npsso);
     }
 }

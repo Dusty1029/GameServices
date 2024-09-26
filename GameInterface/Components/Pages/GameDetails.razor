@@ -150,20 +150,24 @@
 
     private async Task LoadPage()
     {
-        var categories = CategoryService.GetAllCategories();
-        var game = GameService.GetGameById(GameId);
+        var getAllCategoriesResult = CategoryService.GetAllCategories();
+        var getGameByIdResult = GameService.GetGameById(GameId);
 
-        await Task.WhenAll(categories, game);
+        await Task.WhenAll(getAllCategoriesResult, getGameByIdResult);
 
-        _categories = categories.Result;
-        _game = game.Result;
-        _updateGame = new()
-            {
-                Id = _game.Id,
-                Name = _game.Name,
-                Categories = _categories.Where(c => _game.Categories.Select(ca => ca.Id).Contains(c.Id)),
-                GameDetails = _game.GameDetails.Select(gd => new UpdateGameDetailDto { Id = gd.Id, IsFinished = gd.IsFinished, IsStarted = gd.IsStarted })
-            };
+        if (getAllCategoriesResult.Result.IsSucceed && getGameByIdResult.Result.IsSucceed)
+        {
+            _categories = getAllCategoriesResult.Result.Result!;
+            _game = getGameByIdResult.Result.Result!;
+            _updateGame = new()
+                {
+                    Id = _game.Id,
+                    Name = _game.Name,
+                    Categories = _categories.Where(c => _game.Categories.Select(ca => ca.Id).Contains(c.Id)),
+                    GameDetails = _game.GameDetails.Select(gd => new UpdateGameDetailDto { Id = gd.Id, IsFinished = gd.IsFinished, IsStarted = gd.IsStarted })
+                };
+        }
+
     }
 
     private async Task ReloadPage(string? snackBarMessage = null)
@@ -177,9 +181,12 @@
     private async Task SaveChanges()
     {
         _updateGame.GameDetails = _game!.GameDetails.Select(gd => new UpdateGameDetailDto { Id = gd.Id, IsFinished = gd.IsFinished, IsStarted = gd.IsStarted });
-        await GameService.UpdateGame(GameId, _updateGame);
-        await ReloadPage($"Le jeu {_game.Name} a bien été modifié");
-        _editMode = false;
+        var updateGameResult = await GameService.UpdateGame(GameId, _updateGame);
+        if (updateGameResult.IsSucceed)
+        {
+            await ReloadPage($"Le jeu {_game.Name} a bien été modifié");
+            _editMode = false;
+        }
     }
 
     private async Task DeleteGameById(GameDetailDto game)
@@ -196,52 +203,77 @@
 
         if (!response!.Canceled)
         {
-            await GameService.DeleteGameById(game.Id);
+            var deleteGameResult = await GameService.DeleteGameById(game.Id);
 
-            if (_game!.GameDetails.Count() > 1)
+            if (deleteGameResult.IsSucceed)
             {
-                await ReloadPage($"La platform {game.Platform.Name} a bien été supprimée du jeu {_game.Name}");
-            }
-            else
-            {
-                Snackbar.Add($"Le jeu {_game.Name} a bien été supprimé", Severity.Success);
-                NavigationManager.NavigateTo("/games");
-            }
+                if (_game!.GameDetails.Count() > 1)
+                {
+                    await ReloadPage($"La platform {game.Platform.Name} a bien été supprimée du jeu {_game.Name}");
+                }
+                else
+                {
+                    Snackbar.Add($"Le jeu {_game.Name} a bien été supprimé", Severity.Success);
+                    NavigationManager.NavigateTo("/games");
+                }
+            }            
         }
     }
 
     private async Task RefreshGame(GameDetailDto gameDetail)
     {
+        ApiResult apiResult;
         if (gameDetail.Platform.PlatformEnum == PlatformEnumDto.Steam)
         {
-            await SteamService.ReloadSteamGame(gameDetail.Id);
+            apiResult = await SteamService.ReloadSteamGame(gameDetail.Id);
         }
         else
         {
-            await PlaystationService.ReloadPlaystationGame(gameDetail.Id);
+            apiResult = await PlaystationService.ReloadPlaystationGame(gameDetail.Id);
         }
-        await ReloadPage($"Les succès de la platform {gameDetail.Platform.Name} du jeu {_game!.Name} ont bien été rechargé");
+
+        if (apiResult.IsSucceed)
+        {
+            await ReloadPage($"Les succès de la platform {gameDetail.Platform.Name} du jeu {_game!.Name} ont bien été rechargé");
+        }
     }
 
     private async Task AddPlatform()
     {
-        _platforms ??= await PlatformService.GetAllPlatforms();
-        _platforms.RemoveAll(p => _game!.GameDetails.Select(gd => gd.Platform.Id).Contains(p.Id));
-
-        var parameters = new DialogParameters<AddPlatformToAGameDialog>
+        var noCallOrSucceed = true;
+        if (_platforms is null)
         {
-            { x => x.Platforms, _platforms }
-        };
-        var dialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large };
-
-        var dialogReference = await DialogService.ShowAsync<AddPlatformToAGameDialog>("Ajout", parameters, dialogOptions);
-        var response = await dialogReference.Result;
-
-        if (!response!.Canceled)
-        {
-            var result = (PlatformDto)response!.Data!;
-            await GameService.AddPlatformToAGame(GameId, result.Id);
-            await ReloadPage($"La platform {result.Name} a bien été ajoutée au jeu {_game!.Name}");
+            var getAllPlatformsResult = await PlatformService.GetAllPlatforms();
+            noCallOrSucceed = getAllPlatformsResult.IsSucceed;
+            if (getAllPlatformsResult.IsSucceed)
+            {
+                _platforms = getAllPlatformsResult.Result;
+            }
         }
+
+        if (noCallOrSucceed)
+        {
+            _platforms!.RemoveAll(p => _game!.GameDetails.Select(gd => gd.Platform.Id).Contains(p.Id));
+
+            var parameters = new DialogParameters<AddPlatformToAGameDialog>
+            {
+                { x => x.Platforms, _platforms }
+            };
+            var dialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large };
+
+            var dialogReference = await DialogService.ShowAsync<AddPlatformToAGameDialog>("Ajout", parameters, dialogOptions);
+            var response = await dialogReference.Result;
+
+            if (!response!.Canceled)
+            {
+                var result = (PlatformDto)response!.Data!;
+                var addPlatformToAGameResult = await GameService.AddPlatformToAGame(GameId, result.Id);
+                if (addPlatformToAGameResult.IsSucceed)
+                {
+                    await ReloadPage($"La platform {result.Name} a bien été ajoutée au jeu {_game!.Name}");
+                }
+            }
+        }
+        
     }
 }

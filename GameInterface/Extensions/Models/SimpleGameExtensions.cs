@@ -3,16 +3,15 @@ using GameInterface.Models;
 
 namespace GameInterface.Extensions.Models
 {
-    public static class GameLoaderExtensions
+    public static class SimpleGameExtensions
     {
-        public static GameLoader ToGameLoader(this SteamGameDto steamGameDto) => new() 
+        public static SimpleGame ToGameLoader(this SteamGameDto steamGameDto) => new() 
         { 
             Id = steamGameDto.SteamId.ToString(),
-            Name = steamGameDto.Name,
-            Platform = "Steam"
+            Name = steamGameDto.Name
         };
 
-        public static GameLoader ToGameLoader(this PlaystationGameDto playstationGame) => new()
+        public static SimpleGame ToGameLoader(this PlaystationGameDto playstationGame) => new()
         {
             Id = playstationGame.PlaystationId,
             Name = playstationGame.TrophyTitleName,

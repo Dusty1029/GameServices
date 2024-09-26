@@ -1,11 +1,12 @@
 ﻿using Game.Dto;
-using GameInterface.Extensions;
+using GameInterface.Models;
 using GameInterface.Services.Interfaces;
 
 namespace GameInterface.Services.Implementations
 {
-    public class CategoryService(HttpClient httpClient) : ICategoryService
+    public class CategoryService(IGenericService genericService) : ICategoryService
     {
-        public Task<List<CategoryDto>> GetAllCategories() => httpClient.Get<List<CategoryDto>>();
+        private readonly string beginPath = "category";
+        public Task<ApiResult<List<CategoryDto>>> GetAllCategories() => genericService.GetResult<List<CategoryDto>>(beginPath);
     }
 }

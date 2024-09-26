@@ -1,17 +1,18 @@
 ﻿using CommonV2.Models;
 using Game.Dto;
-using GameInterface.Extensions;
+using GameInterface.Models;
 using GameInterface.Services.Interfaces;
 
 namespace GameInterface.Services.Implementations
 {
-    public class GameService(HttpClient httpClient) : IGameService
+    public class GameService(IGenericService genericService) : IGameService
     {
-        public Task<Guid> AddPlatformToAGame(Guid gameId, Guid platformId) => httpClient.Post<Guid>(path: $"{gameId}/platform/{platformId}");
-        public Task<Guid> CreateGame(CreateGameDto createGameDto) => httpClient.Post<Guid>(createGameDto);
-        public Task DeleteGameById(Guid gameId) => httpClient.Delete($"{gameId}");
-        public Task<GameDto> GetGameById(Guid id) => httpClient.Get<GameDto>($"{id}");
-        public Task<PaginationResult<SearchGameItemDto>> SearchGame(SearchGameDto searchGameDto) => httpClient.Post<PaginationResult<SearchGameItemDto>>(searchGameDto, "search");
-        public Task UpdateGame(Guid gameId, UpdateGameDto gameDto) => httpClient.Put(gameDto, $"{gameId}");
+        private readonly string beginPath = "game";
+        public Task<ApiResult<Guid>> AddPlatformToAGame(Guid gameId, Guid platformId) => genericService.PostResult<Guid>(path: $"{beginPath}/{gameId}/platform/{platformId}");
+        public Task<ApiResult<Guid>> CreateGame(CreateGameDto createGameDto) => genericService.PostResult<Guid>(createGameDto, beginPath);
+        public Task<ApiResult> DeleteGameById(Guid gameId) => genericService.DeleteResult($"{beginPath}/{gameId}");
+        public Task<ApiResult<GameDto>> GetGameById(Guid id) => genericService.GetResult<GameDto>($"{beginPath}/{id}");
+        public Task<ApiResult<PaginationResult<SearchGameItemDto>>> SearchGame(SearchGameDto searchGameDto) => genericService.PostResult<PaginationResult<SearchGameItemDto>>(searchGameDto, $"{beginPath}/search");
+        public Task<ApiResult> UpdateGame(Guid gameId, UpdateGameDto gameDto) => genericService.PutResult(gameDto, $"{beginPath}/{gameId}");
     }
 }

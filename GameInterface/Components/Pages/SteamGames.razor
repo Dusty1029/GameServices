@@ -2,39 +2,54 @@
 @inject ISteamService SteamService
 @inject ISnackbar Snackbar
 
-<GamesLoaderComponent Title="Jeux steam à récupérer"
-    Games="LoaderSteamGames"
+<SimpleGamesComponent Options="SimpleGamesComponentOptions"
+    Games="SimpleGames"
     LoadGame="LoadSteamGames"
     AddGame="AddSteamGame"
     IgnoreGame="IgnoreSteamGame">
-</GamesLoaderComponent>
+</SimpleGamesComponent>
 
 
 @code {
-    private List<GameLoader> LoaderSteamGames { get; set; } = [];
+    private List<SimpleGame> SimpleGames { get; set; } = [];
     private List<SteamGameDto> SteamGameDtos { get; set; } = [];
+    private SimpleGamesComponentOptions SimpleGamesComponentOptions { get; set; } = new()
+    {
+        Title = "Jeux steam à récupérer",
+        HasColumnPlatform = false
+    };
 
     private async Task LoadSteamGames()
     {
-        SteamGameDtos = await SteamService.GetMissingSteamGames();
-        LoaderSteamGames = SteamGameDtos.Select(sg => sg.ToGameLoader()).ToList();
+        var getMissingSteamGamesResult = await SteamService.GetMissingSteamGames();
+        if (getMissingSteamGamesResult.IsSucceed)
+        {
+            SteamGameDtos = getMissingSteamGamesResult.Result!;
+            SimpleGames = SteamGameDtos.Select(sg => sg.ToGameLoader()).ToList();
+        }
     }
 
-    private async Task AddSteamGame(GameLoader steamGame)
+    private async Task AddSteamGame(SimpleGame steamGame)
     {
         var steamGameDto = FindSteamGame(steamGame);
-        await SteamService.AddSteamGame(steamGameDto);
-        Snackbar.Add($"Le jeu {steamGame.Name} a bien été ajouté à votre bibliothèque.", Severity.Success);
-        SteamGameDtos.Remove(steamGameDto);
+        var addSteamGameResult = await SteamService.AddSteamGame(steamGameDto);
+        if (addSteamGameResult.IsSucceed)
+        {
+            Snackbar.Add($"Le jeu {steamGame.Name} a bien été ajouté à votre bibliothèque.", Severity.Success);
+            SteamGameDtos.Remove(steamGameDto);
+        }
     }
 
-    private async Task IgnoreSteamGame(GameLoader steamGame)
+    private async Task IgnoreSteamGame(SimpleGame steamGame)
     {
         var steamGameDto = FindSteamGame(steamGame);
-        await SteamService.IgnoreSteamGame(steamGameDto, true);
-        Snackbar.Add($"Le jeu {steamGame.Name} a bien été ignoré.", Severity.Success);
-        SteamGameDtos.Remove(steamGameDto);
+        var ignoreSteamGameResult = await SteamService.IgnoreSteamGame(steamGameDto, true);
+        if (ignoreSteamGameResult.IsSucceed)
+        {
+            Snackbar.Add($"Le jeu {steamGame.Name} a bien été ignoré.", Severity.Success);
+            SteamGameDtos.Remove(steamGameDto);
+        }
     }
 
-    private SteamGameDto FindSteamGame(GameLoader gameLoader) => SteamGameDtos.First(sg => sg.SteamId == int.Parse(gameLoader.Id));
+    private SteamGameDto FindSteamGame(SimpleGame gameLoader) => SteamGameDtos.First(sg => sg.SteamId == int.Parse(gameLoader.Id));
 }

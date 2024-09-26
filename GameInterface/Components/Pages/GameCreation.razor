@@ -44,14 +44,20 @@
 
         await Task.WhenAll(categories, platforms);
 
-        _categories = categories.Result;
-        _platforms = platforms.Result;
+        if (categories.Result.IsSucceed && platforms.Result.IsSucceed)
+        {
+            _categories = categories.Result.Result!;
+            _platforms = platforms.Result.Result!;
+        }   
     }
 
     private async Task CreateGame()
     {
-        await GameService.CreateGame(_createGame);
-        Snackbar.Add($"Le jeu {_createGame.Name} a bien été créé.", Severity.Success);
-        Navigation.NavigateTo("/games");
+        var createGameResult = await GameService.CreateGame(_createGame);
+        if (createGameResult.IsSucceed)
+        {
+            Snackbar.Add($"Le jeu {_createGame.Name} a bien été créé.", Severity.Success);
+            Navigation.NavigateTo("/games");
+        }
     }
 }

@@ -68,19 +68,22 @@
     protected override async Task OnInitializedAsync()
     {
         _deleteDialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-        var categories = CategoryService.GetAllCategories();
-        var platforms = PlatformService.GetAllPlatforms();
+        var getAllCategoriesResult = CategoryService.GetAllCategories();
+        var getAllPlatformsResult = PlatformService.GetAllPlatforms();
 
-        await Task.WhenAll(categories, platforms);
+        await Task.WhenAll(getAllCategoriesResult, getAllPlatformsResult);
 
-        _categories = categories.Result;
-        _platforms = platforms.Result;
+        if (getAllCategoriesResult.Result.IsSucceed && getAllPlatformsResult.Result.IsSucceed)
+        {
+            _categories = getAllCategoriesResult.Result.Result!;
+            _platforms = getAllPlatformsResult.Result.Result!;
+        }        
     }
 
     private async Task<TableData<SearchGameItemDto>> SearchGames(TableState state, CancellationToken token)
     {
         _loading = true;
-        var games = await GameService.SearchGame(new()
+        var searchGamesResult = await GameService.SearchGame(new()
         {
             Page = ++state.Page,
             Size = state.PageSize,
@@ -90,7 +93,13 @@
         });
         _loading = false;
 
-        return new() { TotalItems = games.TotalItems, Items = games.Items };
+        if (searchGamesResult.IsSucceed)
+        {
+            var games = searchGamesResult.Result!;
+            return new() { TotalItems = games.TotalItems, Items = games.Items };
+        }
+
+        return new() { TotalItems = 0, Items = [] };
     }
 
     private void OnPlatformChanged(PlatformDto platform)
@@ -129,9 +138,12 @@
 
         if (!response!.Canceled)
         {
-            await GameService.DeleteGameById(game.Id);
-            Snackbar.Add($"Le jeu {game.Name} a bien été supprimé.", Severity.Success);
-            ReloadData();
+            var deleteGameByIdResult = await GameService.DeleteGameById(game.Id);
+            if (deleteGameByIdResult.IsSucceed)
+            {
+                Snackbar.Add($"Le jeu {game.Name} a bien été supprimé.", Severity.Success);
+                ReloadData();
+            }
         }
     }
 

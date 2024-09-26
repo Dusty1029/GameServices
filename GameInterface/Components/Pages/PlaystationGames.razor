@@ -2,39 +2,54 @@
 @inject IPlaystationService PlaystationService
 @inject ISnackbar Snackbar
 
-<GamesLoaderComponent Title="Jeux playstation à récupérer"
-                      Games="LoaderPlaystationGames"
+<SimpleGamesComponent Options="SimpleGamesComponentOptions"
+                      Games="SimpleGames"
                       LoadGame="LoadPlaystationGames"
                       AddGame="AddPlaystationGame"
                       IgnoreGame="IgnorePlaystationGame">
-</GamesLoaderComponent>
+</SimpleGamesComponent>
 
 
 @code {
-    private List<GameLoader> LoaderPlaystationGames { get; set; } = [];
+    private List<SimpleGame> SimpleGames { get; set; } = [];
     private List<PlaystationGameDto> PlaystationGameDtos { get; set; } = [];
+    private SimpleGamesComponentOptions SimpleGamesComponentOptions { get; set; } = new()
+    {
+        Title = "Jeux playstation à récupérer",
+        HasColumnPlatform = true
+    };
 
     private async Task LoadPlaystationGames()
     {
-        PlaystationGameDtos = await PlaystationService.GetMissingPlaystationGames();
-        LoaderPlaystationGames = PlaystationGameDtos.Select(sg => sg.ToGameLoader()).ToList();
+        var getMissingPlaystationGamesResult = await PlaystationService.GetMissingPlaystationGames();
+        if (getMissingPlaystationGamesResult.IsSucceed)
+        {
+            PlaystationGameDtos = getMissingPlaystationGamesResult.Result!;
+            SimpleGames = PlaystationGameDtos.Select(sg => sg.ToGameLoader()).ToList();
+        }
     }
 
-    private async Task AddPlaystationGame(GameLoader playstationGame)
+    private async Task AddPlaystationGame(SimpleGame playstationGame)
     {
         var steamGameDto = FindPlaystationGame(playstationGame);
-        await PlaystationService.AddPlaystationGame(steamGameDto);
-        Snackbar.Add($"Le jeu {playstationGame.Name} a bien été ajouté à votre bibliothèque.", Severity.Success);
-        PlaystationGameDtos.Remove(steamGameDto);
+        var addPlaystationGameResult = await PlaystationService.AddPlaystationGame(steamGameDto);
+        if (addPlaystationGameResult.IsSucceed)
+        {
+            Snackbar.Add($"Le jeu {playstationGame.Name} a bien été ajouté à votre bibliothèque.", Severity.Success);
+            PlaystationGameDtos.Remove(steamGameDto);
+        }
     }
 
-    private async Task IgnorePlaystationGame(GameLoader steamGame)
+    private async Task IgnorePlaystationGame(SimpleGame steamGame)
     {
         var steamGameDto = FindPlaystationGame(steamGame);
-        await PlaystationService.IgnorePlaystationGame(steamGameDto, true);
-        Snackbar.Add($"Le jeu {steamGame.Name} a bien été ignoré.", Severity.Success);
-        PlaystationGameDtos.Remove(steamGameDto);
+        var ignorePlaystationGameResult = await PlaystationService.IgnorePlaystationGame(steamGameDto, true);
+        if (ignorePlaystationGameResult.IsSucceed)
+        {
+            Snackbar.Add($"Le jeu {steamGame.Name} a bien été ignoré.", Severity.Success);
+            PlaystationGameDtos.Remove(steamGameDto);
+        }
     }
 
-    private PlaystationGameDto FindPlaystationGame(GameLoader gameLoader) => PlaystationGameDtos.First(sg => sg.PlaystationId == gameLoader.Id);
+    private PlaystationGameDto FindPlaystationGame(SimpleGame gameLoader) => PlaystationGameDtos.First(sg => sg.PlaystationId == gameLoader.Id);
 }

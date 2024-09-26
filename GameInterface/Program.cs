@@ -18,31 +18,15 @@ builder.Services.AddMudServices(config =>
 
 var baseUri = builder.Configuration["GameService:BaseUrl"];
 
-builder.Services.AddHttpClient<IGameService, GameService>(client =>
+builder.Services.AddHttpClient<IGenericService, GenericService>(client =>
 {
-    client.BaseAddress = new Uri($"{baseUri}game/");
+    client.BaseAddress = new Uri($"{baseUri}");
 });
-
-builder.Services.AddHttpClient<ISteamService, SteamService>(client =>
-{
-    client.BaseAddress = new Uri($"{baseUri}steam/");
-});
-
-builder.Services.AddHttpClient<IPlaystationService, PlaystationService>(client =>
-{
-    client.BaseAddress = new Uri($"{baseUri}playstation/");
-});
-
-builder.Services.AddHttpClient<ICategoryService, CategoryService>(client =>
-{
-    client.BaseAddress = new Uri($"{baseUri}category/");
-});
-
-builder.Services.AddHttpClient<IPlatformService, PlatformService>(client =>
-{
-    client.BaseAddress = new Uri($"{baseUri}platform/");
-});
-
+builder.Services.AddScoped<IPlaystationService, PlaystationService>();
+builder.Services.AddScoped<IGameService, GameService>();
+builder.Services.AddScoped<ISteamService, SteamService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IPlatformService, PlatformService>();
 
 var app = builder.Build();
 

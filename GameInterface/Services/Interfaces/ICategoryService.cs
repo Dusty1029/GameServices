@@ -1,9 +1,10 @@
 ﻿using Game.Dto;
+using GameInterface.Models;
 
 namespace GameInterface.Services.Interfaces
 {
     public interface ICategoryService
     {
-        Task<List<CategoryDto>> GetAllCategories();
+        Task<ApiResult<List<CategoryDto>>> GetAllCategories();
     }
 }

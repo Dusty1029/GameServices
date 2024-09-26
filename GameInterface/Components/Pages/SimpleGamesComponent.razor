@@ -1,21 +1,27 @@
-﻿<MudTable Items="@Games" Hover="true" Striped="true" Loading="@_loading" LoadingProgressColor="Color.Info" Filter="new Func<GameLoader,bool>(FilterFunc)">
+﻿<MudTable Items="@Games" Hover="true" Striped="true" Loading="@_loading" LoadingProgressColor="Color.Info" Filter="new Func<SimpleGame,bool>(FilterFunc)">
     <ToolBarContent>
-        <MudText Typo="Typo.h6">@Title</MudText>
+        <MudText Typo="Typo.h6">@Options.Title</MudText>
     </ToolBarContent>
     <HeaderContent>
         <MudTh>
             Nom
             <MudTextField T="string" @bind-Value="@_searchGame" Immediate="true" Placeholder="Final Fantasy"></MudTextField>
         </MudTh>
-        <MudTh>
-            Platform
-        </MudTh>
+        @if (Options.HasColumnPlatform)
+        {
+            <MudTh>
+                Platform
+            </MudTh>
+        }
         <MudTh></MudTh>
         <MudTh></MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Nom">@context.Name</MudTd>
-        <MudTd DataLabel="Platform">@context.Platform</MudTd>
+        @if (Options.HasColumnPlatform)
+        {
+            <MudTd DataLabel="Platform">@context.Platform</MudTd>
+        }
         <MudTd>
             <MudTooltip Text="Ajouter à la bibliothèque">
                 <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="(_) => InvokeAddGame(context)" />
@@ -32,13 +38,13 @@
 @code {
 
     [Parameter]
-    public List<GameLoader> Games { get; set; } = [];
+    public List<SimpleGame> Games { get; set; } = [];
     [Parameter]
-    public string Title { get; set; } = string.Empty;
+    public required SimpleGamesComponentOptions Options { get; set; }
     [Parameter]
-    public EventCallback<GameLoader> AddGame { get; set; }
+    public EventCallback<SimpleGame> AddGame { get; set; }
     [Parameter]
-    public EventCallback<GameLoader> IgnoreGame { get; set; }
+    public EventCallback<SimpleGame> IgnoreGame { get; set; }
     [Parameter]
     public EventCallback LoadGame { get; set; }
 
@@ -53,21 +59,21 @@
         _loading = false;
     }
 
-    private async Task InvokeAddGame(GameLoader steamGame)
+    private async Task InvokeAddGame(SimpleGame steamGame)
     {
         await AddGame.InvokeAsync(steamGame);
         Games.Remove(steamGame);
     }
 
-    private async Task InvokeIgnoreGame(GameLoader steamGame)
+    private async Task InvokeIgnoreGame(SimpleGame steamGame)
     {
         await IgnoreGame.InvokeAsync(steamGame);
         Games.Remove(steamGame);
     }
 
-    private bool FilterFunc(GameLoader element) => FilterFunc(element, _searchGame);
+    private bool FilterFunc(SimpleGame element) => FilterFunc(element, _searchGame);
 
-    private bool FilterFunc(GameLoader game, string searchString)
+    private bool FilterFunc(SimpleGame game, string searchString)
     {
         if (string.IsNullOrWhiteSpace(searchString))
             return true;

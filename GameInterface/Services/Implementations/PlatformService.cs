@@ -1,11 +1,12 @@
 ﻿using Game.Dto;
-using GameInterface.Extensions;
+using GameInterface.Models;
 using GameInterface.Services.Interfaces;
 
 namespace GameInterface.Services.Implementations
 {
-    public class PlatformService(HttpClient httpClient) : IPlatformService
+    public class PlatformService(IGenericService genericService) : IPlatformService
     {
-        public Task<List<PlatformDto>> GetAllPlatforms() => httpClient.Get<List<PlatformDto>>();
+        private readonly string beginPath = "platform";
+        public Task<ApiResult<List<PlatformDto>>> GetAllPlatforms() => genericService.GetResult<List<PlatformDto>>(beginPath);
     }
 }
