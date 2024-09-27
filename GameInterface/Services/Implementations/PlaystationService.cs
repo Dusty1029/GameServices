@@ -13,10 +13,7 @@ namespace GameInterface.Services.Implementations
 
         public Task<ApiResult> IgnorePlaystationGame(PlaystationGameDto gamePlaystationDto, bool isIgnored) => genericService.PostResult(gamePlaystationDto, $"{beginPath}/ignore/{isIgnored}");
 
-        public Task<ApiResult> RefreshToken(string npsso)
-        {
-            throw new NotImplementedException();
-        }
+        public Task<ApiResult> RefreshToken(string npsso) => genericService.PutResult(path: $"{beginPath}/token/{npsso}");
 
         public Task<ApiResult> ReloadPlaystationGame(Guid gameDetailId) => genericService.PutResult(path: $"{beginPath}/game/{gameDetailId}/reload");
     }

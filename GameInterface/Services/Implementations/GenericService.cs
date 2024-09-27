@@ -57,7 +57,8 @@ namespace GameInterface.Services.Implementations
                 return new()
                 {
                     IsSucceed = true,
-                    Result = result
+                    Result = result,
+                    HttpStatusCode = response.StatusCode
                 };
             }
             else
@@ -68,7 +69,8 @@ namespace GameInterface.Services.Implementations
                 {
                     IsSucceed = false,
                     ErrorMessage = errorResponse!.Message,
-                    Result = default
+                    Result = default,
+                    HttpStatusCode = response.StatusCode
                 };
             }
         }
@@ -78,7 +80,8 @@ namespace GameInterface.Services.Implementations
             {
                 return new()
                 {
-                    IsSucceed = true
+                    IsSucceed = true,
+                    HttpStatusCode = response.StatusCode
                 };
             }
             else
@@ -88,7 +91,8 @@ namespace GameInterface.Services.Implementations
                 return new()
                 {
                     IsSucceed = false,
-                    ErrorMessage = errorResponse!.Message
+                    ErrorMessage = errorResponse!.Message,
+                    HttpStatusCode = response.StatusCode
                 };
             }
         }
