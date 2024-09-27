@@ -7,7 +7,7 @@ namespace GameInterface.Services.Implementations
     public class SteamService(IGenericService genericService) : ISteamService
     {
         private readonly string beginPath = "steam";
-        public Task<ApiResult<Guid>> AddSteamGame(SteamGameDto gameSteamDto) => genericService.PostResult<Guid>(gameSteamDto, beginPath);
+        public Task<ApiResult<Guid>> AddSteamGame(CreateSteamGameDto gameSteamDto) => genericService.PostResult<Guid>(gameSteamDto, beginPath);
 
         public Task<ApiResult<List<SteamGameDto>>> GetMissingSteamGames() => genericService.GetResult<List<SteamGameDto>>(beginPath);
 

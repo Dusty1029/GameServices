@@ -15,7 +15,7 @@ namespace GameService.API.Controllers
             => controllerExecutor.ExecuteAsync(this, () => steamBL.GetMissingSteamGames());
 
         [HttpPost]
-        public Task<IActionResult> AddSteamGame([FromBody] SteamGameDto steamGameDto)
+        public Task<IActionResult> AddSteamGame([FromBody] CreateSteamGameDto steamGameDto)
             => controllerExecutor.ExecuteAsync(this, () => steamBL.AddSteamGame(steamGameDto));
 
         [HttpPost]

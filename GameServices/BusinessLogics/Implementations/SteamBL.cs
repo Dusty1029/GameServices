@@ -16,17 +16,32 @@ namespace GameService.API.BusinessLogics.Implementations
         IAchievementRepository achievementRepository,
         ISteamApiGateway steamApiGateway) : ISteamBL
     {
-        public async Task<Guid> AddSteamGame(SteamGameDto gameSteamDto)
-        {
+        public async Task<Guid> AddSteamGame(CreateSteamGameDto gameSteamDto)
+        { 
+            if (gameSteamDto.GameId.HasValue)
+            {
+                var gameExist = await gameRepository.Exists(g => g.Id == gameSteamDto.GameId.Value);
+                if (!gameExist)
+                    throw new NotFoundException($"The game with id [{gameSteamDto.GameId}] was not found.");
+            }
+
             var steamPlatformId = GetSteamPlatformId();
-            var achievementsResult = steamApiGateway.GetAchievementByAppId(gameSteamDto.SteamId);
-            var percentagesResult = steamApiGateway.GetAchievementPercentageByAppId(gameSteamDto.SteamId);
+            var achievementsResult = steamApiGateway.GetAchievementByAppId(gameSteamDto.SteamGame.SteamId);
+            var percentagesResult = steamApiGateway.GetAchievementPercentageByAppId(gameSteamDto.SteamGame.SteamId);
 
             await Task.WhenAll(achievementsResult, percentagesResult, steamPlatformId);
 
-            var game = await gameRepository.InsertAndSave(gameSteamDto.ToEntity(achievementsResult.Result, percentagesResult.Result, steamPlatformId.Result));
+            if (gameSteamDto.GameId.HasValue)
+            {
+                await gameDetailRepository.InsertAndSave(gameSteamDto.ToEntity(achievementsResult.Result, percentagesResult.Result, steamPlatformId.Result));
+            }
+            else
+            {
+                var game = await gameRepository.InsertAndSave(gameSteamDto.SteamGame.ToEntity(achievementsResult.Result, percentagesResult.Result, steamPlatformId.Result));
+                gameSteamDto.GameId = game.Id;
+            }           
 
-            return game.Id;
+            return gameSteamDto.GameId!.Value;
         }
 
         public async Task<List<SteamGameDto>> GetMissingSteamGames()

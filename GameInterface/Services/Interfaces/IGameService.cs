@@ -1,5 +1,6 @@
 ﻿using CommonV2.Models;
 using Game.Dto;
+using Game.Dto.Enums;
 using GameInterface.Models;
 
 namespace GameInterface.Services.Interfaces
@@ -12,5 +13,6 @@ namespace GameInterface.Services.Interfaces
         Task<ApiResult<Guid>> CreateGame(CreateGameDto createGameDto);
         Task<ApiResult> UpdateGame(Guid gameId, UpdateGameDto gameDto);
         Task<ApiResult<Guid>> AddPlatformToAGame(Guid gameId, Guid platformId);
+        Task<ApiResult<List<SimpleGameDto>>> SearchSimpleGame(string gameSearched, PlatformEnumDto? platformEnum);
     }
 }

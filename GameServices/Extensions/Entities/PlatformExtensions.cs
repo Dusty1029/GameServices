@@ -10,7 +10,7 @@ namespace GameService.API.Extensions.Entities
         {
             Id = platformEntity.Id,
             Name = platformEntity.Name,
-            PlatformEnum = platformEntity.PlatformEnum.ToDto()
+            PlatformEnum = platformEntity.PlatformEnum?.ToDto()
         };
     }
 }

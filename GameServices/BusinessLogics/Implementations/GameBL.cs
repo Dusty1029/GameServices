@@ -8,6 +8,8 @@ using GameService.API.Extensions.Entities;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using Game.Dto.Enums;
+using GameService.API.Extensions.Entities.Enums;
 
 namespace GameService.API.BusinessLogics.Implementations
 {
@@ -124,6 +126,18 @@ namespace GameService.API.BusinessLogics.Implementations
             await gameDetailRepository.InsertAndSave(gameDetailEntity);
 
             return gameDetailEntity.Id;
+        }
+
+        public async Task<List<SimpleGameDto>> SearchSimpleGame(string gameSearched, PlatformEnumDto? ignoredPlatform)
+        {
+            if (gameSearched.Length < 1)
+                return [];
+            var ignoredPlatformEnum = ignoredPlatform?.ToEntity();
+
+            return await gameRepository.GetSelect(f => f.Select(g => new SimpleGameDto { Id = g.Id, Name = g.Name }),
+                g => EF.Functions.Like(g.Name, $"%{gameSearched}%") && 
+                (!ignoredPlatformEnum.HasValue || !g.GameDetails!.Any(gd => gd.Platform!.PlatformEnum == ignoredPlatformEnum))
+            );
         }
     }
 }

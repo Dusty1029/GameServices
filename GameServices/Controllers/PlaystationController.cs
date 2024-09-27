@@ -19,7 +19,7 @@ namespace GameService.API.Controllers
             => controllerExecutor.ExecuteAsync(this, () => playstationBL.GetMissingPlaystationGames());
         
         [HttpPost]
-        public Task<IActionResult> AddPlaystationGame([FromBody] PlaystationGameDto gamePlaystationDto)
+        public Task<IActionResult> AddPlaystationGame([FromBody] CreatePlaystationGameDto gamePlaystationDto)
             => controllerExecutor.ExecuteAsync(this, () => playstationBL.AddPlaystationGame(gamePlaystationDto));
 
         [HttpPost]

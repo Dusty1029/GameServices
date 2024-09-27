@@ -1,4 +1,6 @@
-﻿namespace GameInterface.Models
+﻿using Game.Dto.Enums;
+
+namespace GameInterface.Models
 {
     public class SimpleGamesComponentOptions
     {

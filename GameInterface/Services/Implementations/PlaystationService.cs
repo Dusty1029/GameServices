@@ -7,7 +7,7 @@ namespace GameInterface.Services.Implementations
     public class PlaystationService(IGenericService genericService) : IPlaystationService
     {
         private readonly string beginPath = "playstation";
-        public Task<ApiResult<Guid>> AddPlaystationGame(PlaystationGameDto gamePlaystationDto) => genericService.PostResult<Guid>(gamePlaystationDto, beginPath);
+        public Task<ApiResult<Guid>> AddPlaystationGame(CreatePlaystationGameDto gamePlaystationDto) => genericService.PostResult<Guid>(gamePlaystationDto, beginPath);
 
         public Task<ApiResult<List<PlaystationGameDto>>> GetMissingPlaystationGames() => genericService.GetResult<List<PlaystationGameDto>>(beginPath);
 

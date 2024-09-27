@@ -1,5 +1,6 @@
 ﻿using CommonV2.Models;
 using Game.Dto;
+using Game.Dto.Enums;
 using GameInterface.Models;
 using GameInterface.Services.Interfaces;
 
@@ -13,6 +14,7 @@ namespace GameInterface.Services.Implementations
         public Task<ApiResult> DeleteGameById(Guid gameId) => genericService.DeleteResult($"{beginPath}/{gameId}");
         public Task<ApiResult<GameDto>> GetGameById(Guid id) => genericService.GetResult<GameDto>($"{beginPath}/{id}");
         public Task<ApiResult<PaginationResult<SearchGameItemDto>>> SearchGame(SearchGameDto searchGameDto) => genericService.PostResult<PaginationResult<SearchGameItemDto>>(searchGameDto, $"{beginPath}/search");
+        public Task<ApiResult<List<SimpleGameDto>>> SearchSimpleGame(string gameSearched, PlatformEnumDto? platformEnum) => genericService.PostResult<List<SimpleGameDto>>(platformEnum, $"{beginPath}/search/{gameSearched}");
         public Task<ApiResult> UpdateGame(Guid gameId, UpdateGameDto gameDto) => genericService.PutResult(gameDto, $"{beginPath}/{gameId}");
     }
 }

@@ -29,13 +29,13 @@
         }
     }
 
-    private async Task AddSteamGame(SimpleGame steamGame)
+    private async Task AddSteamGame(CreateSimpleGame steamGame)
     {
-        var steamGameDto = FindSteamGame(steamGame);
-        var addSteamGameResult = await SteamService.AddSteamGame(steamGameDto);
+        var steamGameDto = FindSteamGame(steamGame.Game);
+        var addSteamGameResult = await SteamService.AddSteamGame(new CreateSteamGameDto { GameId = steamGame.GameId, SteamGame = steamGameDto });
         if (addSteamGameResult.IsSucceed)
         {
-            Snackbar.Add($"Le jeu {steamGame.Name} a bien été ajouté à votre bibliothèque.", Severity.Success);
+            Snackbar.Add($"Le jeu {steamGame.Game.Name} a bien été ajouté à votre bibliothèque.", Severity.Success);
             SteamGameDtos.Remove(steamGameDto);
         }
     }

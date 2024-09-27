@@ -1,5 +1,6 @@
 ﻿using CommonV2.Helpers.Controller;
 using Game.Dto;
+using Game.Dto.Enums;
 using GameService.API.BusinessLogics.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,5 +39,10 @@ namespace GameService.API.Controllers
         [Route("search")]
         public Task<IActionResult> SearchGame([FromBody] SearchGameDto searchGameDto)
             => controllerExecutor.ExecuteAsync(this, () => gameBL.SearchGame(searchGameDto));
+
+        [HttpPost]
+        [Route("search/{gameSearched}")]
+        public Task<IActionResult> SearchSimpleGame([FromRoute] string gameSearched, [FromBody] PlatformEnumDto? ignoredPlatform)
+            => controllerExecutor.ExecuteAsync(this, () => gameBL.SearchSimpleGame(gameSearched, ignoredPlatform));
     }
 }

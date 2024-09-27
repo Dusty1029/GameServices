@@ -7,6 +7,7 @@ using GameService.API.Extensions.Entities;
 using GameService.API.Gateways.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Game.Dto;
+using GameService.API.Extensions.Entities.Enums;
 
 namespace GameService.API.BusinessLogics.Implementations
 {
@@ -18,27 +19,42 @@ namespace GameService.API.BusinessLogics.Implementations
         IIgnoredGameRepository ignoredGameRepository,
         IAchievementRepository achievementRepository) : IPlaystationBL
     {
-        public async Task<Guid> AddPlaystationGame(PlaystationGameDto gamePlaystationDto)
+        public async Task<Guid> AddPlaystationGame(CreatePlaystationGameDto gamePlaystationDto)
         {
+            if (gamePlaystationDto.GameId.HasValue)
+            {
+                var gameExist = await gameRepository.Exists(g => g.Id == gamePlaystationDto.GameId.Value);
+                if (!gameExist)
+                    throw new NotFoundException($"The game with id [{gamePlaystationDto.GameId}] was not found.");
+            }
+
             var actualToken = (await parameterRepository.GetPlaystationToken()) ?? "";
-            var platformEnum = Enum.Parse<PlatformEnumEntity>(gamePlaystationDto.TrophyTitlePlatform);
+            var platformEnum = gamePlaystationDto.PlaystationGame.TrophyTitlePlatform.ToEntity();
             var platformIdResult = GetPlaystationPlatformId(platformEnum);
 
-            var trophiesResult = playstationApiGateway.GetTrophiesByGame(actualToken, gamePlaystationDto.PlaystationId, platformEnum);
-            var trophiesEarnedResult = playstationApiGateway.GetTrophyEarnedsByGame(actualToken, gamePlaystationDto.PlaystationId, platformEnum);
+            var trophiesResult = playstationApiGateway.GetTrophiesByGame(actualToken, gamePlaystationDto.PlaystationGame.PlaystationId, platformEnum);
+            var trophiesEarnedResult = playstationApiGateway.GetTrophyEarnedsByGame(actualToken, gamePlaystationDto.PlaystationGame.PlaystationId, platformEnum);
 
             await Task.WhenAll(platformIdResult, trophiesResult, trophiesEarnedResult);
 
-            var game = await gameRepository.InsertAndSave(gamePlaystationDto.ToEntity(trophiesResult.Result, trophiesEarnedResult.Result, platformIdResult.Result));
+            if(gamePlaystationDto.GameId.HasValue)
+            {
+                await gameDetailRepository.InsertAndSave(gamePlaystationDto.ToEntity(trophiesResult.Result, trophiesEarnedResult.Result, platformIdResult.Result));
+            }
+            else
+            {
+                var game = await gameRepository.InsertAndSave(gamePlaystationDto.PlaystationGame.ToEntity(trophiesResult.Result, trophiesEarnedResult.Result, platformIdResult.Result));
+                gamePlaystationDto.GameId = game.Id;
+            }
 
-            return game.Id;
+            return gamePlaystationDto.GameId!.Value;
         }
 
         public async Task IgnorePlaystationGame(PlaystationGameDto gamePlaystationDto, bool isIgnored)
         {
             if (isIgnored)
             {
-                var platformEnum = Enum.Parse<PlatformEnumEntity>(gamePlaystationDto.TrophyTitlePlatform);
+                var platformEnum = gamePlaystationDto.TrophyTitlePlatform.ToEntity();
                 var platformIdResult = await GetPlaystationPlatformId(platformEnum);
 
                 var ignoredGameEntity = gamePlaystationDto.ToEntity();
@@ -123,10 +139,10 @@ namespace GameService.API.BusinessLogics.Implementations
                 )).ToList();
 
             playstationGamesSplited?.RemoveAll(pgs => ignoredPlaystationGameResult.Result.Any(
-                pg => pg.PlaystationId == pgs.PlaystationId && pg.Platform!.PlatformEnum.ToString() == pgs.TrophyTitlePlatform
+                pg => pg.PlaystationId == pgs.PlaystationId && pg.Platform!.PlatformEnum == pgs.TrophyTitlePlatform.ToEntity()
             ));
             playstationGamesSplited?.RemoveAll(pgs => playstationGames.Any(
-                pg => pg.PlaystationId == pgs.PlaystationId && pg.Platform!.PlatformEnum.ToString() == pgs.TrophyTitlePlatform
+                pg => pg.PlaystationId == pgs.PlaystationId && pg.Platform!.PlatformEnum == pgs.TrophyTitlePlatform.ToEntity()
             ));
 
             return playstationGamesSplited?.OrderBy(pg => pg.TrophyTitleName).ToList() ?? [];

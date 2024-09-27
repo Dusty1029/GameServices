@@ -26,6 +26,14 @@ namespace GameService.API.Extensions.Entities
             ]
         };
 
+        public static GameDetailEntity ToEntity(this CreateSteamGameDto gameSteamDto, List<AchievementSteam> achievements, List<AchievementPercentageSteam> achievementPercentages, Guid platformId) => new()
+        {
+            GameId = gameSteamDto.GameId!.Value,
+            SteamId = gameSteamDto.SteamGame.SteamId,
+            Achievements = achievements.Select(a => a.ToEntity(achievementPercentages.FirstOrDefault(ap => ap.name == a.apiname)?.percent)).ToList(),
+            PlatformId = platformId
+        };
+
         public static IgnoredGameEntity ToEntity(this SteamGameDto steamGameDto) => new()
         {
             Name = steamGameDto.Name,

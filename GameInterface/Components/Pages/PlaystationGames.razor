@@ -47,14 +47,14 @@
         }
     }
 
-    private async Task AddPlaystationGame(SimpleGame playstationGame)
+    private async Task AddPlaystationGame(CreateSimpleGame playstationGame)
     {
-        var steamGameDto = FindPlaystationGame(playstationGame);
-        var addPlaystationGameResult = await PlaystationService.AddPlaystationGame(steamGameDto);
+        var playstationGameDto = FindPlaystationGame(playstationGame.Game);
+        var addPlaystationGameResult = await PlaystationService.AddPlaystationGame(new CreatePlaystationGameDto { GameId = playstationGame.GameId, PlaystationGame = playstationGameDto });
         if (addPlaystationGameResult.IsSucceed)
         {
-            Snackbar.Add($"Le jeu {playstationGame.Name} a bien été ajouté à votre bibliothèque.", Severity.Success);
-            PlaystationGameDtos.Remove(steamGameDto);
+            Snackbar.Add($"Le jeu {playstationGame.Game.Name} a bien été ajouté à votre bibliothèque.", Severity.Success);
+            PlaystationGameDtos.Remove(playstationGameDto);
         }
         else if (addPlaystationGameResult.HttpStatusCode == HttpStatusCode.Unauthorized)
         {
@@ -62,14 +62,14 @@
         }
     }
 
-    private async Task IgnorePlaystationGame(SimpleGame steamGame)
+    private async Task IgnorePlaystationGame(SimpleGame playstationGame)
     {
-        var steamGameDto = FindPlaystationGame(steamGame);
-        var ignorePlaystationGameResult = await PlaystationService.IgnorePlaystationGame(steamGameDto, true);
+        var playstationGameDto = FindPlaystationGame(playstationGame);
+        var ignorePlaystationGameResult = await PlaystationService.IgnorePlaystationGame(playstationGameDto, true);
         if (ignorePlaystationGameResult.IsSucceed)
         {
-            Snackbar.Add($"Le jeu {steamGame.Name} a bien été ignoré.", Severity.Success);
-            PlaystationGameDtos.Remove(steamGameDto);
+            Snackbar.Add($"Le jeu {playstationGame.Name} a bien été ignoré.", Severity.Success);
+            PlaystationGameDtos.Remove(playstationGameDto);
         }
         else if (ignorePlaystationGameResult.HttpStatusCode == HttpStatusCode.Unauthorized)
         {
