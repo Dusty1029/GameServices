@@ -11,7 +11,14 @@ namespace GameService.API.Extensions.Entities
             Id = entity.Id,
             Name = entity.Name,
             Categories = entity.Categories!.Select(c => c.ToDto()),
-            GameDetails = entity.GameDetails!.Select(gd => gd.ToDto()).OrderByDescending(gd => gd.AchievementCompletion)
+            GameDetails = entity.GameDetails!.Select(gd => gd.ToDto()).OrderByDescending(gd => gd.AchievementCompletion),
+            Serie =  entity.Serie?.ToSimpleDto()
+        };
+
+        public static SimpleGameDto ToSimpleDto(this GameEntity entity) => new()
+        {
+            Id = entity.Id,
+            Name = entity.Name
         };
 
         public static SearchGameItemDto ToSearchItemDto(this GameEntity entity) => new()
@@ -19,17 +26,19 @@ namespace GameService.API.Extensions.Entities
             Id = entity.Id,
             Name = entity.Name,
             Platforms = string.Join(", ", entity.GameDetails!.Select(gd => gd.Platform!.Name)),
-            Categories = string.Join(", ", entity.Categories!.Select(c => c.Name))
+            Categories = string.Join(", ", entity.Categories!.Select(c => c.Name)),
+            Serie = entity.Serie?.Name ?? string.Empty
         };
 
         public static GameEntity ToEntity(this CreateGameDto createGame) => new()
         {
             Name = createGame.Name,
+            SerieId = createGame.Serie?.Id,
             GameDetails =
             [
                 new()
                 {
-                    PlatformId = createGame.Platform!.Id
+                    PlatformId = createGame.Platform!.Id,
                 }
             ]
         };
@@ -37,6 +46,7 @@ namespace GameService.API.Extensions.Entities
         public static void ToEntity(this UpdateGameDto gameDto, GameEntity gameEntity)
         {
             gameEntity.Name = gameDto.Name;
+            gameEntity.SerieId = gameDto.Serie?.Id;
             gameDto.GameDetails.ForEach(gd => gd.ToEntity(gameEntity.GameDetails!.First(gde => gde.Id == gd.Id)));
         }
     }

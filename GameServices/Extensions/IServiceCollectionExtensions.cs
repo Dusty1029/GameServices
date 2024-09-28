@@ -22,6 +22,7 @@ namespace GameService.API.Extensions
             services.AddScoped<ISteamBL, SteamBL>();
             services.AddScoped<IPlaystationBL, PlaystationBL>();
             services.AddScoped<IPlatformBL, PlatformBL>();
+            services.AddScoped<ISerieBL, SerieBL>();
         }
 
         public static void AddGateways(this IServiceCollection services)

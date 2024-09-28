@@ -10,7 +10,7 @@ namespace GameService.API.Controllers
         IPlatformBL platformBL) : ControllerBase
     {
         [HttpGet]
-        public Task<IActionResult> GetAllCategories()
+        public Task<IActionResult> GetAllPlatforms()
             => controllerExecutor.ExecuteAsync(this, () => platformBL.GetAllPlatforms());
 
         [HttpPost]

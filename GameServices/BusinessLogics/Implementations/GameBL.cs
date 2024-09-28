@@ -16,12 +16,16 @@ namespace GameService.API.BusinessLogics.Implementations
     public class GameBL(IGameRepository gameRepository, 
         IPlatformRepository platformRepository,
         ICategoryRepository categoryRepository,
-        IGameDetailRepository gameDetailRepository) : IGameBL
+        IGameDetailRepository gameDetailRepository,
+        ISerieRepository serieRepository) : IGameBL
     {
         public async Task<Guid> CreateGame(CreateGameDto createGameDto)
         {
             if (!await platformRepository.Exists(p => p.Id == createGameDto.Platform!.Id)) 
                 throw new NotFoundException($"The platform with id [{createGameDto.Platform!.Id}] was not found.");
+
+            if (createGameDto.Serie is not null && !await serieRepository.Exists(s => s.Id == createGameDto.Serie.Id))
+                throw new NotFoundException($"The serie with id [{createGameDto.Serie.Id}] was not found.");
 
             var categories = new List<CategoryEntity>();
             if (createGameDto.Categories is not null)
@@ -56,6 +60,7 @@ namespace GameService.API.BusinessLogics.Implementations
         {
             var game = await gameRepository.Find(g => g.Id == gameId,
                     f => f.Include(g => g.Categories!.OrderBy(c => c.Name))
+                          .Include(g => g.Serie)
                           .Include(g => g.GameDetails)!.ThenInclude(gd => gd.Platform)
                           .Include(g => g.GameDetails)!.ThenInclude(gd => gd.Achievements!.OrderByDescending(a => a.Percentage).ThenBy(a => a.Name))
                 );
@@ -69,7 +74,7 @@ namespace GameService.API.BusinessLogics.Implementations
                     searchGameDto.Size,
                     searchGameDto.Page,
                     BuildSearchPredicate(searchGameDto),
-                    include: query => query.Include(g => g.Categories!.OrderBy(c => c.Name)).Include(g => g.GameDetails)!.ThenInclude(gd => gd.Platform),
+                    include: query => query.Include(g => g.Categories!.OrderBy(c => c.Name)).Include(g => g.GameDetails)!.ThenInclude(gd => gd.Platform).Include(g => g.Serie),
                     orderBy: query => query.OrderBy(g => g.Name)
                 );
 
@@ -84,6 +89,7 @@ namespace GameService.API.BusinessLogics.Implementations
             var predicate = PredicateBuilder.New<GameEntity>();
             predicate = predicate.And(g => g.Name.ToLower().Contains(searchGameDto.Name.ToLower()));
             predicate = predicate.And(g => !searchGameDto.PlatformId.HasValue || g.GameDetails!.Select(gd => gd.PlatformId).Contains(searchGameDto.PlatformId.Value));
+            predicate = predicate.And(g => !searchGameDto.SerieId.HasValue || g.SerieId == searchGameDto.SerieId);
 
             if (searchGameDto.CategoriesId is not null)
             {

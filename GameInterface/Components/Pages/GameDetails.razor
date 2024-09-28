@@ -7,6 +7,7 @@
 @inject IPlatformService PlatformService
 @inject ISteamService SteamService
 @inject IPlaystationService PlaystationService
+@inject ISerieService SerieService
 @inject NavigationManager NavigationManager
 
 <MudGrid class="pa-4">
@@ -25,6 +26,7 @@
             @if (!_editMode)
             {
                 <MudText Align="Align.Center" Typo="Typo.h5">@_game?.Name</MudText>
+                <MudText Align="Align.Inherit">@_game?.Serie?.Serie</MudText>
                 <MudList T="CategoryDto">
                     @if (@_game?.Categories.Count() > 0)
                     {
@@ -43,6 +45,12 @@
             {
                 <MudForm Model="_updateGame" @ref="_form">
                     <MudTextField Class="pa-2" @bind-Value="_updateGame.Name" Immediate="true" Label="Nom" />
+                    <MudSelect Class="pa-2" @bind-Value="_updateGame.Serie" Label="Série" Clearable="true">
+                        @foreach (var serie in _series)
+                        {
+                            <MudSelectItem Value="serie">@serie.Serie</MudSelectItem>
+                        }
+                    </MudSelect>
                     <MudSelect Class="pa-2" @bind-SelectedValues="_updateGame.Categories" Label="Categories" MultiSelection="true">
                         @foreach (var category in _categories)
                         {
@@ -133,12 +141,10 @@
     [Parameter]
     public Guid GameId { get; set; }
 
-    [SupplyParameterFromQuery]
-    private bool? Updated { get; set; }
-
     private UpdateGameDto _updateGame = new();
     private MudForm? _form;
     private List<CategoryDto> _categories = [];
+    private List<SimpleSerieDto> _series = [];
     private List<PlatformDto>? _platforms;
     private GameDto? _game;
     private bool _editMode = false;
@@ -151,18 +157,21 @@
     private async Task LoadPage()
     {
         var getAllCategoriesResult = CategoryService.GetAllCategories();
+        var getAllSeriesResult = SerieService.GetAllSeries();
         var getGameByIdResult = GameService.GetGameById(GameId);
 
-        await Task.WhenAll(getAllCategoriesResult, getGameByIdResult);
+        await Task.WhenAll(getAllCategoriesResult, getGameByIdResult, getAllSeriesResult);
 
-        if (getAllCategoriesResult.Result.IsSucceed && getGameByIdResult.Result.IsSucceed)
+        if (getAllCategoriesResult.Result.IsSucceed && getGameByIdResult.Result.IsSucceed && getAllSeriesResult.Result.IsSucceed)
         {
             _categories = getAllCategoriesResult.Result.Result!;
+            _series = getAllSeriesResult.Result.Result!;
             _game = getGameByIdResult.Result.Result!;
             _updateGame = new()
                 {
                     Id = _game.Id,
                     Name = _game.Name,
+                    Serie = _series.FirstOrDefault(s => s.Id == _game.Serie?.Id),
                     Categories = _categories.Where(c => _game.Categories.Select(ca => ca.Id).Contains(c.Id)),
                     GameDetails = _game.GameDetails.Select(gd => new UpdateGameDetailDto { Id = gd.Id, IsFinished = gd.IsFinished, IsStarted = gd.IsStarted })
                 };

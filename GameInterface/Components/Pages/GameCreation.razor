@@ -3,6 +3,7 @@
 @inject IPlatformService PlatformService
 @inject ICategoryService CategoryService
 @inject IGameService GameService
+@inject ISerieService SerieService
 @inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 
@@ -11,6 +12,12 @@
         <MudText Typo="Typo.h6">Création d'un jeu</MudText>
         <MudForm Model="_createGame" @ref="_form">
             <MudTextField Class="pa-2" @bind-Value="_createGame.Name" Immediate="true" Label="Nom" />
+            <MudSelect Class="pa-2" @bind-Value="_createGame.Serie" Label="Série">
+                @foreach (var serie in _series)
+                {
+                    <MudSelectItem Value="serie">@serie.Serie</MudSelectItem>
+                }
+            </MudSelect>
             <MudSelect Class="pa-2" @bind-Value="_createGame.Platform" Label="Platform">
                 @foreach (var platform in _platforms)
                 {
@@ -36,18 +43,21 @@
     private CreateGameDto _createGame = new();
     private List<PlatformDto> _platforms = [];
     private List<CategoryDto> _categories = [];
+    private List<SimpleSerieDto> _series = [];
 
     protected override async Task OnInitializedAsync()
     {
         var categories = CategoryService.GetAllCategories();
         var platforms = PlatformService.GetAllPlatforms();
+        var series = SerieService.GetAllSeries();
 
-        await Task.WhenAll(categories, platforms);
+        await Task.WhenAll(categories, platforms, series);
 
-        if (categories.Result.IsSucceed && platforms.Result.IsSucceed)
+        if (categories.Result.IsSucceed && platforms.Result.IsSucceed && series.Result.IsSucceed)
         {
             _categories = categories.Result.Result!;
             _platforms = platforms.Result.Result!;
+            _series = series.Result.Result!;
         }   
     }
 

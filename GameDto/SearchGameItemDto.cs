@@ -7,5 +7,6 @@ namespace Game.Dto
         public string Name { get; set; } = string.Empty;
         public string Platforms { get; set; } = string.Empty;
         public string Categories { get; set; } = string.Empty;
+        public string Serie {  get; set; } = string.Empty;
     }
 }

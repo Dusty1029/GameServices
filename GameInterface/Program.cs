@@ -27,6 +27,7 @@ builder.Services.AddScoped<IGameService, GameService>();
 builder.Services.AddScoped<ISteamService, SteamService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IPlatformService, PlatformService>();
+builder.Services.AddScoped<ISerieService, SerieService>();
 
 var app = builder.Build();
 

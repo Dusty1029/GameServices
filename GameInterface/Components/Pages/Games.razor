@@ -3,6 +3,7 @@
 @inject IGameService GameService
 @inject ICategoryService CategoryService
 @inject IPlatformService PlatformService
+@inject ISerieService SerieService
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
@@ -21,7 +22,7 @@
         </ToolBarContent>
         <HeaderContent>
             <MudTh>
-                <MudTextField T="string" Label="Nom" Immediate="true" ValueChanged="OnSearchGameChanged" Placeholder="Final Fantasy"></MudTextField>
+                <MudTextField T="string" Label="Nom" Immediate="true" ValueChanged="OnSearchGameChanged" Placeholder="Final Fantasy VII"></MudTextField>
             </MudTh>
             <MudTh>
                 <MudSelect T="PlatformDto" Label="Platform" Clearable="true" ValueChanged="OnPlatformChanged" Placeholder="PS1">
@@ -39,12 +40,21 @@
                     }
                 </MudSelect>
             </MudTh>
+            <MudTh>
+                <MudSelect T="SimpleSerieDto" Label="Série" Clearable="true" ValueChanged="OnSerieChanged" Placeholder="Final Fantasy">
+                    @foreach (var serie in _series)
+                    {
+                        <MudSelectItem Value="@serie">@serie.Serie</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudTh>
             <MudTh></MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Nom">@context.Name</MudTd>
             <MudTd DataLabel="Platform">@context.Platforms</MudTd>
             <MudTd DataLabel="Catégories">@context.Categories</MudTd>
+            <MudTd DataLabel="Serie">@context.Serie</MudTd>
             <MudTd>
                 <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="(_) => DeleteGameById(context)" />
             </MudTd>
@@ -58,8 +68,10 @@
 @code {
     private List<CategoryDto> _categories = [];
     private List<PlatformDto> _platforms = [];
+    private List<SimpleSerieDto> _series = [];
     private IEnumerable<Guid> _selectedCategories = [];
     private Guid? _selectedPlatforms;
+    private Guid? _selectedSerie;
     private MudTable<SearchGameItemDto>? _table;
     private bool _loading;
     private string _searchGame = "";
@@ -70,13 +82,15 @@
         _deleteDialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
         var getAllCategoriesResult = CategoryService.GetAllCategories();
         var getAllPlatformsResult = PlatformService.GetAllPlatforms();
+        var getAllSeriesResult = SerieService.GetAllSeries();
 
-        await Task.WhenAll(getAllCategoriesResult, getAllPlatformsResult);
+        await Task.WhenAll(getAllCategoriesResult, getAllPlatformsResult, getAllSeriesResult);
 
-        if (getAllCategoriesResult.Result.IsSucceed && getAllPlatformsResult.Result.IsSucceed)
+        if (getAllCategoriesResult.Result.IsSucceed && getAllPlatformsResult.Result.IsSucceed && getAllSeriesResult.Result.IsSucceed)
         {
             _categories = getAllCategoriesResult.Result.Result!;
             _platforms = getAllPlatformsResult.Result.Result!;
+            _series = getAllSeriesResult.Result.Result!;
         }        
     }
 
@@ -89,7 +103,8 @@
             Size = state.PageSize,
             Name = _searchGame,
             PlatformId = _selectedPlatforms,
-            CategoriesId = _selectedCategories.ToList()
+            CategoriesId = _selectedCategories.ToList(),
+            SerieId = _selectedSerie
         });
         _loading = false;
 
@@ -105,6 +120,12 @@
     private void OnPlatformChanged(PlatformDto platform)
     {
         _selectedPlatforms = platform?.Id;
+        ReloadData();
+    }
+
+    private void OnSerieChanged(SimpleSerieDto serie)
+    {
+        _selectedSerie = serie?.Id;
         ReloadData();
     }
 
