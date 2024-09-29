@@ -8,6 +8,6 @@ namespace GameService.API.BusinessLogics.Interfaces
         Task IgnorePlaystationGame(PlaystationGameDto gamePlaystationDto, bool isIgnored);
         Task ReloadPlaystationGame(Guid gameDetailId);
         Task<List<PlaystationGameDto>> GetMissingPlaystationGames();
-        Task RefreshToken(string npsso);
+        Task<string> RefreshToken(string npsso);
     }
 }

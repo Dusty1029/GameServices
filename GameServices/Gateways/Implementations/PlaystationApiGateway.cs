@@ -58,6 +58,7 @@ namespace GameService.API.Gateways.Implementations
                 query["limit"] = "800";
                 builder.Query = query.ToString();
 
+                httpClient.DefaultRequestHeaders.Clear();
                 httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
 
                 var response = await httpClient.GetFromJsonAsync<ResponseGetGamesPlaystation>(builder.ToString(), _cancellationToken);
@@ -73,8 +74,8 @@ namespace GameService.API.Gateways.Implementations
                 query["npServiceName"] = platformEnum == PlatformEnumEntity.PS5 ? "trophy2" : "trophy";
                 builder.Query = query.ToString();
 
-                if (!httpClient.DefaultRequestHeaders.Contains("Authorization"))
-                    httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
+                httpClient.DefaultRequestHeaders.Clear();
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
                 httpClient.DefaultRequestHeaders.Add("Accept-Language", "fr-fr");
 
                 var response = await httpClient.GetFromJsonAsync<ResponseGetTrophiesByGame>(builder.ToString(), _cancellationToken);
@@ -89,8 +90,8 @@ namespace GameService.API.Gateways.Implementations
                 query["npServiceName"] = platformEnum == PlatformEnumEntity.PS5 ? "trophy2" : "trophy";
                 builder.Query = query.ToString();
 
-                if (!httpClient.DefaultRequestHeaders.Contains("Authorization"))
-                    httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
+                httpClient.DefaultRequestHeaders.Clear();
+                httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
 
                 var response = await httpClient.GetFromJsonAsync<ResponseGetTrophiesEarnedByGame>(builder.ToString(), _cancellationToken);
                 return response!.trophies;
@@ -128,7 +129,7 @@ namespace GameService.API.Gateways.Implementations
             }
         }
 
-        private async static Task<TResult> ApiExceptionHandler<TResult>(Func<Task<TResult>> action)
+        private static async Task<TResult> ApiExceptionHandler<TResult>(Func<Task<TResult>> action)
         {
             try
             {

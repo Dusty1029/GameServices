@@ -16,12 +16,12 @@ namespace GameService.API.Controllers
             => controllerExecutor.ExecuteAsync(this, () => categoryBL.GetAllCategories());
 
         [HttpPost]
-        public Task<IActionResult> CreateCategory([FromBody] CategoryDto category)
+        public Task<IActionResult> CreateCategory([FromBody] string category)
             => controllerExecutor.ExecuteAsync(this, () => categoryBL.CreateCategory(category));
 
         [HttpPut]
         [Route("{categoryId}")]
-        public Task<IActionResult> UpdateCategory([FromRoute] Guid categoryId, [FromBody] CategoryDto category)
+        public Task<IActionResult> UpdateCategory([FromRoute] Guid categoryId, [FromBody] string category)
             => controllerExecutor.ExecuteAsync(this, () => categoryBL.UpdateCategory(categoryId, category));
 
         [HttpDelete]

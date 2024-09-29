@@ -20,16 +20,26 @@ namespace GameService.Infrastructure.Configurations
             builder.Property(x => x.Value)
                    .IsRequired();
 
-            builder.HasData(new ParameterEntity 
-            { 
-                Id = new Guid("0fb8c4e8-9180-4cc5-98ff-a905d43ac440"),
-                ParameterEnum = ParameterEnumEntity.PlaystationToken
-            });
+            builder.HasData(ParametersSeed);
 
             //Indexes
 
             builder.HasIndex(x => x.ParameterEnum)
                    .IsUnique();
         }
+
+        private static List<ParameterEntity> ParametersSeed => 
+        [
+            new()
+            {
+                Id = new Guid("0fb8c4e8-9180-4cc5-98ff-a905d43ac440"),
+                ParameterEnum = ParameterEnumEntity.PlaystationToken
+            },
+            new()
+            {
+                Id = new Guid("17481d3a-84f4-4140-8d12-2aa09f1b8d02"),
+                ParameterEnum = ParameterEnumEntity.Npsso
+            }
+        ];
     }
 }

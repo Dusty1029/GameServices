@@ -40,10 +40,10 @@ namespace GameService.Infrastructure.Configurations
                    .IsUnique();
 
             //Seed
-            builder.HasData(PlatformsSeeded);
+            builder.HasData(PlatformsSeed);
         }
 
-        public static List<PlatformEntity> PlatformsSeeded =>
+        public static List<PlatformEntity> PlatformsSeed =>
         [
             new()
             {

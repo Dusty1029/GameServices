@@ -20,7 +20,7 @@ namespace GameService.Infrastructure.Configurations
             //Relations
             builder.HasOne(x => x.ParentSerie)
                    .WithMany(x => x.ChildrenSeries)
-                   .HasForeignKey(x => x.ParentSerieId);
+                   .HasForeignKey(x => x.ParentSerieId).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

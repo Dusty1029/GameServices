@@ -1,5 +1,6 @@
 ﻿using CommonV2.Helpers.Controller;
 using Game.Dto;
+using GameService.API.BusinessLogics.Implementations;
 using GameService.API.BusinessLogics.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,5 +23,15 @@ namespace GameService.API.Controllers
         [HttpPost]
         public Task<IActionResult> CreateSerie([FromBody] CreateSerieDto createSerie)
             => controllerExecutor.ExecuteAsync(this, () => serieBL.CreateSerie(createSerie));
+
+        [HttpPut]
+        [Route("{id}")]
+        public Task<IActionResult> UpdateSerie([FromRoute] Guid id, [FromBody] CreateSerieDto createSerie)
+            => controllerExecutor.ExecuteAsync(this, () => serieBL.UpdateSerie(id, createSerie));
+
+        [HttpDelete]
+        [Route("{id}")]
+        public Task<IActionResult> DeleteSerie([FromRoute] Guid id)
+            => controllerExecutor.ExecuteAsync(this, () => serieBL.DeleteSerie(id));
     }
 }

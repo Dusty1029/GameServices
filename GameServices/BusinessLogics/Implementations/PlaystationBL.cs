@@ -8,6 +8,7 @@ using GameService.API.Gateways.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Game.Dto;
 using GameService.API.Extensions.Entities.Enums;
+using GameService.Infrastructure.Entities;
 
 namespace GameService.API.BusinessLogics.Implementations
 {
@@ -28,7 +29,7 @@ namespace GameService.API.BusinessLogics.Implementations
                     throw new NotFoundException($"The game with id [{gamePlaystationDto.GameId}] was not found.");
             }
 
-            var actualToken = (await parameterRepository.GetPlaystationToken()) ?? "";
+            var actualToken = await RefreshToken();
             var platformEnum = gamePlaystationDto.PlaystationGame.TrophyTitlePlatform.ToEntity();
             var platformIdResult = GetPlaystationPlatformId(platformEnum);
 
@@ -73,7 +74,7 @@ namespace GameService.API.BusinessLogics.Implementations
 
         public async Task ReloadPlaystationGame(Guid gameDetailId)
         {
-            var actualToken = (await parameterRepository.GetPlaystationToken()) ?? "";
+            var actualToken = await RefreshToken();
 
             var gameDetail = await gameDetailRepository.Find(g => g.Id == gameDetailId,
                 f => f.Include(g => g.Achievements).Include(g => g.Platform), noTracking: false) ??
@@ -109,20 +110,31 @@ namespace GameService.API.BusinessLogics.Implementations
             await gameRepository.SaveChanges();
         }
 
-        public async Task RefreshToken(string npsso)
+        public async Task<string> RefreshToken(string npsso)
+        {
+            var npssoEntity = await parameterRepository.GetNpssoEntity();
+            npssoEntity!.Value = npsso;
+
+            return await RefreshToken(npssoEntity);
+        }
+
+        private async Task<string> RefreshToken(ParameterEntity? npssoEntity = null)
         {
             var actualToken = await parameterRepository.GetPlaystationTokenEntity();
-            var token = await playstationApiGateway.GetAuthenticationToken(npsso);
-            if (token == null)
-                throw new ValidationException($"The npsso [{npsso}] is invalid.");
+            npssoEntity ??= await parameterRepository.GetNpssoEntity();
+
+            var token = await playstationApiGateway.GetAuthenticationToken(npssoEntity!.Value) ??
+                throw new ValidationException($"The npsso [{npssoEntity!.Value}] is invalid.");
 
             actualToken!.Value = token;
             await parameterRepository.SaveChanges();
+
+            return token;
         }
 
         public async Task<List<PlaystationGameDto>> GetMissingPlaystationGames()
         {
-            var actualToken = await parameterRepository.GetPlaystationToken();
+            var actualToken = await RefreshToken();
             var playstationGames = await gameDetailRepository.Get(g => g.PlaystationId != null, f => f.Include(g => g.Platform));
             var ignoredPlaystationGameResult = ignoredGameRepository.Get(g => g.PlaystationId != null, f => f.Include(gd => gd.Platform));
             var newPlaystationGamesResult = playstationApiGateway.GetPlaystationGames(actualToken ?? "");

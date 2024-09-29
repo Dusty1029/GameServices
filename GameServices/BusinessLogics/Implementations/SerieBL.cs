@@ -2,6 +2,7 @@
 using Game.Dto;
 using GameService.API.BusinessLogics.Interfaces;
 using GameService.API.Extensions.Entities;
+using GameService.Infrastructure.Entities;
 using GameService.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,7 +25,29 @@ namespace GameService.API.BusinessLogics.Implementations
             return serie.Id;
         }
 
-        public Task<List<SimpleSerieDto>> GetAllSeries() => serieRepository.GetAllSelect(f => f.Select(s => s.ToSimpleDto()), orderBy: f => f.OrderBy(s => s.Name));
+        public async Task DeleteSerie(Guid id)
+        {
+            var serie = await serieRepository.Find(s => s.Id == id, include: f => f.Include(s => s.ChildrenSeries), noTracking: false)
+                ?? throw new NotFoundException($"Serie with id [{id}] was not found.");
+            
+            await MarkChildrenAsDelete(serie);
+            await serieRepository.DeleteAndSave(serie);
+        }
+        public async Task MarkChildrenAsDelete(SerieEntity serie)
+        {
+            if (serie.ChildrenSeries!.Count > 0)
+            {
+                foreach (var child in serie.ChildrenSeries!) 
+                {
+                    serieRepository.Delete(child);
+                    var childWithChildren = await serieRepository.Find(s => s.Id == child.Id, include: f => f.Include(s => s.ChildrenSeries), noTracking: false);
+                    await MarkChildrenAsDelete(childWithChildren!);
+                }
+            }
+        }
+
+        public Task<List<SimpleSerieDto>> GetAllSeries() =>
+            serieRepository.GetAllSelect(f => f.Select(s => new SimpleSerieDto { Id = s.Id, Serie = s.Name }), orderBy: f => f.OrderBy(s => s.Name));
 
         public async Task<SerieDto> GetSerieById(Guid id)
         {
@@ -32,6 +55,15 @@ namespace GameService.API.BusinessLogics.Implementations
                 ?? throw new NotFoundException($"Serie with id [{id}] was not found.");
 
             return serie.ToDto();
+        }
+
+        public async Task UpdateSerie(Guid id, CreateSerieDto createSerie)
+        {
+            var serie = await serieRepository.Find(s => s.Id == id, noTracking: false)
+                ?? throw new NotFoundException($"Serie with id [{id}] was not found.");
+
+            createSerie.ToEntity(serie);
+            await serieRepository.SaveChanges();
         }
     } 
 }

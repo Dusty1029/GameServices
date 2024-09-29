@@ -5,15 +5,11 @@ namespace GameService.API.Extensions.Entities
 {
     public static class CategoryExtensions
     {
-        public static CategoryEntity ToEntity(this CategoryDto categoryDto, CategoryEntity? categoryEntity = null) 
+        public static CategoryEntity ToEntity(this CategoryDto categoryDto) => new()
         {
-            categoryEntity ??= new();
-
-            categoryEntity.Id = categoryDto.Id;
-            categoryEntity.Name = categoryDto.Name;
-
-            return categoryEntity;
-        }
+            Id = categoryDto.Id,
+            Name = categoryDto.Name
+        };
 
         public static CategoryDto ToDto(this CategoryEntity categoryEntity) => new()
         {

@@ -14,5 +14,11 @@ namespace GameService.Infrastructure.Repositories.Implementations
 
         public Task<ParameterEntity?> GetPlaystationTokenEntity() =>
             Find(p => p.ParameterEnum == ParameterEnumEntity.PlaystationToken, noTracking: false);
+
+        public Task<string?> GetNpsso() =>
+            FindSelect(p => p.ParameterEnum == ParameterEnumEntity.Npsso, f => f.Select(p => p.Value));
+
+        public Task<ParameterEntity?> GetNpssoEntity() =>
+            Find(p => p.ParameterEnum == ParameterEnumEntity.Npsso, noTracking: false);
     }
 }

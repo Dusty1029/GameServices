@@ -20,10 +20,13 @@ namespace GameService.API.Extensions.Entities
             Serie = serieEntity.Name
         };
 
-        public static SerieEntity ToEntity(this CreateSerieDto createSerieDto) => new()
+        public static SerieEntity ToEntity(this CreateSerieDto createSerieDto, SerieEntity? serieEntity = null)
         {
-            Name = createSerieDto.Serie,
-            ParentSerieId = createSerieDto.ParentId
-        };
+            serieEntity ??= new();
+            serieEntity.Name = createSerieDto.Serie;
+            serieEntity.ParentSerieId = createSerieDto.ParentId;
+
+            return serieEntity;
+        }
     }
 }

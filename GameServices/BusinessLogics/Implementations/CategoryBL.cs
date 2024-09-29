@@ -2,23 +2,16 @@
 using Game.Dto;
 using GameService.Infrastructure.Repositories.Interfaces;
 using GameService.API.BusinessLogics.Interfaces;
-using GameService.API.Extensions.Entities;
 
 namespace GameService.API.BusinessLogics.Implementations
 {
     public class CategoryBL(ICategoryRepository categoryRepository) : ICategoryBL
     {
-        public async Task<Guid> CreateCategory(CategoryDto category)
-        {
-            var categoryCreated = await categoryRepository.InsertAndSave(category.ToEntity());
-
-            return categoryCreated.Id;
-        }
-
+        public async Task<Guid> CreateCategory(string category) =>
+           (await categoryRepository.InsertAndSave(new() { Name = category })).Id;
         public async Task DeleteCategory(Guid categoryId)
         {
-            var category = await categoryRepository.Find(c => c.Id == categoryId);
-            if (category is null)
+            var category = await categoryRepository.Find(c => c.Id == categoryId) ??
                 throw new NotFoundException($"The category with id [{categoryId}] was not found.");
             if (category.IsSeed)
                 throw new ValidationException($"The category with id [{categoryId}] is a seed and can't be deleted.");
@@ -32,13 +25,12 @@ namespace GameService.API.BusinessLogics.Implementations
                     orderBy: f => f.OrderBy(c => c.Name)
                 );
 
-        public async Task UpdateCategory(Guid categoryId, CategoryDto category)
+        public async Task UpdateCategory(Guid categoryId, string category)
         {
-            var categoryEntity = await categoryRepository.Find(c => c.Id == categoryId, noTracking: false);
-            if (categoryEntity is null)
+            var categoryEntity = await categoryRepository.Find(c => c.Id == categoryId && !c.IsSeed, noTracking: false) ??
                 throw new NotFoundException($"The category with id [{categoryId}] was not found.");
 
-            category.ToEntity(categoryEntity);
+            categoryEntity.Name = category;
             await categoryRepository.SaveChanges();
         }
     }

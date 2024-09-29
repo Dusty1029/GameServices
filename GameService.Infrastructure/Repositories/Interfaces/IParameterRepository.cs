@@ -7,5 +7,7 @@ namespace GameService.Infrastructure.Repositories.Interfaces
     {
         Task<string?> GetPlaystationToken();
         Task<ParameterEntity?> GetPlaystationTokenEntity();
+        Task<string?> GetNpsso();
+        Task<ParameterEntity?> GetNpssoEntity();
     }
 }
