@@ -13,6 +13,11 @@ namespace GameService.Infrastructure.Configurations
 
             builder.HasKey(x => x.Id);
 
+            builder.Property(x => x.Id)
+                   .HasColumnType("uuid")
+                   .HasDefaultValueSql("uuid_generate_v4()")
+                   .IsRequired();
+
             builder.Property(x => x.SteamId)
                    .IsRequired(false);
 

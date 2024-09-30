@@ -124,7 +124,7 @@ namespace GameService.API.BusinessLogics.Implementations
             npssoEntity ??= await parameterRepository.GetNpssoEntity();
 
             var token = await playstationApiGateway.GetAuthenticationToken(npssoEntity!.Value) ??
-                throw new ValidationException($"The npsso [{npssoEntity!.Value}] is invalid.");
+                throw new CommonV2.Models.Exceptions.UnauthorizedAccessException($"The npsso [{npssoEntity!.Value}] is invalid.");
 
             actualToken!.Value = token;
             await parameterRepository.SaveChanges();

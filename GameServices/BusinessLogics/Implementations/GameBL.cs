@@ -141,7 +141,7 @@ namespace GameService.API.BusinessLogics.Implementations
             var ignoredPlatformEnum = ignoredPlatform?.ToEntity();
 
             return await gameRepository.GetSelect(f => f.Select(g => new SimpleGameDto { Id = g.Id, Name = g.Name }),
-                g => EF.Functions.Like(g.Name, $"%{gameSearched}%") && 
+                g => EF.Functions.Like(g.Name.ToLower(), $"%{gameSearched.ToLower()}%") && 
                 (!ignoredPlatformEnum.HasValue || !g.GameDetails!.Any(gd => gd.Platform!.PlatformEnum == ignoredPlatformEnum))
             );
         }

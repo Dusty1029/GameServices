@@ -12,6 +12,10 @@ namespace GameService.Infrastructure.Configurations
             builder.ToTable(nameof(GameEntity).ToTableName());
 
             builder.HasKey(x => x.Id);
+            builder.Property(x => x.Id)
+                   .HasColumnType("uuid")
+                   .HasDefaultValueSql("uuid_generate_v4()")
+                   .IsRequired();
 
             builder.Property(x => x.Name)
                    .HasMaxLength(256)

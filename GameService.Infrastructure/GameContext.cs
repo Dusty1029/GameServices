@@ -11,6 +11,7 @@ namespace GameService.Infrastructure
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.HasPostgresExtension("uuid-ossp");
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(GameConfiguration).Assembly);
         }
     }
