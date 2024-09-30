@@ -1,0 +1,45 @@
+﻿@page "/categories"
+@inject ICategoryService CategoryService
+@inject ISnackbar Snackbar
+
+<SimpleElementsTableComponent 
+    Elements="Elements" 
+    LoadElements="LoadCategories"
+    DeleteElement="DeleteCategory"
+    Title="@Title"
+    AddElement="AddCategory">
+</SimpleElementsTableComponent>
+
+@code {
+    private List<SimpleTableElement> Elements { get; set; } = [];
+    private List<CategoryDto> CategoryDtos { get; set; } = [];
+    private string Title { get; set; } = "Catégories";
+
+    private async Task LoadCategories()
+    {
+        var getCategoriesResult = await CategoryService.GetAllCategories();
+        if (getCategoriesResult.IsSucceed)
+        {
+            CategoryDtos = getCategoriesResult.Result!;
+            Elements = CategoryDtos.Select(c => c.ToSimpleTableElement()).ToList();
+        }
+    }
+
+    private async Task DeleteCategory(SimpleTableElement simpleElement)
+    {
+        var category = FindCategory(simpleElement);
+        var deleteCategoryResult = await CategoryService.DeleteCategory(category.Id);
+        if (deleteCategoryResult.IsSucceed)
+        {
+            Snackbar.Add($"La catégorie {simpleElement.Name} a bien été supprimée.", Severity.Success);
+            CategoryDtos.Remove(category);
+        }
+    }
+
+    private void AddCategory()
+    {
+        Snackbar.Add($"Add category", Severity.Success);
+    }
+
+    private CategoryDto FindCategory(SimpleTableElement simpleTableElement) => CategoryDtos.First(sg => sg.Id == simpleTableElement.Id);
+}

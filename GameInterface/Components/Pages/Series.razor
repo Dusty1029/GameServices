@@ -1,0 +1,45 @@
+﻿@page "/series"
+@inject ISerieService SerieService
+@inject ISnackbar Snackbar
+
+<SimpleElementsTableComponent 
+    Elements="Elements" 
+    LoadElements="LoadSeries"
+    DeleteElement="DeleteSerie"
+    Title="@Title"
+    AddElement="AddSerie">
+</SimpleElementsTableComponent>
+
+@code {
+    private List<SimpleTableElement> Elements { get; set; } = [];
+    private List<SimpleSerieDto> SerieDtos { get; set; } = [];
+    private string Title { get; set; } = "Séries";
+
+    private async Task LoadSeries()
+    {
+        var getSeriesResult = await SerieService.GetAllSeries();
+        if (getSeriesResult.IsSucceed)
+        {
+            SerieDtos = getSeriesResult.Result!;
+            Elements = SerieDtos.Select(s => s.ToSimpleTableElement()).ToList();
+        }
+    }
+
+    private async Task DeleteSerie(SimpleTableElement simpleElement)
+    {
+        var serie = FindSerie(simpleElement);
+        var deleteSerieResult = await SerieService.DeleteSerie(serie.Id);
+        if (deleteSerieResult.IsSucceed)
+        {
+            Snackbar.Add($"La série {simpleElement.Name} a bien été supprimée.", Severity.Success);
+            SerieDtos.Remove(serie);
+        }
+    }
+
+    private void AddSerie()
+    {
+        Snackbar.Add($"Add serie", Severity.Success);
+    }
+
+    private SimpleSerieDto FindSerie(SimpleTableElement simpleTableElement) => SerieDtos.First(sg => sg.Id == simpleTableElement.Id);
+}

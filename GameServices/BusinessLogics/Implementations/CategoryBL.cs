@@ -21,7 +21,7 @@ namespace GameService.API.BusinessLogics.Implementations
 
         public Task<List<CategoryDto>> GetAllCategories()
             => categoryRepository.GetAllSelect(
-                    f => f.Select(c => new CategoryDto { Id = c.Id, Name = c.Name }),
+                    f => f.Select(c => new CategoryDto { Id = c.Id, Name = c.Name, CanBeDeleted = !c.IsSeed }),
                     orderBy: f => f.OrderBy(c => c.Name)
                 );
 

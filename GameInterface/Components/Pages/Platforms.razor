@@ -1,0 +1,44 @@
+﻿@page "/platforms"
+@inject IPlatformService PlatformService
+@inject ISnackbar Snackbar
+
+<SimpleElementsTableComponent Elements="Elements"
+                              LoadElements="LoadPlatforms"
+                              DeleteElement="DeletePlatform"
+                              Title="@Title"
+                              AddElement="AddPlatform">
+</SimpleElementsTableComponent>
+
+@code {
+    private List<SimpleTableElement> Elements { get; set; } = [];
+    private List<PlatformDto> PlatformDtos { get; set; } = [];
+    private string Title { get; set; } = "Platforms";
+
+    private async Task LoadPlatforms()
+    {
+        var getPlatformResult = await PlatformService.GetAllPlatforms();
+        if (getPlatformResult.IsSucceed)
+        {
+            PlatformDtos = getPlatformResult.Result!;
+            Elements = PlatformDtos.Select(p => p.ToSimpleTableElement()).ToList();
+        }
+    }
+
+    private async Task DeletePlatform(SimpleTableElement simpleElement)
+    {
+        var platform = FindPlatform(simpleElement);
+        var deletePlatformResult = await PlatformService.DeletePlatform(platform.Id);
+        if (deletePlatformResult.IsSucceed)
+        {
+            Snackbar.Add($"La paltform {simpleElement.Name} a bien été supprimée.", Severity.Success);
+            PlatformDtos.Remove(platform);
+        }
+    }
+
+    private void AddPlatform()
+    {
+        Snackbar.Add($"Add platform", Severity.Success);
+    }
+
+    private PlatformDto FindPlatform(SimpleTableElement simpleTableElement) => PlatformDtos.First(sg => sg.Id == simpleTableElement.Id);
+}
