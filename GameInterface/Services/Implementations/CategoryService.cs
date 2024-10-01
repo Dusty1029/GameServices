@@ -8,12 +8,16 @@ namespace GameInterface.Services.Implementations
     {
         private readonly string beginPath = "category";
 
-        public Task<ApiResult<Guid>> CreateCategory(string category) => genericService.PostResult<Guid>(category, beginPath);
+        public Task<ApiResult<Guid>> CreateCategory(CancellationToken cancellationToken, string category) =>
+            genericService.PostResult<Guid>(cancellationToken, category, beginPath);
 
-        public Task<ApiResult> DeleteCategory(Guid categoryId) => genericService.DeleteResult($"{beginPath}/{categoryId}");
+        public Task<ApiResult> DeleteCategory(CancellationToken cancellationToken, Guid categoryId) =>
+            genericService.DeleteResult(cancellationToken, $"{beginPath}/{categoryId}");
 
-        public Task<ApiResult<List<CategoryDto>>> GetAllCategories() => genericService.GetResult<List<CategoryDto>>(beginPath);
+        public Task<ApiResult<List<CategoryDto>>> GetAllCategories(CancellationToken cancellationToken) =>
+            genericService.GetResult<List<CategoryDto>>(cancellationToken, beginPath);
 
-        public Task<ApiResult> UpdateCategory(Guid categoryId, string category) => genericService.PutResult(category, $"{beginPath}/{categoryId}");
+        public Task<ApiResult> UpdateCategory(CancellationToken cancellationToken, Guid categoryId, string category) =>
+            genericService.PutResult(cancellationToken, category, $"{beginPath}/{categoryId}");
     }
 }

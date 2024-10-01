@@ -7,14 +7,19 @@ namespace GameInterface.Services.Implementations
     public class PlaystationService(IGenericService genericService) : IPlaystationService
     {
         private readonly string beginPath = "playstation";
-        public Task<ApiResult<Guid>> AddPlaystationGame(CreatePlaystationGameDto gamePlaystationDto) => genericService.PostResult<Guid>(gamePlaystationDto, beginPath);
+        public Task<ApiResult<Guid>> AddPlaystationGame(CancellationToken cancellationToken, CreatePlaystationGameDto gamePlaystationDto) =>
+            genericService.PostResult<Guid>(cancellationToken, gamePlaystationDto, beginPath);
 
-        public Task<ApiResult<List<PlaystationGameDto>>> GetMissingPlaystationGames() => genericService.GetResult<List<PlaystationGameDto>>(beginPath);
+        public Task<ApiResult<List<PlaystationGameDto>>> GetMissingPlaystationGames(CancellationToken cancellationToken) =>
+            genericService.GetResult<List<PlaystationGameDto>>(cancellationToken, beginPath);
 
-        public Task<ApiResult> IgnorePlaystationGame(PlaystationGameDto gamePlaystationDto, bool isIgnored) => genericService.PostResult(gamePlaystationDto, $"{beginPath}/ignore/{isIgnored}");
+        public Task<ApiResult> IgnorePlaystationGame(CancellationToken cancellationToken, PlaystationGameDto gamePlaystationDto, bool isIgnored) =>
+            genericService.PostResult(cancellationToken, gamePlaystationDto, $"{beginPath}/ignore/{isIgnored}");
 
-        public Task<ApiResult> RefreshToken(string npsso) => genericService.PutResult(path: $"{beginPath}/token/{npsso}");
+        public Task<ApiResult> RefreshToken(CancellationToken cancellationToken, string npsso) =>
+            genericService.PutResult(cancellationToken, path: $"{beginPath}/token/{npsso}");
 
-        public Task<ApiResult> ReloadPlaystationGame(Guid gameDetailId) => genericService.PutResult(path: $"{beginPath}/game/{gameDetailId}/reload");
+        public Task<ApiResult> ReloadPlaystationGame(CancellationToken cancellationToken, Guid gameDetailId) =>
+            genericService.PutResult(cancellationToken, path: $"{beginPath}/game/{gameDetailId}/reload");
     }
 }

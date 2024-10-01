@@ -35,7 +35,7 @@
 
     private async Task LoadPlaystationGames()
     {
-        var getMissingPlaystationGamesResult = await PlaystationService.GetMissingPlaystationGames();
+        var getMissingPlaystationGamesResult = await PlaystationService.GetMissingPlaystationGames(CancellationToken);
         if (getMissingPlaystationGamesResult.IsSucceed)
         {
             PlaystationGameDtos = getMissingPlaystationGamesResult.Result!;
@@ -50,7 +50,7 @@
     private async Task AddPlaystationGame(CreateSimpleGame playstationGame)
     {
         var playstationGameDto = FindPlaystationGame(playstationGame.Game);
-        var addPlaystationGameResult = await PlaystationService.AddPlaystationGame(new CreatePlaystationGameDto { GameId = playstationGame.GameId, PlaystationGame = playstationGameDto });
+        var addPlaystationGameResult = await PlaystationService.AddPlaystationGame(CancellationToken, new CreatePlaystationGameDto { GameId = playstationGame.GameId, PlaystationGame = playstationGameDto });
         if (addPlaystationGameResult.IsSucceed)
         {
             Snackbar.Add($"Le jeu {playstationGame.Game.Name} a bien été ajouté à votre bibliothèque.", Severity.Success);
@@ -65,7 +65,7 @@
     private async Task IgnorePlaystationGame(SimpleGame playstationGame)
     {
         var playstationGameDto = FindPlaystationGame(playstationGame);
-        var ignorePlaystationGameResult = await PlaystationService.IgnorePlaystationGame(playstationGameDto, true);
+        var ignorePlaystationGameResult = await PlaystationService.IgnorePlaystationGame(CancellationToken, playstationGameDto, true);
         if (ignorePlaystationGameResult.IsSucceed)
         {
             Snackbar.Add($"Le jeu {playstationGame.Name} a bien été ignoré.", Severity.Success);
@@ -79,7 +79,7 @@
 
     private async Task RefreshToken()
     {
-        var refreshTokenResponse = await PlaystationService.RefreshToken(Npsso);
+        var refreshTokenResponse = await PlaystationService.RefreshToken(CancellationToken, Npsso);
         if (refreshTokenResponse.IsSucceed)
         {
             IsTokenValid = true;

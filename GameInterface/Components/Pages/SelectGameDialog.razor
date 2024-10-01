@@ -30,7 +30,7 @@
 
     private async Task<IEnumerable<SimpleGameDto>> Search(string value, CancellationToken token)
     {
-        var searchSimpleGameResult = await GameService.SearchSimpleGame(value, PlatformEnum);
+        var searchSimpleGameResult = await GameService.SearchSimpleGame(CancellationToken, value, PlatformEnum);
         if (searchSimpleGameResult.IsSucceed)
             return searchSimpleGameResult.Result!;
 

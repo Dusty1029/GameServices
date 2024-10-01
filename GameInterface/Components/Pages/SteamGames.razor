@@ -21,7 +21,7 @@
 
     private async Task LoadSteamGames()
     {
-        var getMissingSteamGamesResult = await SteamService.GetMissingSteamGames();
+        var getMissingSteamGamesResult = await SteamService.GetMissingSteamGames(CancellationToken);
         if (getMissingSteamGamesResult.IsSucceed)
         {
             SteamGameDtos = getMissingSteamGamesResult.Result!;
@@ -32,7 +32,7 @@
     private async Task AddSteamGame(CreateSimpleGame steamGame)
     {
         var steamGameDto = FindSteamGame(steamGame.Game);
-        var addSteamGameResult = await SteamService.AddSteamGame(new CreateSteamGameDto { GameId = steamGame.GameId, SteamGame = steamGameDto });
+        var addSteamGameResult = await SteamService.AddSteamGame(CancellationToken, new CreateSteamGameDto { GameId = steamGame.GameId, SteamGame = steamGameDto });
         if (addSteamGameResult.IsSucceed)
         {
             Snackbar.Add($"Le jeu {steamGame.Game.Name} a bien été ajouté à votre bibliothèque.", Severity.Success);
@@ -43,7 +43,7 @@
     private async Task IgnoreSteamGame(SimpleGame steamGame)
     {
         var steamGameDto = FindSteamGame(steamGame);
-        var ignoreSteamGameResult = await SteamService.IgnoreSteamGame(steamGameDto, true);
+        var ignoreSteamGameResult = await SteamService.IgnoreSteamGame(CancellationToken, steamGameDto, true);
         if (ignoreSteamGameResult.IsSucceed)
         {
             Snackbar.Add($"Le jeu {steamGame.Name} a bien été ignoré.", Severity.Success);

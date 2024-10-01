@@ -7,45 +7,45 @@ namespace GameInterface.Services.Implementations
 {
     public class GenericService(HttpClient httpClient, ISnackbar snackbar) : IGenericService
     {
-        public async Task<ApiResult<TResult>> DeleteResult<TResult>(string path = "")
+        public async Task<ApiResult<TResult>> DeleteResult<TResult>(CancellationToken cancellationToken, string path = "")
         {
-            var response = await httpClient.DeleteAsync(path);
+            var response = await httpClient.DeleteAsync(path, cancellationToken);
             return await ToApiResult<TResult>(response);
         }
 
-        public async Task<ApiResult> DeleteResult(string path = "")
+        public async Task<ApiResult> DeleteResult(CancellationToken cancellationToken, string path = "")
         {
-            var response = await httpClient.DeleteAsync(path);
+            var response = await httpClient.DeleteAsync(path, cancellationToken);
             return await ToApiResult(response);
         }
 
-        public async Task<ApiResult<TResult>> GetResult<TResult>(string path = "")
+        public async Task<ApiResult<TResult>> GetResult<TResult>(CancellationToken cancellationToken, string path = "")
         {
-            var response = await httpClient.GetAsync(path);
+            var response = await httpClient.GetAsync(path, cancellationToken);
             return await ToApiResult<TResult>(response);
         }
 
-        public async Task<ApiResult<TResult>> PostResult<TResult>(object? body = null, string path = "")
+        public async Task<ApiResult<TResult>> PostResult<TResult>(CancellationToken cancellationToken, object? body = null, string path = "")
         {
-            var response = await httpClient.PostAsJsonAsync(path, body);
+            var response = await httpClient.PostAsJsonAsync(path, body, cancellationToken);
             return await ToApiResult<TResult>(response);
         }
 
-        public async Task<ApiResult> PostResult(object? body = null, string path = "")
+        public async Task<ApiResult> PostResult(CancellationToken cancellationToken, object? body = null, string path = "")
         {
-            var response = await httpClient.PostAsJsonAsync(path, body);
+            var response = await httpClient.PostAsJsonAsync(path, body, cancellationToken);
             return await ToApiResult(response);
         }
 
-        public async Task<ApiResult<TResult>> PutResult<TResult>(object? body = null, string path = "")
+        public async Task<ApiResult<TResult>> PutResult<TResult>(CancellationToken cancellationToken, object? body = null, string path = "")
         {
-            var response = await httpClient.PutAsJsonAsync(path, body);
+            var response = await httpClient.PutAsJsonAsync(path, body, cancellationToken);
             return await ToApiResult<TResult>(response);
         }
 
-        public async Task<ApiResult> PutResult(object? body = null, string path = "")
+        public async Task<ApiResult> PutResult(CancellationToken cancellationToken, object? body = null, string path = "")
         {
-            var response = await httpClient.PutAsJsonAsync(path, body);
+            var response = await httpClient.PutAsJsonAsync(path, body, cancellationToken);
             return await ToApiResult(response);
         }
 

@@ -17,7 +17,7 @@
 
     private async Task LoadSeries()
     {
-        var getSeriesResult = await SerieService.GetAllSeries();
+        var getSeriesResult = await SerieService.GetAllSeries(CancellationToken);
         if (getSeriesResult.IsSucceed)
         {
             SerieDtos = getSeriesResult.Result!;
@@ -28,7 +28,7 @@
     private async Task DeleteSerie(SimpleTableElement simpleElement)
     {
         var serie = FindSerie(simpleElement);
-        var deleteSerieResult = await SerieService.DeleteSerie(serie.Id);
+        var deleteSerieResult = await SerieService.DeleteSerie(CancellationToken, serie.Id);
         if (deleteSerieResult.IsSucceed)
         {
             Snackbar.Add($"La série {simpleElement.Name} a bien été supprimée.", Severity.Success);

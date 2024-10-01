@@ -5,9 +5,9 @@ namespace GameInterface.Services.Interfaces
 {
     public interface ICategoryService
     {
-        Task<ApiResult<Guid>> CreateCategory(string category);
-        Task<ApiResult> DeleteCategory(Guid categoryId);
-        Task<ApiResult<List<CategoryDto>>> GetAllCategories();
-        Task<ApiResult> UpdateCategory(Guid categoryId, string category);
+        Task<ApiResult<Guid>> CreateCategory(CancellationToken cancellationToken, string category);
+        Task<ApiResult> DeleteCategory(CancellationToken cancellationToken, Guid categoryId);
+        Task<ApiResult<List<CategoryDto>>> GetAllCategories(CancellationToken cancellationToken);
+        Task<ApiResult> UpdateCategory(CancellationToken cancellationToken, Guid categoryId, string category);
     }
 }

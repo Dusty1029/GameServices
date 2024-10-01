@@ -5,9 +5,9 @@ namespace GameInterface.Services.Interfaces
 {
     public interface IPlatformService
     {
-        Task<ApiResult<Guid>> CreatePlatform(string platformName);
-        Task<ApiResult> DeletePlatform(Guid id);
-        Task<ApiResult<List<PlatformDto>>> GetAllPlatforms();
-        Task<ApiResult> UpdatePlatform(Guid id, string platformName);
+        Task<ApiResult<Guid>> CreatePlatform(CancellationToken cancellationToken, string platformName);
+        Task<ApiResult> DeletePlatform(CancellationToken cancellationToken, Guid id);
+        Task<ApiResult<List<PlatformDto>>> GetAllPlatforms(CancellationToken cancellationToken);
+        Task<ApiResult> UpdatePlatform(CancellationToken cancellationToken, Guid id, string platformName);
     }
 }

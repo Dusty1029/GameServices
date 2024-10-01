@@ -18,7 +18,7 @@ namespace GameService.API.BusinessLogics.Implementations
         }
 
         public Task<List<PlatformDto>> GetAllPlatforms() 
-            => platformRepository.GetAllSelect(f => f.Select(p => new PlatformDto() { Id = p.Id, Name = p.Name, CanBeDeleted = !p.IsSeed }));
+            => platformRepository.GetAllSelect(f => f.Select(p => new PlatformDto() { Id = p.Id, Name = p.Name, CanBeDeleted = !p.IsSeed }), orderBy: f => f.OrderBy(p => p.Name));
 
         public async Task UpdatePlatform(Guid id, string platformName)
         {

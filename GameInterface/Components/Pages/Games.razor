@@ -16,7 +16,7 @@
                     <MudText Typo="Typo.h6">Mes jeux</MudText>
                 </MudItem>
                 <MudItem xs="1">
-                    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="NavigateToGameCreation" />
+                    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="CreateGame" />
                 </MudItem>
             </MudGrid>
         </ToolBarContent>
@@ -75,14 +75,12 @@
     private MudTable<SearchGameItemDto>? _table;
     private bool _loading;
     private string _searchGame = "";
-    private DialogOptions? _deleteDialogOptions;
 
     protected override async Task OnInitializedAsync()
     {
-        _deleteDialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-        var getAllCategoriesResult = CategoryService.GetAllCategories();
-        var getAllPlatformsResult = PlatformService.GetAllPlatforms();
-        var getAllSeriesResult = SerieService.GetAllSeries();
+        var getAllCategoriesResult = CategoryService.GetAllCategories(CancellationToken);
+        var getAllPlatformsResult = PlatformService.GetAllPlatforms(CancellationToken);
+        var getAllSeriesResult = SerieService.GetAllSeries(CancellationToken);
 
         await Task.WhenAll(getAllCategoriesResult, getAllPlatformsResult, getAllSeriesResult);
 
@@ -97,7 +95,7 @@
     private async Task<TableData<SearchGameItemDto>> SearchGames(TableState state, CancellationToken token)
     {
         _loading = true;
-        var searchGamesResult = await GameService.SearchGame(new()
+        var searchGamesResult = await GameService.SearchGame(token, new()
         {
             Page = ++state.Page,
             Size = state.PageSize,
@@ -154,12 +152,13 @@
             { x => x.ActionButtonText, "Supprimer" },
             { x => x.Color, Color.Error }
         };
-        var dialogReference = await DialogService.ShowAsync<CustomDialog>("Suppression", parameters, _deleteDialogOptions);
+        var deleteDialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialogReference = await DialogService.ShowAsync<CustomDialog>("Suppression", parameters, deleteDialogOptions);
         var response = await dialogReference.Result;
 
         if (!response!.Canceled)
         {
-            var deleteGameByIdResult = await GameService.DeleteGameById(game.Id);
+            var deleteGameByIdResult = await GameService.DeleteGameById(CancellationToken, game.Id);
             if (deleteGameByIdResult.IsSucceed)
             {
                 Snackbar.Add($"Le jeu {game.Name} a bien été supprimé.", Severity.Success);
@@ -168,13 +167,32 @@
         }
     }
 
-    private void NavigateToGameCreation()
+    private async Task CreateGame()
     {
-        Navigation.NavigateTo("/games/create");
+        var parameters = new DialogParameters<GameCreation>
+        {
+            { x => x.Platforms, _platforms },
+            { x => x.Categories, _categories },
+            { x => x.Series, _series }
+        };
+        var dialogOptions = new DialogOptions() { CloseButton = true, FullWidth = true,  };
+        var dialogReference = await DialogService.ShowAsync<GameCreation>("Création d'un jeu", parameters, dialogOptions);
+        var response = await dialogReference.Result;
+
+        if (!response!.Canceled)
+        {
+            var createGameDto = (CreateGameDto)response.Data!;
+            var createGameResult = await GameService.CreateGame(CancellationToken, createGameDto);
+            if (createGameResult.IsSucceed)
+            {
+                Snackbar.Add($"Le jeu {createGameDto.Name} a bien été créé.", Severity.Success);
+                NavigateToGame(createGameResult.Result);
+            }
+        }
     }
 
-    private void OnGameClicked(TableRowClickEventArgs<SearchGameItemDto> tableRowClickEventArgs)
-    {
-        Navigation.NavigateTo($"/games/{tableRowClickEventArgs.Item!.Id}");
-    }
+    private void OnGameClicked(TableRowClickEventArgs<SearchGameItemDto> tableRowClickEventArgs) =>
+        NavigateToGame(tableRowClickEventArgs.Item!.Id);
+
+    private void NavigateToGame(Guid gameId) => Navigation.NavigateTo($"/games/{gameId}");
 }

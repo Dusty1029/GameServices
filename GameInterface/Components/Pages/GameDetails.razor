@@ -156,9 +156,9 @@
 
     private async Task LoadPage()
     {
-        var getAllCategoriesResult = CategoryService.GetAllCategories();
-        var getAllSeriesResult = SerieService.GetAllSeries();
-        var getGameByIdResult = GameService.GetGameById(GameId);
+        var getAllCategoriesResult = CategoryService.GetAllCategories(CancellationToken);
+        var getAllSeriesResult = SerieService.GetAllSeries(CancellationToken);
+        var getGameByIdResult = GameService.GetGameById(CancellationToken, GameId);
 
         await Task.WhenAll(getAllCategoriesResult, getGameByIdResult, getAllSeriesResult);
 
@@ -190,7 +190,7 @@
     private async Task SaveChanges()
     {
         _updateGame.GameDetails = _game!.GameDetails.Select(gd => new UpdateGameDetailDto { Id = gd.Id, IsFinished = gd.IsFinished, IsStarted = gd.IsStarted });
-        var updateGameResult = await GameService.UpdateGame(GameId, _updateGame);
+        var updateGameResult = await GameService.UpdateGame(CancellationToken, GameId, _updateGame);
         if (updateGameResult.IsSucceed)
         {
             await ReloadPage($"Le jeu {_game.Name} a bien été modifié");
@@ -212,7 +212,7 @@
 
         if (!response!.Canceled)
         {
-            var deleteGameResult = await GameService.DeleteGameById(game.Id);
+            var deleteGameResult = await GameService.DeleteGameById(CancellationToken, game.Id);
 
             if (deleteGameResult.IsSucceed)
             {
@@ -234,11 +234,11 @@
         ApiResult apiResult;
         if (gameDetail.Platform.PlatformEnum == PlatformEnumDto.Steam)
         {
-            apiResult = await SteamService.ReloadSteamGame(gameDetail.Id);
+            apiResult = await SteamService.ReloadSteamGame(CancellationToken, gameDetail.Id);
         }
         else
         {
-            apiResult = await PlaystationService.ReloadPlaystationGame(gameDetail.Id);
+            apiResult = await PlaystationService.ReloadPlaystationGame(CancellationToken, gameDetail.Id);
         }
 
         if (apiResult.IsSucceed)
@@ -252,7 +252,7 @@
         var noCallOrSucceed = true;
         if (_platforms is null)
         {
-            var getAllPlatformsResult = await PlatformService.GetAllPlatforms();
+            var getAllPlatformsResult = await PlatformService.GetAllPlatforms(CancellationToken);
             noCallOrSucceed = getAllPlatformsResult.IsSucceed;
             if (getAllPlatformsResult.IsSucceed)
             {
@@ -276,7 +276,7 @@
             if (!response!.Canceled)
             {
                 var result = (PlatformDto)response!.Data!;
-                var addPlatformToAGameResult = await GameService.AddPlatformToAGame(GameId, result.Id);
+                var addPlatformToAGameResult = await GameService.AddPlatformToAGame(CancellationToken, GameId, result.Id);
                 if (addPlatformToAGameResult.IsSucceed)
                 {
                     await ReloadPage($"La platform {result.Name} a bien été ajoutée au jeu {_game!.Name}");

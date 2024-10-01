@@ -7,12 +7,12 @@ namespace GameInterface.Services.Interfaces
 {
     public interface IGameService
     {
-        Task<ApiResult<GameDto>> GetGameById(Guid id);
-        Task<ApiResult<PaginationResult<SearchGameItemDto>>> SearchGame(SearchGameDto searchGameDto);
-        Task<ApiResult> DeleteGameById(Guid gameId);
-        Task<ApiResult<Guid>> CreateGame(CreateGameDto createGameDto);
-        Task<ApiResult> UpdateGame(Guid gameId, UpdateGameDto gameDto);
-        Task<ApiResult<Guid>> AddPlatformToAGame(Guid gameId, Guid platformId);
-        Task<ApiResult<List<SimpleGameDto>>> SearchSimpleGame(string gameSearched, PlatformEnumDto? platformEnum);
+        Task<ApiResult<GameDto>> GetGameById(CancellationToken cancellationToken, Guid id);
+        Task<ApiResult<PaginationResult<SearchGameItemDto>>> SearchGame(CancellationToken cancellationToken, SearchGameDto searchGameDto);
+        Task<ApiResult> DeleteGameById(CancellationToken cancellationToken, Guid gameId);
+        Task<ApiResult<Guid>> CreateGame(CancellationToken cancellationToken, CreateGameDto createGameDto);
+        Task<ApiResult> UpdateGame(CancellationToken cancellationToken, Guid gameId, UpdateGameDto gameDto);
+        Task<ApiResult<Guid>> AddPlatformToAGame(CancellationToken cancellationToken, Guid gameId, Guid platformId);
+        Task<ApiResult<List<SimpleGameDto>>> SearchSimpleGame(CancellationToken cancellationToken, string gameSearched, PlatformEnumDto? platformEnum);
     }
 }

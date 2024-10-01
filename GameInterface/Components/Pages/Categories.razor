@@ -17,7 +17,7 @@
 
     private async Task LoadCategories()
     {
-        var getCategoriesResult = await CategoryService.GetAllCategories();
+        var getCategoriesResult = await CategoryService.GetAllCategories(CancellationToken);
         if (getCategoriesResult.IsSucceed)
         {
             CategoryDtos = getCategoriesResult.Result!;
@@ -28,7 +28,7 @@
     private async Task DeleteCategory(SimpleTableElement simpleElement)
     {
         var category = FindCategory(simpleElement);
-        var deleteCategoryResult = await CategoryService.DeleteCategory(category.Id);
+        var deleteCategoryResult = await CategoryService.DeleteCategory(CancellationToken, category.Id);
         if (deleteCategoryResult.IsSucceed)
         {
             Snackbar.Add($"La catégorie {simpleElement.Name} a bien été supprimée.", Severity.Success);

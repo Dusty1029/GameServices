@@ -9,12 +9,19 @@ namespace GameInterface.Services.Implementations
     public class GameService(IGenericService genericService) : IGameService
     {
         private readonly string beginPath = "game";
-        public Task<ApiResult<Guid>> AddPlatformToAGame(Guid gameId, Guid platformId) => genericService.PostResult<Guid>(path: $"{beginPath}/{gameId}/platform/{platformId}");
-        public Task<ApiResult<Guid>> CreateGame(CreateGameDto createGameDto) => genericService.PostResult<Guid>(createGameDto, beginPath);
-        public Task<ApiResult> DeleteGameById(Guid gameId) => genericService.DeleteResult($"{beginPath}/{gameId}");
-        public Task<ApiResult<GameDto>> GetGameById(Guid id) => genericService.GetResult<GameDto>($"{beginPath}/{id}");
-        public Task<ApiResult<PaginationResult<SearchGameItemDto>>> SearchGame(SearchGameDto searchGameDto) => genericService.PostResult<PaginationResult<SearchGameItemDto>>(searchGameDto, $"{beginPath}/search");
-        public Task<ApiResult<List<SimpleGameDto>>> SearchSimpleGame(string gameSearched, PlatformEnumDto? platformEnum) => genericService.PostResult<List<SimpleGameDto>>(platformEnum, $"{beginPath}/search/{gameSearched}");
-        public Task<ApiResult> UpdateGame(Guid gameId, UpdateGameDto gameDto) => genericService.PutResult(gameDto, $"{beginPath}/{gameId}");
+        public Task<ApiResult<Guid>> AddPlatformToAGame(CancellationToken cancellationToken, Guid gameId, Guid platformId) =>
+            genericService.PostResult<Guid>(cancellationToken, path: $"{beginPath}/{gameId}/platform/{platformId}");
+        public Task<ApiResult<Guid>> CreateGame(CancellationToken cancellationToken, CreateGameDto createGameDto) =>
+            genericService.PostResult<Guid>(cancellationToken, createGameDto, beginPath);
+        public Task<ApiResult> DeleteGameById(CancellationToken cancellationToken, Guid gameId) =>
+            genericService.DeleteResult(cancellationToken, $"{beginPath}/{gameId}");
+        public Task<ApiResult<GameDto>> GetGameById(CancellationToken cancellationToken, Guid id) =>
+            genericService.GetResult<GameDto>(cancellationToken, $"{beginPath}/{id}");
+        public Task<ApiResult<PaginationResult<SearchGameItemDto>>> SearchGame(CancellationToken cancellationToken, SearchGameDto searchGameDto) =>
+            genericService.PostResult<PaginationResult<SearchGameItemDto>>(cancellationToken, searchGameDto, $"{beginPath}/search");
+        public Task<ApiResult<List<SimpleGameDto>>> SearchSimpleGame(CancellationToken cancellationToken, string gameSearched, PlatformEnumDto? platformEnum) =>
+            genericService.PostResult<List<SimpleGameDto>>(cancellationToken, platformEnum, $"{beginPath}/search/{gameSearched}");
+        public Task<ApiResult> UpdateGame(CancellationToken cancellationToken, Guid gameId, UpdateGameDto gameDto) =>
+            genericService.PutResult(cancellationToken, gameDto, $"{beginPath}/{gameId}");
     }
 }

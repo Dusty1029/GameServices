@@ -7,14 +7,19 @@ namespace GameInterface.Services.Implementations
     public class SerieService(IGenericService genericService) : ISerieService
     {
         private readonly string beginPath = "serie";
-        public Task<ApiResult<Guid>> CreateSerie(CreateSerieDto createSerie) => genericService.PostResult<Guid>(createSerie, beginPath);
+        public Task<ApiResult<Guid>> CreateSerie(CancellationToken cancellationToken, CreateSerieDto createSerie) =>
+            genericService.PostResult<Guid>(cancellationToken, createSerie, beginPath);
 
-        public Task<ApiResult> DeleteSerie(Guid id) => genericService.DeleteResult($"{beginPath}/{id}");
+        public Task<ApiResult> DeleteSerie(CancellationToken cancellationToken, Guid id) =>
+            genericService.DeleteResult(cancellationToken, $"{beginPath}/{id}");
 
-        public Task<ApiResult<List<SimpleSerieDto>>> GetAllSeries() => genericService.GetResult<List<SimpleSerieDto>>(beginPath);
+        public Task<ApiResult<List<SimpleSerieDto>>> GetAllSeries(CancellationToken cancellationToken) =>
+            genericService.GetResult<List<SimpleSerieDto>>(cancellationToken, beginPath);
 
-        public Task<ApiResult<SerieDto>> GetSerieById(Guid id) => genericService.GetResult<SerieDto>($"beginPath/{id}");
+        public Task<ApiResult<SerieDto>> GetSerieById(CancellationToken cancellationToken, Guid id) =>
+            genericService.GetResult<SerieDto>(cancellationToken, $"beginPath/{id}");
 
-        public Task<ApiResult> UpdateSerie(Guid id, CreateSerieDto createSerie) => genericService.PutResult(createSerie, $"{beginPath}/{id}");
+        public Task<ApiResult> UpdateSerie(CancellationToken cancellationToken, Guid id, CreateSerieDto createSerie) =>
+            genericService.PutResult(cancellationToken, createSerie, $"{beginPath}/{id}");
     }
 }

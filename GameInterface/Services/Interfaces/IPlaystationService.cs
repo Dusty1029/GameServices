@@ -5,10 +5,10 @@ namespace GameInterface.Services.Interfaces
 {
     public interface IPlaystationService
     {
-        Task<ApiResult<Guid>> AddPlaystationGame(CreatePlaystationGameDto gamePlaystationDto);
-        Task<ApiResult> IgnorePlaystationGame(PlaystationGameDto gamePlaystationDto, bool isIgnored);
-        Task<ApiResult> ReloadPlaystationGame(Guid gameDetailId);
-        Task<ApiResult<List<PlaystationGameDto>>> GetMissingPlaystationGames();
-        Task<ApiResult> RefreshToken(string npsso);
+        Task<ApiResult<Guid>> AddPlaystationGame(CancellationToken cancellationToken, CreatePlaystationGameDto gamePlaystationDto);
+        Task<ApiResult> IgnorePlaystationGame(CancellationToken cancellationToken, PlaystationGameDto gamePlaystationDto, bool isIgnored);
+        Task<ApiResult> ReloadPlaystationGame(CancellationToken cancellationToken, Guid gameDetailId);
+        Task<ApiResult<List<PlaystationGameDto>>> GetMissingPlaystationGames(CancellationToken cancellationToken);
+        Task<ApiResult> RefreshToken(CancellationToken cancellationToken, string npsso);
     }
 }

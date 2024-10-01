@@ -16,7 +16,7 @@
 
     private async Task LoadPlatforms()
     {
-        var getPlatformResult = await PlatformService.GetAllPlatforms();
+        var getPlatformResult = await PlatformService.GetAllPlatforms(CancellationToken);
         if (getPlatformResult.IsSucceed)
         {
             PlatformDtos = getPlatformResult.Result!;
@@ -27,7 +27,7 @@
     private async Task DeletePlatform(SimpleTableElement simpleElement)
     {
         var platform = FindPlatform(simpleElement);
-        var deletePlatformResult = await PlatformService.DeletePlatform(platform.Id);
+        var deletePlatformResult = await PlatformService.DeletePlatform(CancellationToken, platform.Id);
         if (deletePlatformResult.IsSucceed)
         {
             Snackbar.Add($"La paltform {simpleElement.Name} a bien été supprimée.", Severity.Success);
