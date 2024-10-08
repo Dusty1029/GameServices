@@ -12,21 +12,22 @@ namespace GameService.API.Extensions.Entities
             SteamId = gameSteam.appid
         };
 
-        public static GameEntity ToEntity(this SteamGameDto gameSteamDto, List<AchievementSteam> achievements, List<AchievementPercentageSteam> achievementPercentages, Guid platformId) => new()
+        public static GameEntity ToEntity(this CreateSteamGameDto gameSteamDto, List<AchievementSteam> achievements, List<AchievementPercentageSteam> achievementPercentages, Guid platformId) => new()
         {
-            Name = gameSteamDto.Name,
+            Name = gameSteamDto.SteamGame.Name,
+            SerieId = gameSteamDto.Serie?.Id,
             GameDetails =
             [
                 new() 
                 {
-                    SteamId = gameSteamDto.SteamId,
+                    SteamId = gameSteamDto.SteamGame.SteamId,
                     Achievements = achievements.Select(a => a.ToEntity(achievementPercentages.FirstOrDefault(ap => ap.name == a.apiname)?.percent)).ToList(),
                     PlatformId = platformId
                 }
             ]
         };
 
-        public static GameDetailEntity ToEntity(this CreateSteamGameDto gameSteamDto, List<AchievementSteam> achievements, List<AchievementPercentageSteam> achievementPercentages, Guid platformId) => new()
+        public static GameDetailEntity ToEntityWithGameId(this CreateSteamGameDto gameSteamDto, List<AchievementSteam> achievements, List<AchievementPercentageSteam> achievementPercentages, Guid platformId) => new()
         {
             GameId = gameSteamDto.GameId!.Value,
             SteamId = gameSteamDto.SteamGame.SteamId,

@@ -13,7 +13,7 @@ namespace GameService.API.Controllers
 
         [HttpGet]
         public Task<IActionResult> GetAllCategories()
-            => controllerExecutor.ExecuteAsync(this, () => categoryBL.GetAllCategories());
+            => controllerExecutor.ExecuteAsync(this, categoryBL.GetAllCategories);
 
         [HttpPost]
         public Task<IActionResult> CreateCategory([FromBody] string category)

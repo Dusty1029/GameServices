@@ -12,7 +12,7 @@ namespace GameService.API.Controllers
     {
         [HttpGet]
         public Task<IActionResult> GetMissingSteamGames()
-            => controllerExecutor.ExecuteAsync(this, () => steamBL.GetMissingSteamGames());
+            => controllerExecutor.ExecuteAsync(this, steamBL.GetMissingSteamGames);
 
         [HttpPost]
         public Task<IActionResult> AddSteamGame([FromBody] CreateSteamGameDto steamGameDto)

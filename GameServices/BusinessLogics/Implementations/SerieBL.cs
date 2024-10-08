@@ -8,7 +8,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameService.API.BusinessLogics.Implementations
 {
-    public class SerieBL(ISerieRepository serieRepository) : ISerieBL
+    public class SerieBL(ISerieRepository serieRepository,
+        IGameRepository gameRepository) : ISerieBL
     {
         public async Task<Guid> CreateSerie(CreateSerieDto createSerie)
         {
@@ -64,6 +65,19 @@ namespace GameService.API.BusinessLogics.Implementations
 
             createSerie.ToEntity(serie);
             await serieRepository.SaveChanges();
+        }
+
+        public async Task<List<SerieDto>> GetSeriesWithGames()
+        {
+            var games = await gameRepository.GetAll(f => f.Include(g => g.Serie));
+            var series = games.Where(g => g.Serie != null).Select(g => g.Serie).DistinctBy(s => s!.Id).ToList();
+            var serieDtos = series.Select(s => s!.ToDto(games.Where(g => g.SerieId == s!.Id).ToList())).ToList();
+            serieDtos.Add(new() 
+            { 
+                Serie = "Pas de série",
+                Games = games.Where(g => g.Serie == null).Select(g => g.ToSimpleDto()).ToList()
+            });
+            return serieDtos;
         }
     } 
 }

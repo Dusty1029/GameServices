@@ -10,5 +10,6 @@ namespace GameInterface.Services.Interfaces
         Task<ApiResult<List<SimpleSerieDto>>> GetAllSeries(CancellationToken cancellationToken);
         Task<ApiResult<SerieDto>> GetSerieById(CancellationToken cancellationToken, Guid id);
         Task<ApiResult> UpdateSerie(CancellationToken cancellationToken, Guid id, CreateSerieDto createSerie);
+        Task<ApiResult<List<SerieDto>>> GetSeriesWithGames(CancellationToken cancellationToken);
     }
 }

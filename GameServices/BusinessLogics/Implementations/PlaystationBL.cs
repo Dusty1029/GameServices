@@ -18,6 +18,8 @@ namespace GameService.API.BusinessLogics.Implementations
         IGameDetailRepository gameDetailRepository,
         IPlatformRepository platformRepository,
         IIgnoredGameRepository ignoredGameRepository,
+        ISerieRepository serieRepository,
+        ICategoryRepository categoryRepository,
         IAchievementRepository achievementRepository) : IPlaystationBL
     {
         public async Task<Guid> AddPlaystationGame(CreatePlaystationGameDto gamePlaystationDto)
@@ -27,6 +29,19 @@ namespace GameService.API.BusinessLogics.Implementations
                 var gameExist = await gameRepository.Exists(g => g.Id == gamePlaystationDto.GameId.Value);
                 if (!gameExist)
                     throw new NotFoundException($"The game with id [{gamePlaystationDto.GameId}] was not found.");
+            }
+
+            if (gamePlaystationDto.Serie is not null && !await serieRepository.Exists(s => s.Id == gamePlaystationDto.Serie.Id))
+                throw new NotFoundException($"The serie with id [{gamePlaystationDto.Serie!.Id}] was not found.");
+
+            var categories = new List<CategoryEntity>();
+            if (gamePlaystationDto.Categories is not null)
+            {
+                var categoryIds = gamePlaystationDto.Categories.Select(c => c.Id);
+                categories = await categoryRepository.Get(c => categoryIds.Contains(c.Id));
+                var missingCategories = categoryIds.Except(categories.Select(c => c.Id));
+                if (missingCategories.Any())
+                    throw new NotFoundException($"The categories with id [{string.Join(", ", missingCategories)}] was not found.");
             }
 
             var actualToken = await RefreshToken();
@@ -40,12 +55,13 @@ namespace GameService.API.BusinessLogics.Implementations
 
             if(gamePlaystationDto.GameId.HasValue)
             {
-                await gameDetailRepository.InsertAndSave(gamePlaystationDto.ToEntity(trophiesResult.Result, trophiesEarnedResult.Result, platformIdResult.Result));
+                await gameDetailRepository.InsertAndSave(gamePlaystationDto.ToEntityWithGameId(trophiesResult.Result, trophiesEarnedResult.Result, platformIdResult.Result));
             }
             else
             {
-                var game = await gameRepository.InsertAndSave(gamePlaystationDto.PlaystationGame.ToEntity(trophiesResult.Result, trophiesEarnedResult.Result, platformIdResult.Result));
-                gamePlaystationDto.GameId = game.Id;
+                var gameEntity = gamePlaystationDto.ToEntity(trophiesResult.Result, trophiesEarnedResult.Result, platformIdResult.Result);
+                await gameRepository.CreateGame(gameEntity, categories);
+                gamePlaystationDto.GameId = gameEntity.Id;
             }
 
             return gamePlaystationDto.GameId!.Value;

@@ -6,6 +6,7 @@ using GameService.Infrastructure.Repositories.Interfaces;
 using GameService.API.Gateways.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using GameService.Infrastructure.Entities.Enums;
+using GameService.Infrastructure.Entities;
 
 namespace GameService.API.BusinessLogics.Implementations
 {
@@ -14,6 +15,8 @@ namespace GameService.API.BusinessLogics.Implementations
         IIgnoredGameRepository ignoredGameRepository,
         IPlatformRepository platformRepository,
         IAchievementRepository achievementRepository,
+        ISerieRepository serieRepository,
+        ICategoryRepository categoryRepository,
         ISteamApiGateway steamApiGateway) : ISteamBL
     {
         public async Task<Guid> AddSteamGame(CreateSteamGameDto gameSteamDto)
@@ -25,6 +28,19 @@ namespace GameService.API.BusinessLogics.Implementations
                     throw new NotFoundException($"The game with id [{gameSteamDto.GameId}] was not found.");
             }
 
+            if (gameSteamDto.Serie is not null && !await serieRepository.Exists(s => s.Id == gameSteamDto.Serie.Id))
+                throw new NotFoundException($"The serie with id [{gameSteamDto.Serie!.Id}] was not found.");
+
+            var categories = new List<CategoryEntity>();
+            if (gameSteamDto.Categories is not null)
+            {
+                var categoryIds = gameSteamDto.Categories.Select(c => c.Id);
+                categories = await categoryRepository.Get(c => categoryIds.Contains(c.Id));
+                var missingCategories = categoryIds.Except(categories.Select(c => c.Id));
+                if (missingCategories.Any())
+                    throw new NotFoundException($"The categories with id [{string.Join(", ", missingCategories)}] was not found.");
+            }
+
             var steamPlatformId = GetSteamPlatformId();
             var achievementsResult = steamApiGateway.GetAchievementByAppId(gameSteamDto.SteamGame.SteamId);
             var percentagesResult = steamApiGateway.GetAchievementPercentageByAppId(gameSteamDto.SteamGame.SteamId);
@@ -33,12 +49,13 @@ namespace GameService.API.BusinessLogics.Implementations
 
             if (gameSteamDto.GameId.HasValue)
             {
-                await gameDetailRepository.InsertAndSave(gameSteamDto.ToEntity(achievementsResult.Result, percentagesResult.Result, steamPlatformId.Result));
+                await gameDetailRepository.InsertAndSave(gameSteamDto.ToEntityWithGameId(achievementsResult.Result, percentagesResult.Result, steamPlatformId.Result));
             }
             else
             {
-                var game = await gameRepository.InsertAndSave(gameSteamDto.SteamGame.ToEntity(achievementsResult.Result, percentagesResult.Result, steamPlatformId.Result));
-                gameSteamDto.GameId = game.Id;
+                var gameEntity = gameSteamDto.ToEntity(achievementsResult.Result, percentagesResult.Result, steamPlatformId.Result);
+                await gameRepository.CreateGame(gameEntity, categories);
+                gameSteamDto.GameId = gameEntity.Id;
             }           
 
             return gameSteamDto.GameId!.Value;

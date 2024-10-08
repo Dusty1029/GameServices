@@ -16,7 +16,7 @@ namespace GameService.API.Controllers
 
         [HttpGet]
         public Task<IActionResult> GetMissingSteamGames()
-            => controllerExecutor.ExecuteAsync(this, () => playstationBL.GetMissingPlaystationGames());
+            => controllerExecutor.ExecuteAsync(this, playstationBL.GetMissingPlaystationGames);
         
         [HttpPost]
         public Task<IActionResult> AddPlaystationGame([FromBody] CreatePlaystationGameDto gamePlaystationDto)

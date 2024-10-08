@@ -1,13 +1,14 @@
 ﻿@page "/platforms"
 @inject IPlatformService PlatformService
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
-<SimpleElementsTableComponent Elements="Elements"
+<ParameterElementsTableComponent Elements="Elements"
                               LoadElements="LoadPlatforms"
                               DeleteElement="DeletePlatform"
                               Title="@Title"
                               AddElement="AddPlatform">
-</SimpleElementsTableComponent>
+</ParameterElementsTableComponent>
 
 @code {
     private List<SimpleTableElement> Elements { get; set; } = [];
@@ -35,9 +36,27 @@
         }
     }
 
-    private void AddPlatform()
+    private async Task AddPlatform()
     {
-        Snackbar.Add($"Add platform", Severity.Success);
+        var parameters = new DialogParameters<TextInputDialog>
+        {
+            { x => x.ContentText, $"Création d'une platforme" },
+            { x => x.Label, "Plateforme" }
+        };
+        var dialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialogReference = await DialogService.ShowAsync<TextInputDialog>("Création", parameters, dialogOptions);
+        var response = await dialogReference.Result;
+
+        if (!response!.Canceled)
+        {
+            var platform = (string)response.Data!;
+            var createCategoryResult = await PlatformService.CreatePlatform(CancellationToken, platform);
+            if (createCategoryResult.IsSucceed)
+            {
+                Snackbar.Add($"La plateforme {platform} a bien été crée.", Severity.Success);
+                await LoadPlatforms();
+            }
+        }
     }
 
     private PlatformDto FindPlatform(SimpleTableElement simpleTableElement) => PlatformDtos.First(sg => sg.Id == simpleTableElement.Id);

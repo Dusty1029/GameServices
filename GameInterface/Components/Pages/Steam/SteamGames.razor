@@ -2,12 +2,12 @@
 @inject ISteamService SteamService
 @inject ISnackbar Snackbar
 
-<SimpleGamesComponent Options="SimpleGamesComponentOptions"
+<GamesToLoadTableComponent Options="SimpleGamesComponentOptions"
     Games="SimpleGames"
     LoadGame="LoadSteamGames"
     AddGame="AddSteamGame"
     IgnoreGame="IgnoreSteamGame">
-</SimpleGamesComponent>
+</GamesToLoadTableComponent>
 
 
 @code {
@@ -32,7 +32,12 @@
     private async Task AddSteamGame(CreateSimpleGame steamGame)
     {
         var steamGameDto = FindSteamGame(steamGame.Game);
-        var addSteamGameResult = await SteamService.AddSteamGame(CancellationToken, new CreateSteamGameDto { GameId = steamGame.GameId, SteamGame = steamGameDto });
+        var addSteamGameResult = await SteamService.AddSteamGame(CancellationToken, new CreateSteamGameDto { 
+            GameId = steamGame.GameToLoad?.Game?.Id,
+            Serie = steamGame.GameToLoad?.Serie,
+            Categories = steamGame.GameToLoad?.Categories,
+            SteamGame = steamGameDto
+        });
         if (addSteamGameResult.IsSucceed)
         {
             Snackbar.Add($"Le jeu {steamGame.Game.Name} a bien été ajouté à votre bibliothèque.", Severity.Success);

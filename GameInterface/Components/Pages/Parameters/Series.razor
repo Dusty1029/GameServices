@@ -1,14 +1,14 @@
 ﻿@page "/series"
 @inject ISerieService SerieService
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
-<SimpleElementsTableComponent 
-    Elements="Elements" 
+<ParameterElementsTableComponent Elements="Elements" 
     LoadElements="LoadSeries"
     DeleteElement="DeleteSerie"
     Title="@Title"
     AddElement="AddSerie">
-</SimpleElementsTableComponent>
+</ParameterElementsTableComponent>
 
 @code {
     private List<SimpleTableElement> Elements { get; set; } = [];
@@ -36,9 +36,27 @@
         }
     }
 
-    private void AddSerie()
+    private async Task AddSerie()
     {
-        Snackbar.Add($"Add serie", Severity.Success);
+        var parameters = new DialogParameters<TextInputDialog>
+        {
+            { x => x.ContentText, $"Création d'une série" },
+            { x => x.Label, "Série" }
+        };
+        var dialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialogReference = await DialogService.ShowAsync<TextInputDialog>("Création", parameters, dialogOptions);
+        var response = await dialogReference.Result;
+
+        if (!response!.Canceled)
+        {
+            var serie = (string)response.Data!;
+            var createCategoryResult = await SerieService.CreateSerie(CancellationToken, new() { Serie = serie });
+            if (createCategoryResult.IsSucceed)
+            {
+                Snackbar.Add($"La plateforme {serie} a bien été crée.", Severity.Success);
+                await LoadSeries();
+            }
+        }
     }
 
     private SimpleSerieDto FindSerie(SimpleTableElement simpleTableElement) => SerieDtos.First(sg => sg.Id == simpleTableElement.Id);

@@ -1,14 +1,14 @@
 ﻿@page "/categories"
 @inject ICategoryService CategoryService
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
-<SimpleElementsTableComponent 
-    Elements="Elements" 
+<ParameterElementsTableComponent Elements="Elements" 
     LoadElements="LoadCategories"
     DeleteElement="DeleteCategory"
     Title="@Title"
     AddElement="AddCategory">
-</SimpleElementsTableComponent>
+</ParameterElementsTableComponent>
 
 @code {
     private List<SimpleTableElement> Elements { get; set; } = [];
@@ -36,9 +36,27 @@
         }
     }
 
-    private void AddCategory()
+    private async Task AddCategory()
     {
-        Snackbar.Add($"Add category", Severity.Success);
+        var parameters = new DialogParameters<TextInputDialog>
+        {
+            { x => x.ContentText, $"Création d'une catégorie" },
+            { x => x.Label, "Catégorie" }
+        };
+        var dialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialogReference = await DialogService.ShowAsync<TextInputDialog>("Création", parameters, dialogOptions);
+        var response = await dialogReference.Result;
+
+        if (!response!.Canceled)
+        {
+            var category = (string)response.Data!;
+            var createCategoryResult = await CategoryService.CreateCategory(CancellationToken, category);
+            if (createCategoryResult.IsSucceed)
+            {
+                Snackbar.Add($"La catégorie {category} a bien été crée.", Severity.Success);
+                await LoadCategories();
+            }
+        }
     }
 
     private CategoryDto FindCategory(SimpleTableElement simpleTableElement) => CategoryDtos.First(sg => sg.Id == simpleTableElement.Id);

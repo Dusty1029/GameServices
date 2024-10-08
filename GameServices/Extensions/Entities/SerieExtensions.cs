@@ -9,9 +9,18 @@ namespace GameService.API.Extensions.Entities
         {
             Id = serieEntity.Id,
             Serie = serieEntity.Name,
-            ChildSeries = serieEntity.ChildrenSeries!.Select(x => x.ToSimpleDto()).ToList(),
+            ChildSeries = serieEntity.ChildrenSeries?.Select(x => x.ToSimpleDto()).ToList() ?? [],
             ParentSerie = serieEntity.ParentSerie?.ToSimpleDto(),
             Games = serieEntity.Games!.Select(g => g.ToSimpleDto()).ToList()
+        };
+
+        public static SerieDto ToDto(this SerieEntity serieEntity, List<GameEntity> gameEntities) => new()
+        {
+            Id = serieEntity.Id,
+            Serie = serieEntity.Name,
+            ChildSeries = serieEntity.ChildrenSeries?.Select(x => x.ToSimpleDto()).ToList() ?? [],
+            ParentSerie = serieEntity.ParentSerie?.ToSimpleDto(),
+            Games = gameEntities.Select(g => g.ToSimpleDto()).ToList()
         };
 
         public static SimpleSerieDto ToSimpleDto(this SerieEntity serieEntity) => new()

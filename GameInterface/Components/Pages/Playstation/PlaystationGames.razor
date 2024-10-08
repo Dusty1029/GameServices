@@ -14,12 +14,12 @@
     </MudPaper>
 }
 
-<SimpleGamesComponent Options="SimpleGamesComponentOptions"
+<GamesToLoadTableComponent Options="SimpleGamesComponentOptions"
                       Games="SimpleGames"
                       LoadGame="LoadPlaystationGames"
                       AddGame="AddPlaystationGame"
                       IgnoreGame="IgnorePlaystationGame">
-</SimpleGamesComponent>
+</GamesToLoadTableComponent>
 
 
 @code {
@@ -50,7 +50,13 @@
     private async Task AddPlaystationGame(CreateSimpleGame playstationGame)
     {
         var playstationGameDto = FindPlaystationGame(playstationGame.Game);
-        var addPlaystationGameResult = await PlaystationService.AddPlaystationGame(CancellationToken, new CreatePlaystationGameDto { GameId = playstationGame.GameId, PlaystationGame = playstationGameDto });
+        var addPlaystationGameResult = await PlaystationService.AddPlaystationGame(CancellationToken, new CreatePlaystationGameDto 
+        { 
+            GameId = playstationGame.GameToLoad?.Game?.Id,
+            Serie = playstationGame.GameToLoad?.Serie,
+            Categories = playstationGame.GameToLoad?.Categories,
+            PlaystationGame = playstationGameDto 
+        });
         if (addPlaystationGameResult.IsSucceed)
         {
             Snackbar.Add($"Le jeu {playstationGame.Game.Name} a bien été ajouté à votre bibliothèque.", Severity.Success);

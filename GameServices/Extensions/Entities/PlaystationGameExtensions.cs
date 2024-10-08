@@ -14,21 +14,22 @@ namespace GameService.API.Extensions.Entities
             TrophyTitlePlatform = Enum.Parse<PlatformEnumDto>(gamePlaystation.trophyTitlePlatform)
         };
 
-        public static GameEntity ToEntity(this PlaystationGameDto gamePlaystationDto, List<Trophy> trophies, List<TrophyEarned> trophiesEarned, Guid platformId) => new()
+        public static GameEntity ToEntity(this CreatePlaystationGameDto gamePlaystationDto, List<Trophy> trophies, List<TrophyEarned> trophiesEarned, Guid platformId) => new()
         {
-            Name = gamePlaystationDto.TrophyTitleName,
+            Name = gamePlaystationDto.PlaystationGame.TrophyTitleName,
+            SerieId = gamePlaystationDto.Serie?.Id,
             GameDetails = 
             [
                 new()
                 {
-                    PlaystationId = gamePlaystationDto.PlaystationId,
+                    PlaystationId = gamePlaystationDto.PlaystationGame.PlaystationId,
                     PlatformId = platformId,
                     Achievements = trophies.Select(t => t.ToEntity(trophiesEarned.First(te => te.trophyId == t.trophyId))).ToList()
                 }
             ]
         };
 
-        public static GameDetailEntity ToEntity(this CreatePlaystationGameDto gamePlaystationDto, List<Trophy> trophies, List<TrophyEarned> trophiesEarned, Guid platformId) => new()
+        public static GameDetailEntity ToEntityWithGameId(this CreatePlaystationGameDto gamePlaystationDto, List<Trophy> trophies, List<TrophyEarned> trophiesEarned, Guid platformId) => new()
         {
             GameId = gamePlaystationDto.GameId!.Value,
             PlaystationId = gamePlaystationDto.PlaystationGame.PlaystationId,

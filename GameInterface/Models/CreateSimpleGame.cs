@@ -2,7 +2,7 @@
 {
     public class CreateSimpleGame
     {
-        public Guid? GameId { get; set; }
+        public GameToLoad? GameToLoad { get; set; }
         public required SimpleGame Game { get; set; }
     }
 }

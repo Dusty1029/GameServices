@@ -12,7 +12,7 @@ namespace GameService.API.Controllers
     {
         [HttpGet]
         public Task<IActionResult> GetAllPlatforms()
-            => controllerExecutor.ExecuteAsync(this, () => platformBL.GetAllPlatforms());
+            => controllerExecutor.ExecuteAsync(this, platformBL.GetAllPlatforms);
 
         [HttpPost]
         public Task<IActionResult> CreatePlatform([FromBody] string platformName)

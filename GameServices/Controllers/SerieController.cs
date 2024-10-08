@@ -1,6 +1,5 @@
 ﻿using CommonV2.Helpers.Controller;
 using Game.Dto;
-using GameService.API.BusinessLogics.Implementations;
 using GameService.API.BusinessLogics.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,7 +12,7 @@ namespace GameService.API.Controllers
     {
         [HttpGet]
         public Task<IActionResult> GetAllSeries()
-            => controllerExecutor.ExecuteAsync(this, () => serieBL.GetAllSeries());
+            => controllerExecutor.ExecuteAsync(this, serieBL.GetAllSeries);
 
         [HttpGet]
         [Route("{id}")]
@@ -33,5 +32,10 @@ namespace GameService.API.Controllers
         [Route("{id}")]
         public Task<IActionResult> DeleteSerie([FromRoute] Guid id)
             => controllerExecutor.ExecuteAsync(this, () => serieBL.DeleteSerie(id));
+
+        [HttpGet]
+        [Route("games")]
+        public Task<IActionResult> GetSeriesWithGames()
+            => controllerExecutor.ExecuteAsync(this, serieBL.GetSeriesWithGames);
     }
 }

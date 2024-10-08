@@ -200,14 +200,14 @@
 
     private async Task DeleteGameById(GameDetailDto game)
     {
-        var parameters = new DialogParameters<CustomDialog>
+        var parameters = new DialogParameters<ValidationDialog>
         {
             { x => x.ContentText, _game!.GameDetails.Count() > 1 ? $"Êtes-vous sûr de vouloir supprimer la platform {game.Platform.Name} ?" : $"Êtes-vous sûr de vouloir supprimer le jeu {_game.Name} ?" },
             { x => x.ActionButtonText, "Supprimer" },
             { x => x.Color, Color.Error }
         };
         var dialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-        var dialogReference = await DialogService.ShowAsync<CustomDialog>("Suppression", parameters, dialogOptions);
+        var dialogReference = await DialogService.ShowAsync<ValidationDialog>("Suppression", parameters, dialogOptions);
         var response = await dialogReference.Result;
 
         if (!response!.Canceled)
@@ -264,13 +264,13 @@
         {
             _platforms!.RemoveAll(p => _game!.GameDetails.Select(gd => gd.Platform.Id).Contains(p.Id));
 
-            var parameters = new DialogParameters<AddPlatformToAGameDialog>
+            var parameters = new DialogParameters<SelectPlatformDialog>
             {
                 { x => x.Platforms, _platforms }
             };
             var dialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large };
 
-            var dialogReference = await DialogService.ShowAsync<AddPlatformToAGameDialog>("Ajout", parameters, dialogOptions);
+            var dialogReference = await DialogService.ShowAsync<SelectPlatformDialog>("Ajout", parameters, dialogOptions);
             var response = await dialogReference.Result;
 
             if (!response!.Canceled)

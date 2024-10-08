@@ -1,0 +1,232 @@
+﻿@page "/"
+@page "/games"
+@inject IGameService GameService
+@inject ICategoryService CategoryService
+@inject IPlatformService PlatformService
+@inject ISerieService SerieService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject NavigationManager Navigation
+
+<div class="pa-4">
+    <MudGrid>
+        <MudItem xs="11"/>
+        <MudItem xs="1">
+            <MudSwitch @bind-Value="BySerie" Label="Série" Color="Color.Success" />
+        </MudItem>
+    </MudGrid>
+    @if (!BySerie)
+    {
+        <MudTable T="SearchGameItemDto" ServerData="SearchGames" Hover="true" Striped="true" Loading="@_loading" LoadingProgressColor="Color.Info" @ref="_table" RowClass="cursor-pointer" OnRowClick="OnGameClicked">
+            <ToolBarContent>
+                <MudGrid>
+                    <MudItem xs="11">
+                        <MudText Typo="Typo.h6">Mes jeux</MudText>
+                    </MudItem>
+                    <MudItem xs="1">
+                        <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Size="Size.Small" OnClick="CreateGame" />
+                    </MudItem>
+                </MudGrid>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh>
+                    <MudTextField T="string" Label="Nom" Immediate="true" ValueChanged="OnSearchGameChanged" Placeholder="Final Fantasy VII"></MudTextField>
+                </MudTh>
+                <MudTh>
+                    <MudSelect T="PlatformDto" Label="Platform" Clearable="true" ValueChanged="OnPlatformChanged" Placeholder="PS1">
+                        @foreach (var platform in _platforms)
+                        {
+                            <MudSelectItem Value="@platform">@platform.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudTh>
+                <MudTh>
+                    <MudSelect T="CategoryDto" Label="Catégories" Clearable="true" Placeholder="RPG" MultiSelection="true" SelectedValuesChanged="OnSelectedCategoriesChanged">
+                        @foreach (var category in _categories)
+                        {
+                            <MudSelectItem Value="@category">@category.Name</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudTh>
+                <MudTh>
+                    <MudSelect T="SimpleSerieDto" Label="Série" Clearable="true" ValueChanged="OnSerieChanged" Placeholder="Final Fantasy">
+                        @foreach (var serie in _simpleSeries)
+                        {
+                            <MudSelectItem Value="@serie">@serie.Serie</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="Nom">@context.Name</MudTd>
+                <MudTd DataLabel="Platform">@context.Platforms</MudTd>
+                <MudTd DataLabel="Catégories">@context.Categories</MudTd>
+                <MudTd DataLabel="Serie">@context.Serie</MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="(_) => DeleteGameById(context)" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager RowsPerPageString="Jeux par page: " />
+            </PagerContent>
+        </MudTable>
+    }
+    else
+    {
+        <MudPaper Elevation="2">
+            <MudList T="CategoryDto">
+                @foreach (var serie in _series)
+                {
+                    <MudListItem Text="@serie.Serie">
+                        <NestedList>
+                            @foreach (var game in serie.Games)
+                            {
+                                <MudListItem Text="@game.Name" />
+                            }
+                        </NestedList>
+                    </MudListItem>
+                }
+            </MudList>
+        </MudPaper>
+        
+    }
+
+</div>
+
+@code {
+    private List<CategoryDto> _categories = [];
+    private List<PlatformDto> _platforms = [];
+    private List<SimpleSerieDto> _simpleSeries = [];
+    private List<SerieDto> _series = [];
+    private IEnumerable<Guid> _selectedCategories = [];
+    private Guid? _selectedPlatforms;
+    private Guid? _selectedSerie;
+    private MudTable<SearchGameItemDto>? _table;
+    private bool _loading;
+    private string _searchGame = "";
+    public bool BySerie { get; set; } = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var getAllCategoriesResult = CategoryService.GetAllCategories(CancellationToken);
+        var getAllPlatformsResult = PlatformService.GetAllPlatforms(CancellationToken);
+        var getAllSeriesResult = SerieService.GetAllSeries(CancellationToken);
+        var getSeriesWithGameResult = SerieService.GetSeriesWithGames(CancellationToken);
+
+        await Task.WhenAll(getAllCategoriesResult, getAllPlatformsResult, getAllSeriesResult, getSeriesWithGameResult);
+
+        if (getAllCategoriesResult.Result.IsSucceed && getAllPlatformsResult.Result.IsSucceed &&
+            getAllSeriesResult.Result.IsSucceed && getSeriesWithGameResult.Result.IsSucceed)
+        {
+            _categories = getAllCategoriesResult.Result.Result!;
+            _platforms = getAllPlatformsResult.Result.Result!;
+            _simpleSeries = getAllSeriesResult.Result.Result!;
+            _series = getSeriesWithGameResult.Result.Result!;
+        }        
+    }
+
+    private async Task<TableData<SearchGameItemDto>> SearchGames(TableState state, CancellationToken token)
+    {
+        _loading = true;
+        var searchGamesResult = await GameService.SearchGame(token, new()
+        {
+            Page = ++state.Page,
+            Size = state.PageSize,
+            Name = _searchGame,
+            PlatformId = _selectedPlatforms,
+            CategoriesId = _selectedCategories.ToList(),
+            SerieId = _selectedSerie
+        });
+        _loading = false;
+
+        if (searchGamesResult.IsSucceed)
+        {
+            var games = searchGamesResult.Result!;
+            return new() { TotalItems = games.TotalItems, Items = games.Items };
+        }
+
+        return new() { TotalItems = 0, Items = [] };
+    }
+
+    private void OnPlatformChanged(PlatformDto platform)
+    {
+        _selectedPlatforms = platform?.Id;
+        ReloadData();
+    }
+
+    private void OnSerieChanged(SimpleSerieDto serie)
+    {
+        _selectedSerie = serie?.Id;
+        ReloadData();
+    }
+
+    private void OnSelectedCategoriesChanged(IEnumerable<CategoryDto> categoryIds)
+    {
+        _selectedCategories = categoryIds.Select(c => c.Id);
+        ReloadData();
+    }
+
+    private void OnSearchGameChanged(string searchGame)
+    {
+        _searchGame = searchGame;
+        ReloadData();
+    }
+
+    private void ReloadData()
+    {
+        _table?.ReloadServerData();
+    }
+
+    private async Task DeleteGameById(SearchGameItemDto game)
+    {
+        var parameters = new DialogParameters<ValidationDialog>
+        {
+            { x => x.ContentText, $"Êtes-vous sûr de vouloir supprimer le jeu {game.Name} ?" },
+            { x => x.ActionButtonText, "Supprimer" },
+            { x => x.Color, Color.Error }
+        };
+        var deleteDialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialogReference = await DialogService.ShowAsync<ValidationDialog>("Suppression", parameters, deleteDialogOptions);
+        var response = await dialogReference.Result;
+
+        if (!response!.Canceled)
+        {
+            var deleteGameByIdResult = await GameService.DeleteGameById(CancellationToken, game.Id);
+            if (deleteGameByIdResult.IsSucceed)
+            {
+                Snackbar.Add($"Le jeu {game.Name} a bien été supprimé.", Severity.Success);
+                ReloadData();
+            }
+        }
+    }
+
+    private async Task CreateGame()
+    {
+        var parameters = new DialogParameters<GameCreationDialog>
+        {
+            { x => x.Platforms, _platforms },
+            { x => x.Categories, _categories },
+            { x => x.Series, _simpleSeries }
+        };
+        var dialogOptions = new DialogOptions() { CloseButton = true, FullWidth = true };
+        var dialogReference = await DialogService.ShowAsync<GameCreationDialog>("Création d'un jeu", parameters, dialogOptions);
+        var response = await dialogReference.Result;
+
+        if (!response!.Canceled)
+        {
+            var createGameDto = (CreateGameDto)response.Data!;
+            var createGameResult = await GameService.CreateGame(CancellationToken, createGameDto);
+            if (createGameResult.IsSucceed)
+            {
+                Snackbar.Add($"Le jeu {createGameDto.Name} a bien été créé.", Severity.Success);
+                NavigateToGame(createGameResult.Result);
+            }
+        }
+    }
+
+    private void OnGameClicked(TableRowClickEventArgs<SearchGameItemDto> tableRowClickEventArgs) =>
+        NavigateToGame(tableRowClickEventArgs.Item!.Id);
+
+    private void NavigateToGame(Guid gameId) => Navigation.NavigateTo($"/games/{gameId}");
+}

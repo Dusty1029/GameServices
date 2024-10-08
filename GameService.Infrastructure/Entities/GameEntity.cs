@@ -1,6 +1,4 @@
-﻿using GameService.Infrastructure.Entities.Enums;
-
-namespace GameService.Infrastructure.Entities
+﻿namespace GameService.Infrastructure.Entities
 {
     public class GameEntity
     {

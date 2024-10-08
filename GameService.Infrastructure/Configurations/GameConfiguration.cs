@@ -21,11 +21,13 @@ namespace GameService.Infrastructure.Configurations
                    .HasMaxLength(256)
                    .IsRequired();
 
+
             //Relations
 
             builder.HasOne(x => x.Serie)
                    .WithMany(x => x.Games)
-                   .HasForeignKey(x => x.SerieId);
+                   .HasForeignKey(x => x.SerieId)
+                   .OnDelete(DeleteBehavior.SetNull);
 
             builder.HasMany(x => x.Categories)
                    .WithMany(x => x.Games)

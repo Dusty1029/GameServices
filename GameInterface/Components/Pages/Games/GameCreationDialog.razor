@@ -1,20 +1,11 @@
-﻿@inject IPlatformService PlatformService
-@inject ICategoryService CategoryService
-@inject IGameService GameService
-@inject ISerieService SerieService
-@inject ISnackbar Snackbar
+﻿@inject ISnackbar Snackbar
 @inject NavigationManager Navigation
 
 <MudDialog>
     <DialogContent>
         <MudForm Model="_createGame" @ref="_form">
             <MudTextField Class="pa-2" @bind-Value="_createGame.Name" Immediate="true" Label="Nom" />
-            <MudSelect Class="pa-2" @bind-Value="_createGame.Serie" Label="Série">
-                @foreach (var serie in Series)
-                {
-                    <MudSelectItem Value="serie">@serie.Serie</MudSelectItem>
-                }
-            </MudSelect>
+            <MudAutocomplete Class="pa-2" @bind-Value="_createGame.Serie" Label="Série" SearchFunc="@SearchSerie" />
             <MudSelect Class="pa-2" @bind-Value="_createGame.Platform" Label="Platform">
                 @foreach (var platform in Platforms)
                 {
@@ -49,14 +40,12 @@
     private MudForm? _form;
     private CreateGameDto _createGame = new();
 
-    private async Task CreateGame()
+    private async Task<IEnumerable<SimpleSerieDto?>> SearchSerie(string value, CancellationToken token)
     {
-        var createGameResult = await GameService.CreateGame(CancellationToken, _createGame);
-        if (createGameResult.IsSucceed)
-        {
-            Snackbar.Add($"Le jeu {_createGame.Name} a bien été créé.", Severity.Success);
-            Navigation.NavigateTo("/games");
-        }
+        if (string.IsNullOrEmpty(value))
+            return await Task.FromResult(new List<SimpleSerieDto>());
+
+        return await Task.FromResult(Series.Where(x => x.Serie.Contains(value, StringComparison.InvariantCultureIgnoreCase)));
     }
 
     private void Submit() => MudDialog?.Close(DialogResult.Ok(_createGame));
