@@ -3,6 +3,7 @@ using System;
 using GameService.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GameService.Infrastructure.Migrations
 {
     [DbContext(typeof(GameContext))]
-    partial class GameContextModelSnapshot : ModelSnapshot
+    [Migration("20241009091124_AddGameDetailStatus")]
+    partial class AddGameDetailStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -290,9 +293,8 @@ namespace GameService.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasDefaultValueSql("uuid_generate_v4()");
 
-                    b.Property<string>("ParameterEnum")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("ParameterEnum")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Value")
                         .IsRequired()
@@ -309,13 +311,13 @@ namespace GameService.Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("0fb8c4e8-9180-4cc5-98ff-a905d43ac440"),
-                            ParameterEnum = "PlaystationToken",
+                            ParameterEnum = 0,
                             Value = ""
                         },
                         new
                         {
                             Id = new Guid("17481d3a-84f4-4140-8d12-2aa09f1b8d02"),
-                            ParameterEnum = "Npsso",
+                            ParameterEnum = 1,
                             Value = ""
                         });
                 });
@@ -337,8 +339,8 @@ namespace GameService.Infrastructure.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
-                    b.Property<string>("PlatformEnum")
-                        .HasColumnType("text");
+                    b.Property<int?>("PlatformEnum")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -356,35 +358,35 @@ namespace GameService.Infrastructure.Migrations
                             Id = new Guid("450ba6e2-97a6-4dcd-87d5-607f60385821"),
                             IsSeed = true,
                             Name = "Steam",
-                            PlatformEnum = "Steam"
+                            PlatformEnum = 0
                         },
                         new
                         {
                             Id = new Guid("9b77ae73-ee99-46f3-a84d-f337ced142a8"),
                             IsSeed = true,
                             Name = "PS VITA",
-                            PlatformEnum = "PSVITA"
+                            PlatformEnum = 1
                         },
                         new
                         {
                             Id = new Guid("793511b2-5d1c-4b47-b6a7-4ced103b0be3"),
                             IsSeed = true,
                             Name = "PS3",
-                            PlatformEnum = "PS3"
+                            PlatformEnum = 2
                         },
                         new
                         {
                             Id = new Guid("43d4fe37-f799-4d61-befb-404d76f7a759"),
                             IsSeed = true,
                             Name = "PS4",
-                            PlatformEnum = "PS4"
+                            PlatformEnum = 3
                         },
                         new
                         {
                             Id = new Guid("db5275b2-1507-4b47-b721-b516b6b5c0d0"),
                             IsSeed = true,
                             Name = "PS5",
-                            PlatformEnum = "PS5"
+                            PlatformEnum = 4
                         });
                 });
 

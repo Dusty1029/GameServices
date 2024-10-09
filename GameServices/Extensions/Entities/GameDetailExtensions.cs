@@ -1,4 +1,5 @@
 ﻿using Game.Dto;
+using GameService.API.Extensions.Entities.Enums;
 using GameService.Infrastructure.Entities;
 
 namespace GameService.API.Extensions.Entities
@@ -12,14 +13,12 @@ namespace GameService.API.Extensions.Entities
             Achievements = gameDetail.Achievements!.Select(a => a.ToDto()),
             AchievementCompletion = gameDetail.Achievements!.Count != 0 ?
                 Math.Round((decimal)gameDetail.Achievements!.Count(a => a.IsIgnored || a.Achieved) / (decimal)gameDetail.Achievements!.Count * 100m, 2) : null,
-            IsFinished = gameDetail.IsFinished,
-            IsStarted = gameDetail.IsStarted
+            Status = gameDetail.Status.ToDto()
         };
 
         public static void ToEntity(this UpdateGameDetailDto gameDetailDto, GameDetailEntity gameDetailEntity)
         {
-            gameDetailEntity.IsStarted = gameDetailDto.IsStarted;
-            gameDetailEntity.IsFinished = gameDetailDto.IsFinished;
+            gameDetailEntity.Status = gameDetailDto.Status.ToEntity();
         }
     }
 }

@@ -64,12 +64,7 @@
                 {
                     <MudTabPanel Text="@gameDetail.PlatformAndPercentage">
                         <MudGrid>
-                            <MudItem xs="4">
-                                <MudCheckBox @bind-Value="@gameDetail.IsStarted" Disabled="!_editMode" Label="Commencé"></MudCheckBox>
-                            </MudItem>
-                            <MudItem xs="4">
-                                <MudCheckBox @bind-Value="@gameDetail.IsFinished" Disabled="!_editMode" Label="Terminé"></MudCheckBox>
-                            </MudItem>
+                            <MudItem xs="8"/>
                             <MudItem xs="4">
                                 <MudTooltip Text="Supprimer la platform">
                                     <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="(_) => DeleteGameById(gameDetail)" />
@@ -168,7 +163,7 @@
                     Name = _game.Name,
                     Serie = _series.FirstOrDefault(s => s.Id == _game.Serie?.Id),
                     Categories = _categories.Where(c => _game.Categories.Select(ca => ca.Id).Contains(c.Id)),
-                    GameDetails = _game.GameDetails.Select(gd => new UpdateGameDetailDto { Id = gd.Id, IsFinished = gd.IsFinished, IsStarted = gd.IsStarted })
+                    GameDetails = _game.GameDetails.Select(gd => new UpdateGameDetailDto { Id = gd.Id })
                 };
         }
 
@@ -184,7 +179,7 @@
 
     private async Task SaveChanges()
     {
-        _updateGame.GameDetails = _game!.GameDetails.Select(gd => new UpdateGameDetailDto { Id = gd.Id, IsFinished = gd.IsFinished, IsStarted = gd.IsStarted });
+        _updateGame.GameDetails = _game!.GameDetails.Select(gd => new UpdateGameDetailDto { Id = gd.Id });
         var updateGameResult = await GameService.UpdateGame(CancellationToken, GameId, _updateGame);
         if (updateGameResult.IsSucceed)
         {

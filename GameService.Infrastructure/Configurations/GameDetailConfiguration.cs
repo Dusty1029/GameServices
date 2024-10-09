@@ -1,5 +1,6 @@
 ﻿using CommonV2.Extensions;
 using GameService.Infrastructure.Entities;
+using GameService.Infrastructure.Entities.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -25,12 +26,9 @@ namespace GameService.Infrastructure.Configurations
                    .HasMaxLength(256)
                    .IsRequired(false);
 
-            builder.Property(x => x.IsFinished)
-                   .HasDefaultValue(false)
-                   .IsRequired();
-
-            builder.Property(x => x.IsStarted)
-                   .HasDefaultValue(false)
+            builder.Property(x => x.Status)
+                   .HasDefaultValue(GameDetailStatusEnumEntity.NotStarted)
+                   .HasConversion<string>()
                    .IsRequired();
 
             //Relations

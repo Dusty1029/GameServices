@@ -1,9 +1,10 @@
-﻿namespace Game.Dto
+﻿using Game.Dto.Enums;
+
+namespace Game.Dto
 {
     public class UpdateGameDetailDto
     {
         public Guid Id { get; set; }
-        public bool IsStarted { get; set; }
-        public bool IsFinished { get; set; }
+        public GameDetailStatusEnumDto Status { get; set; }
     }
 }

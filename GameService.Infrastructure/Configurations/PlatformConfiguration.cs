@@ -29,6 +29,7 @@ namespace GameService.Infrastructure.Configurations
 
             builder.Property(x => x.PlatformEnum)
                    .HasDefaultValue(null)
+                   .HasConversion<string>()
                    .IsRequired(false);
 
             //Relations

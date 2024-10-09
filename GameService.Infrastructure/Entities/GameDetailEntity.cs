@@ -1,4 +1,6 @@
 ﻿
+using GameService.Infrastructure.Entities.Enums;
+
 namespace GameService.Infrastructure.Entities
 {
     public class GameDetailEntity
@@ -6,8 +8,7 @@ namespace GameService.Infrastructure.Entities
         public Guid Id { get; set; }
         public int? SteamId { get; set; }
         public string? PlaystationId { get; set; }
-        public bool IsFinished { get; set; }
-        public bool IsStarted { get; set; }
+        public GameDetailStatusEnumEntity Status { get; set; }
 
         public Guid PlatformId { get; set; }
         public PlatformEntity? Platform { get; set; }

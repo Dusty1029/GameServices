@@ -20,6 +20,7 @@ namespace GameService.Infrastructure.Configurations
                    .IsRequired();
 
             builder.Property(x => x.ParameterEnum)
+                   .HasConversion<string>()
                    .IsRequired();
 
             builder.Property(x => x.Value)

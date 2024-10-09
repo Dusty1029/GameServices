@@ -8,8 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameService.API.BusinessLogics.Implementations
 {
-    public class SerieBL(ISerieRepository serieRepository,
-        IGameRepository gameRepository) : ISerieBL
+    public class SerieBL(ISerieRepository serieRepository) : ISerieBL
     {
         public async Task<Guid> CreateSerie(CreateSerieDto createSerie)
         {
