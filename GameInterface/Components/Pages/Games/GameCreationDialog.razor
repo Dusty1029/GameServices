@@ -5,7 +5,7 @@
     <DialogContent>
         <MudForm Model="_createGame" @ref="_form">
             <MudTextField Class="pa-2" @bind-Value="_createGame.Name" Immediate="true" Label="Nom" />
-            <MudAutocomplete Class="pa-2" @bind-Value="_createGame.Serie" Label="Série" SearchFunc="@SearchSerie" />
+            <MudAutocomplete Class="pa-2" @bind-Value="_createGame.Serie" Label="Série" SearchFunc="@SearchSerie" Clearable="true" ResetValueOnEmptyText="true"/>
             <MudSelect Class="pa-2" @bind-Value="_createGame.Platform" Label="Platform">
                 @foreach (var platform in Platforms)
                 {

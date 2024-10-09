@@ -49,12 +49,7 @@
                     </MudSelect>
                 </MudTh>
                 <MudTh>
-                    <MudSelect T="SimpleSerieDto" Label="Série" Clearable="true" ValueChanged="OnSerieChanged" Placeholder="Final Fantasy">
-                        @foreach (var serie in _simpleSeries)
-                        {
-                            <MudSelectItem Value="@serie">@serie.Serie</MudSelectItem>
-                        }
-                    </MudSelect>
+                    <MudAutocomplete T="SimpleSerieDto" ValueChanged="OnSerieChanged" Label="Série" SearchFunc="@SearchSerie" Clearable="true" ResetValueOnEmptyText="true" Placeholder="Final Fantasy" />
                 </MudTh>
                 <MudTh></MudTh>
             </HeaderContent>
@@ -223,6 +218,14 @@
                 NavigateToGame(createGameResult.Result);
             }
         }
+    }
+
+    private async Task<IEnumerable<SimpleSerieDto?>> SearchSerie(string value, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(value))
+            return await Task.FromResult(new List<SimpleSerieDto>());
+
+        return await Task.FromResult(_simpleSeries.Where(x => x.Serie.Contains(value, StringComparison.InvariantCultureIgnoreCase)));
     }
 
     private void OnGameClicked(TableRowClickEventArgs<SearchGameItemDto> tableRowClickEventArgs) =>

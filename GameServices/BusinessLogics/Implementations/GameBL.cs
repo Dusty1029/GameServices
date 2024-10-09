@@ -109,9 +109,18 @@ namespace GameService.API.BusinessLogics.Implementations
 
             gameDto.ToEntity(game);
 
-            var actualCategories = gameDto.Categories?.Select(c => c.ToEntity()).ToList() ?? [];
-            game.Categories!.RemoveAll(c => !actualCategories.Any(ac => ac.Id == c.Id));
-            game.Categories!.AddRange(actualCategories.Where(ac => !game.Categories!.Any(c => c.Id == ac.Id)));
+            var categories = new List<CategoryEntity>();
+            if (gameDto.Categories is not null)
+            {
+                var categoryIds = gameDto.Categories.Select(c => c.Id);
+                categories = await categoryRepository.Get(c => categoryIds.Contains(c.Id));
+                var missingCategories = categoryIds.Except(categories.Select(c => c.Id));
+                if (missingCategories.Any())
+                    throw new NotFoundException($"The categories with id [{string.Join(", ", missingCategories)}] was not found.");
+            }
+
+            game.Categories!.RemoveAll(c => !categories.Any(ac => ac.Id == c.Id));
+            game.Categories!.AddRange(categories.Where(ac => !game.Categories!.Any(c => c.Id == ac.Id)));
 
             await gameRepository.SaveChanges();
         }
