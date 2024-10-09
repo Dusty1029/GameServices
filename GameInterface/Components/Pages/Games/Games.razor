@@ -51,15 +51,25 @@
                 <MudTh>
                     <MudAutocomplete T="SimpleSerieDto" ValueChanged="OnSerieChanged" Label="Série" SearchFunc="@SearchSerie" Clearable="true" ResetValueOnEmptyText="true" Placeholder="Final Fantasy" />
                 </MudTh>
-                <MudTh></MudTh>
+                <MudTh>
+                    <MudSelect T="GameDetailStatusEnumDto?" ValueChanged="OnStatusChanged" Label="Status" Clearable="true" Placeholder="Fini">
+                        @foreach (var gameDetailStatus in Enum.GetValues(typeof(GameDetailStatusEnumDto)).Cast<GameDetailStatusEnumDto?>())
+                        {
+                            <MudSelectItem Value="gameDetailStatus">@gameDetailStatus!.GetDescription()</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="Nom">@context.Name</MudTd>
                 <MudTd DataLabel="Platform">@context.Platforms</MudTd>
                 <MudTd DataLabel="Catégories">@context.Categories</MudTd>
                 <MudTd DataLabel="Serie">@context.Serie</MudTd>
-                <MudTd>
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="(_) => DeleteGameById(context)" />
+                <MudTd DataLabel="Status">
+                    @foreach (var status in @context.Status)
+                    {
+                        <MudChip T="string" Color="@status.ToColor()">@status.GetDescription()</MudChip>
+                    }
                 </MudTd>
             </RowTemplate>
             <PagerContent>
@@ -94,12 +104,9 @@
     private List<PlatformDto> _platforms = [];
     private List<SimpleSerieDto> _simpleSeries = [];
     private List<SerieDto> _series = [];
-    private IEnumerable<Guid> _selectedCategories = [];
-    private Guid? _selectedPlatforms;
-    private Guid? _selectedSerie;
+    private SearchGameDto _searchGameDto = new();
     private MudTable<SearchGameItemDto>? _table;
     private bool _loading;
-    private string _searchGame = "";
     public bool BySerie { get; set; } = false;
 
     protected override async Task OnInitializedAsync()
@@ -118,21 +125,16 @@
             _platforms = getAllPlatformsResult.Result.Result!;
             _simpleSeries = getAllSeriesResult.Result.Result!;
             _series = getSeriesWithGameResult.Result.Result!;
-        }        
+        }
     }
 
     private async Task<TableData<SearchGameItemDto>> SearchGames(TableState state, CancellationToken token)
     {
         _loading = true;
-        var searchGamesResult = await GameService.SearchGame(token, new()
-        {
-            Page = ++state.Page,
-            Size = state.PageSize,
-            Name = _searchGame,
-            PlatformId = _selectedPlatforms,
-            CategoriesId = _selectedCategories.ToList(),
-            SerieId = _selectedSerie
-        });
+        _searchGameDto.Page = ++state.Page;
+        _searchGameDto.Size = state.PageSize;
+
+        var searchGamesResult = await GameService.SearchGame(token, _searchGameDto);
         _loading = false;
 
         if (searchGamesResult.IsSucceed)
@@ -146,54 +148,37 @@
 
     private void OnPlatformChanged(PlatformDto platform)
     {
-        _selectedPlatforms = platform?.Id;
+        _searchGameDto.PlatformId = platform?.Id;
         ReloadData();
     }
 
     private void OnSerieChanged(SimpleSerieDto serie)
     {
-        _selectedSerie = serie?.Id;
+        _searchGameDto.SerieId = serie?.Id;
+        ReloadData();
+    }
+
+    private void OnStatusChanged(GameDetailStatusEnumDto? status)
+    {
+        _searchGameDto.GameDetailStatus = status;
         ReloadData();
     }
 
     private void OnSelectedCategoriesChanged(IEnumerable<CategoryDto> categoryIds)
     {
-        _selectedCategories = categoryIds.Select(c => c.Id);
+        _searchGameDto.CategoriesId = categoryIds.Select(c => c.Id).ToList();
         ReloadData();
     }
 
     private void OnSearchGameChanged(string searchGame)
     {
-        _searchGame = searchGame;
+        _searchGameDto.Name = searchGame;
         ReloadData();
     }
 
     private void ReloadData()
     {
         _table?.ReloadServerData();
-    }
-
-    private async Task DeleteGameById(SearchGameItemDto game)
-    {
-        var parameters = new DialogParameters<ValidationDialog>
-        {
-            { x => x.ContentText, $"Êtes-vous sûr de vouloir supprimer le jeu {game.Name} ?" },
-            { x => x.ActionButtonText, "Supprimer" },
-            { x => x.Color, Color.Error }
-        };
-        var deleteDialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
-        var dialogReference = await DialogService.ShowAsync<ValidationDialog>("Suppression", parameters, deleteDialogOptions);
-        var response = await dialogReference.Result;
-
-        if (!response!.Canceled)
-        {
-            var deleteGameByIdResult = await GameService.DeleteGameById(CancellationToken, game.Id);
-            if (deleteGameByIdResult.IsSucceed)
-            {
-                Snackbar.Add($"Le jeu {game.Name} a bien été supprimé.", Severity.Success);
-                ReloadData();
-            }
-        }
     }
 
     private async Task CreateGame()

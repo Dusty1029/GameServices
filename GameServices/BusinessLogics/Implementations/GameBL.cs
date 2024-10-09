@@ -50,16 +50,20 @@ namespace GameService.API.BusinessLogics.Implementations
 
         public async Task DeleteGameByGameDetailId(Guid gameDetailId)
         {
-            var game = await gameRepository.Find(g => g.GameDetails!.Any(gd => gd.Id == gameDetailId), include: f => f.Include(g => g.GameDetails), noTracking: false) ??
+            var gameEntity = await gameRepository.Find(g => g.GameDetails!.Any(gd => gd.Id == gameDetailId), include: f => f.Include(g => g.GameDetails), noTracking: false) ??
                 throw new NotFoundException($"The game with id [{gameDetailId}] was not found.");
 
-            if (game.GameDetails!.Count == 1) 
+            if (gameEntity.GameDetails!.Count == 1) 
             {
-                await gameRepository.DeleteAndSave(game);
+                await gameRepository.DeleteAndSave(gameEntity);
             }
             else
             {
-                await gameDetailRepository.DeleteAndSave(game.GameDetails!.First(gd => gd.Id == gameDetailId));
+                var gameDetailToRemove = gameEntity.GameDetails!.First(gd => gd.Id == gameDetailId);
+                gameDetailRepository.Delete(gameDetailToRemove);
+                gameEntity.GameDetails.Remove(gameDetailToRemove);
+                gameEntity.UpdateStatusOrderGameEntity();
+                await gameRepository.SaveChanges();
             }
         }
 
@@ -82,7 +86,7 @@ namespace GameService.API.BusinessLogics.Implementations
                     searchGameDto.Page,
                     BuildSearchPredicate(searchGameDto),
                     include: query => query.Include(g => g.Categories!.OrderBy(c => c.Name)).Include(g => g.GameDetails)!.ThenInclude(gd => gd.Platform).Include(g => g.Serie),
-                    orderBy: query => query.OrderBy(g => g.Name)
+                    orderBy: query => query.OrderBy(g => g.StatusOrder).ThenBy(g => g.Serie!.Name).ThenBy(g => g.Name)
                 );
 
             return new()
@@ -93,10 +97,10 @@ namespace GameService.API.BusinessLogics.Implementations
         }
         private static Expression<Func<GameEntity, bool>> BuildSearchPredicate(SearchGameDto searchGameDto)
         {
-            var predicate = PredicateBuilder.New<GameEntity>();
-            predicate = predicate.And(g => g.Name.ToLower().Contains(searchGameDto.Name.ToLower()));
+            var predicate = PredicateBuilder.New<GameEntity>(g => EF.Functions.Like(g.Name.ToLower(), $"%{searchGameDto.Name.ToLower()}%"));
             predicate = predicate.And(g => !searchGameDto.PlatformId.HasValue || g.GameDetails!.Select(gd => gd.PlatformId).Contains(searchGameDto.PlatformId.Value));
             predicate = predicate.And(g => !searchGameDto.SerieId.HasValue || g.SerieId == searchGameDto.SerieId);
+            predicate = predicate.And(g => !searchGameDto.GameDetailStatus.HasValue || g.GameDetails!.Any(gd => gd.Status == searchGameDto.GameDetailStatus.Value.ToEntity()));
 
             if (searchGameDto.CategoriesId is not null)
             {
@@ -134,6 +138,7 @@ namespace GameService.API.BusinessLogics.Implementations
                 var defaultSerie = await serieRepository.FindDefaultSerie();
                 gameEntity.SerieId = defaultSerie.Id;
             }
+            gameEntity.UpdateStatusOrderGameEntity();
 
             await gameRepository.SaveChanges();
         }

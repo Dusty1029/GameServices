@@ -1,4 +1,6 @@
 ﻿
+using Game.Dto.Enums;
+
 namespace Game.Dto
 {
     public class SearchGameItemDto
@@ -8,5 +10,6 @@ namespace Game.Dto
         public string Platforms { get; set; } = string.Empty;
         public string Categories { get; set; } = string.Empty;
         public string Serie {  get; set; } = string.Empty;
+        public IEnumerable<GameDetailStatusEnumDto> Status { get; set; } = [];
     }
 }

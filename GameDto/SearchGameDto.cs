@@ -1,4 +1,6 @@
-﻿namespace Game.Dto
+﻿using Game.Dto.Enums;
+
+namespace Game.Dto
 {
     public class SearchGameDto
     {
@@ -7,6 +9,7 @@
         public string Name { get; set; } = string.Empty;
         public Guid? SerieId { get; set; }
         public Guid? PlatformId { get; set; }
+        public GameDetailStatusEnumDto? GameDetailStatus { get; set; }
         public List<Guid>? CategoriesId { get; set; }
     }
 }

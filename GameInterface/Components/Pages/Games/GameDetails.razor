@@ -9,41 +9,42 @@
 @inject IPlaystationService PlaystationService
 @inject ISerieService SerieService
 @inject NavigationManager NavigationManager
-
-<MudGrid class="pa-4">
-    @if (!_editMode)
-    {
-        <MudItem xs="11" />
-        <MudItem xs="1">
-            <MudMenu Icon="@Icons.Material.Filled.ArrowDropDown" Label="Actions" Style="align-self: auto;">
-                <MudButton OnClick="() => _editMode = !_editMode">Modifier</MudButton>
-                <MudButton OnClick="AddPlatform">Ajouter une platform</MudButton>
-            </MudMenu>
-        </MudItem>
-    }
-    <MudItem xs="12">
-        <MudPaper Elevation="2">
-            @if (!_editMode)
-            {
-                <MudText Align="Align.Center" Typo="Typo.h5">@_game?.Name</MudText>
-                <MudText Align="Align.Inherit">@_game?.Serie?.Serie</MudText>
-                <MudList T="CategoryDto">
-                    @if (@_game?.Categories.Count() > 0)
-                    {
-                        @foreach (var category in @_game!.Categories)
+<MudForm Model="_updateGame" @ref="_form">
+    <MudGrid class="pa-4">
+    
+        @if (!_editMode)
+        {
+            <MudItem xs="11" />
+            <MudItem xs="1">
+                <MudMenu Icon="@Icons.Material.Filled.ArrowDropDown" Label="Actions">
+                    <MudButton OnClick="() => _editMode = !_editMode">Modifier</MudButton>
+                    <MudButton OnClick="AddPlatform">Ajouter une platform</MudButton>
+                </MudMenu>
+            </MudItem>
+        }
+        <MudItem xs="12">
+            <MudPaper Elevation="2">
+                @if (!_editMode)
+                {
+                    <MudText Align="Align.Center" Typo="Typo.h5">@_game?.Name</MudText>
+                    <MudText Class="pa-4" Align="Align.Inherit">@_game?.Serie?.Serie</MudText>
+                    <MudList T="CategoryDto">
+                        @if (@_game?.Categories.Count() > 0)
                         {
-                            <MudListItem Text="@category.Name" />
+                            @foreach (var category in @_game!.Categories)
+                            {
+                                <MudListItem Text="@category.Name" />
+                            }
                         }
-                    }
-                    else
-                    {
-                        <MudListItem Text="Aucune catégorie"></MudListItem>
-                    }
-                </MudList>
-            }
-            else
-            {
-                <MudForm Model="_updateGame" @ref="_form">
+                        else
+                        {
+                            <MudListItem Text="Aucune catégorie"></MudListItem>
+                        }
+                    </MudList>
+                }
+                else
+                {
+
                     <MudTextField Class="pa-2" @bind-Value="_updateGame.Name" Immediate="true" Label="Nom" />
                     <MudAutocomplete Class="pa-2" @bind-Value="_updateGame.Serie" Label="Série" SearchFunc="@SearchSerie" Clearable="true" ResetValueOnEmptyText="true" />
                     <MudSelect Class="pa-2" @bind-SelectedValues="_updateGame.Categories" Label="Categories" MultiSelection="true">
@@ -52,80 +53,94 @@
                             <MudSelectItem Value="category">@category.Name</MudSelectItem>
                         }
                     </MudSelect>
-                </MudForm>
-            }            
-        </MudPaper>
-    </MudItem>
-
-    <MudItem xs="12">
-        <MudPaper Elevation="2">
-            <MudTabs>
-                @foreach (var gameDetail in _game?.GameDetails ?? [])
-                {
-                    <MudTabPanel Text="@gameDetail.PlatformAndPercentage">
-                        <MudGrid>
-                            <MudItem xs="8"/>
-                            <MudItem xs="4">
-                                <MudTooltip Text="Supprimer la platform">
-                                    <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="(_) => DeleteGameById(gameDetail)" />
-                                </MudTooltip>
-                                @if (gameDetail.Platform.PlatformEnum.HasValue)
-                                {
-                                    <MudTooltip Text="Recharger les succès">
-                                        <MudIconButton Icon="@Icons.Material.Filled.Refresh" OnClick="(_) => RefreshGame(gameDetail)" />
-                                    </MudTooltip>
-                                }
-                            </MudItem>
-                        </MudGrid>
-                         <MudList T="GameDetailDto">
-                            @if (gameDetail.Achievements.Count() > 0)
-                            {
-                                <MudListItem Text="Succès">
-                                    <NestedList>
-                                        @foreach (var achievement in gameDetail.Achievements)
-                                        {
-                                            <MudListItem>
-                                                <MudGrid>
-                                                    <MudItem xs="9" Style="display: flex; align-items: center">
-                                                        <MudTooltip Text="@achievement.Description">
-                                                            <MudText>@achievement.PercentageAndName</MudText>
-                                                        </MudTooltip>
-                                                    </MudItem>
-                                                    <MudItem xs="3">
-                                                        <MudCheckBox @bind-Value="@achievement.Achieved" Disabled="!gameDetail.Platform.PlatformEnum.HasValue"></MudCheckBox>
-                                                    </MudItem>
-                                                </MudGrid>
-                                            </MudListItem>
-                                        }
-                                    </NestedList>
-                                </MudListItem>
-                            }
-                            else
-                            {
-                                <MudListItem Text="Pas de succès" />
-                            }
-
-                            <MudListItem Text="Pas d'objectifs">
-
-                            </MudListItem>
-                         </MudList>
-                    </MudTabPanel>
                 }
-            </MudTabs>
-        </MudPaper>
-    </MudItem>
-    @if (_editMode)
-    {
-        <MudItem xs="9" />
-        <MudItem xs="3"  >
-                <MudButtonGroup Color="Color.Primary" Variant="Variant.Filled" OverrideStyles="false">
-                    <MudButton Variant="Variant.Filled" Color="Color.Default"  OnClick="() => _editMode = !_editMode">Annuler</MudButton>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary"  OnClick="SaveChanges">Sauver</MudButton>
-                </MudButtonGroup>
+            </MudPaper>
         </MudItem>
-    }
-    
-</MudGrid>
+
+        <MudItem xs="12">
+            <MudPaper Elevation="2">
+                <MudTabs>
+                    @foreach (var gameDetail in _game?.GameDetails ?? [])
+                    {
+                        <MudTabPanel Text="@gameDetail.PlatformAndPercentage">
+                            <MudGrid>
+                                <MudItem xs="10">
+                                    @if (!_editMode)
+                                    {
+                                        <MudChip T="string" Color="@gameDetail.Status.ToColor()">@gameDetail.Status.GetDescription()</MudChip>
+                                    }
+                                    else
+                                    {
+                                        <MudSelect T="GameDetailStatusEnumDto" Class="pa-2" @bind-value="gameDetail.Status" Label="Status">
+                                            @foreach (var gameDetailStatus in Enum.GetValues(typeof(GameDetailStatusEnumDto)).Cast<GameDetailStatusEnumDto>())
+                                            {
+                                                <MudSelectItem Value="gameDetailStatus">@gameDetailStatus.GetDescription()</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                    }
+                                </MudItem>
+                                <MudItem xs="2">
+                                    <MudTooltip Text="Supprimer la platform">
+                                        <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="(_) => DeleteGameById(gameDetail)" />
+                                    </MudTooltip>
+                                    @if (gameDetail.Platform.PlatformEnum.HasValue)
+                                    {
+                                        <MudTooltip Text="Recharger les succès">
+                                            <MudIconButton Icon="@Icons.Material.Filled.Refresh" OnClick="(_) => RefreshGame(gameDetail)" />
+                                        </MudTooltip>
+                                    }
+                                </MudItem>
+                            </MudGrid>
+                            <MudList T="GameDetailDto">
+                                @if (gameDetail.Achievements.Count() > 0)
+                                {
+                                    <MudListItem Text="Succès">
+                                        <NestedList>
+                                            @foreach (var achievement in gameDetail.Achievements)
+                                            {
+                                                <MudListItem>
+                                                    <MudGrid>
+                                                        <MudItem xs="9" Style="display: flex; align-items: center">
+                                                            <MudTooltip Text="@achievement.Description">
+                                                                <MudText>@achievement.PercentageAndName</MudText>
+                                                            </MudTooltip>
+                                                        </MudItem>
+                                                        <MudItem xs="3">
+                                                            <MudCheckBox @bind-Value="@achievement.Achieved" Disabled="!gameDetail.Platform.PlatformEnum.HasValue"></MudCheckBox>
+                                                        </MudItem>
+                                                    </MudGrid>
+                                                </MudListItem>
+                                            }
+                                        </NestedList>
+                                    </MudListItem>
+                                }
+                                else
+                                {
+                                    <MudListItem Text="Pas de succès" />
+                                }
+
+                                <MudListItem Text="Pas d'objectifs">
+
+                                </MudListItem>
+                            </MudList>
+                        </MudTabPanel>
+                    }
+                </MudTabs>
+            </MudPaper>
+        </MudItem>
+        @if (_editMode)
+        {
+            <MudItem xs="9" />
+            <MudItem xs="3">
+                <MudButtonGroup Color="Color.Primary" Variant="Variant.Filled" OverrideStyles="false">
+                    <MudButton Variant="Variant.Filled" Color="Color.Default" OnClick="() => _editMode = !_editMode">Annuler</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveChanges">Sauver</MudButton>
+                </MudButtonGroup>
+            </MudItem>
+        }
+      
+    </MudGrid>
+</MudForm>
 
 @code {
     [Parameter]
@@ -158,13 +173,13 @@
             _series = getAllSeriesResult.Result.Result!;
             _game = getGameByIdResult.Result.Result!;
             _updateGame = new()
-                {
-                    Id = _game.Id,
-                    Name = _game.Name,
-                    Serie = _series.FirstOrDefault(s => s.Id == _game.Serie?.Id),
-                    Categories = _categories.Where(c => _game.Categories.Select(ca => ca.Id).Contains(c.Id)),
-                    GameDetails = _game.GameDetails.Select(gd => new UpdateGameDetailDto { Id = gd.Id })
-                };
+            {
+                Id = _game.Id,
+                Name = _game.Name,
+                Serie = _series.FirstOrDefault(s => s.Id == _game.Serie?.Id),
+                Categories = _categories.Where(c => _game.Categories.Select(ca => ca.Id).Contains(c.Id)),
+                GameDetails = _game.GameDetails.Select(gd => new UpdateGameDetailDto { Id = gd.Id, Status = gd.Status })
+            };
         }
 
     }
@@ -179,11 +194,10 @@
 
     private async Task SaveChanges()
     {
-        _updateGame.GameDetails = _game!.GameDetails.Select(gd => new UpdateGameDetailDto { Id = gd.Id });
         var updateGameResult = await GameService.UpdateGame(CancellationToken, GameId, _updateGame);
         if (updateGameResult.IsSucceed)
         {
-            await ReloadPage($"Le jeu {_game.Name} a bien été modifié");
+            await ReloadPage($"Le jeu {_game!.Name} a bien été modifié");
             _editMode = false;
         }
     }
