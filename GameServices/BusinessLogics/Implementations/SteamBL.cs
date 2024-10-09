@@ -54,6 +54,11 @@ namespace GameService.API.BusinessLogics.Implementations
             else
             {
                 var gameEntity = gameSteamDto.ToEntity(achievementsResult.Result, percentagesResult.Result, steamPlatformId.Result);
+                if (gameEntity.SerieId is null)
+                {
+                    var defaultSerie = await serieRepository.FindDefaultSerie();
+                    gameEntity.SerieId = defaultSerie.Id;
+                }
                 await gameRepository.CreateGame(gameEntity, categories);
                 gameSteamDto.GameId = gameEntity.Id;
             }           

@@ -5,6 +5,7 @@ namespace GameService.Infrastructure.Entities
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public bool IsDefault { get; set; }
 
         public Guid? ParentSerieId { get; set; }
         public SerieEntity? ParentSerie { get; set; }

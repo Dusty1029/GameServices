@@ -5,5 +5,6 @@ namespace GameService.Infrastructure.Repositories.Interfaces
 {
     public interface ISerieRepository : IGenericRepository<GameContext, SerieEntity>
     {
+        Task<SerieEntity> FindDefaultSerie();
     }
 }

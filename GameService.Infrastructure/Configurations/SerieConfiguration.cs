@@ -22,10 +22,24 @@ namespace GameService.Infrastructure.Configurations
                    .HasMaxLength(256)
                    .IsRequired();
 
+            builder.Property(x => x.IsDefault)
+                   .IsRequired()
+                   .HasDefaultValue(false);
+
             //Relations
             builder.HasOne(x => x.ParentSerie)
                    .WithMany(x => x.ChildrenSeries)
                    .HasForeignKey(x => x.ParentSerieId).OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasData(
+            [
+                new() 
+                {
+                    Id = new Guid("93d2da48-aaea-4932-afec-8a2ae310edd3"),
+                    Name = "Pas de série",
+                    IsDefault = true
+                }
+            ]);
         }
     }
 }

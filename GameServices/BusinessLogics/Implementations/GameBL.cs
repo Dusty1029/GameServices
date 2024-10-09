@@ -37,8 +37,15 @@ namespace GameService.API.BusinessLogics.Implementations
                     throw new NotFoundException($"The categories with id [{string.Join(", ", missingCategories)}] was not found.");
             }
 
-            var game = await gameRepository.CreateGame(createGameDto.ToEntity(), categories);
-            return game.Id;
+            var gameEntity = createGameDto.ToEntity();
+            if (gameEntity.SerieId is null)
+            {
+                var defaultSerie = await serieRepository.FindDefaultSerie();
+                gameEntity.SerieId = defaultSerie.Id;
+            }
+
+            await gameRepository.CreateGame(gameEntity, categories);
+            return gameEntity.Id;
         }
 
         public async Task DeleteGameByGameDetailId(Guid gameDetailId)
@@ -104,10 +111,10 @@ namespace GameService.API.BusinessLogics.Implementations
 
         public async Task UpdateGame(Guid gameId, UpdateGameDto gameDto)
         {
-            var game = await gameRepository.Find(g => g.Id == gameId, f => f.Include(g => g.Categories).Include(g => g.GameDetails), noTracking: false) ??
+            var gameEntity = await gameRepository.Find(g => g.Id == gameId, f => f.Include(g => g.Categories).Include(g => g.GameDetails), noTracking: false) ??
                 throw new NotFoundException($"The game with id [{gameId}] was not found.");
 
-            gameDto.ToEntity(game);
+            gameDto.ToEntity(gameEntity);
 
             var categories = new List<CategoryEntity>();
             if (gameDto.Categories is not null)
@@ -119,8 +126,14 @@ namespace GameService.API.BusinessLogics.Implementations
                     throw new NotFoundException($"The categories with id [{string.Join(", ", missingCategories)}] was not found.");
             }
 
-            game.Categories!.RemoveAll(c => !categories.Any(ac => ac.Id == c.Id));
-            game.Categories!.AddRange(categories.Where(ac => !game.Categories!.Any(c => c.Id == ac.Id)));
+            gameEntity.Categories!.RemoveAll(c => !categories.Any(ac => ac.Id == c.Id));
+            gameEntity.Categories!.AddRange(categories.Where(ac => !gameEntity.Categories!.Any(c => c.Id == ac.Id)));
+
+            if (gameEntity.SerieId is null)
+            {
+                var defaultSerie = await serieRepository.FindDefaultSerie();
+                gameEntity.SerieId = defaultSerie.Id;
+            }
 
             await gameRepository.SaveChanges();
         }

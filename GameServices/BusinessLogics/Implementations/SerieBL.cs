@@ -30,7 +30,10 @@ namespace GameService.API.BusinessLogics.Implementations
         {
             var serie = await serieRepository.Find(s => s.Id == id, include: f => f.Include(s => s.ChildrenSeries), noTracking: false)
                 ?? throw new NotFoundException($"Serie with id [{id}] was not found.");
-            
+
+            if (serie.IsDefault)
+                throw new ValidationException($"The serie with id [{id}] is a seed and can't be deleted.");
+
             await MarkChildrenAsDelete(serie);
             await serieRepository.DeleteAndSave(serie);
         }
@@ -48,7 +51,7 @@ namespace GameService.API.BusinessLogics.Implementations
         }
 
         public Task<List<SimpleSerieDto>> GetAllSeries() =>
-            serieRepository.GetAllSelect(f => f.Select(s => new SimpleSerieDto { Id = s.Id, Serie = s.Name }), orderBy: f => f.OrderBy(s => s.Name));
+            serieRepository.GetAllSelect(f => f.Select(s => new SimpleSerieDto { Id = s.Id, Serie = s.Name, CanBeDeleted = !s.IsDefault }), orderBy: f => f.OrderBy(s => s.Name));
 
         public async Task<SerieDto> GetSerieById(Guid id)
         {
@@ -69,15 +72,8 @@ namespace GameService.API.BusinessLogics.Implementations
 
         public async Task<List<SerieDto>> GetSeriesWithGames()
         {
-            var games = await gameRepository.GetAll(f => f.Include(g => g.Serie));
-            var series = games.Where(g => g.Serie != null).Select(g => g.Serie).DistinctBy(s => s!.Id).ToList();
-            var serieDtos = series.Select(s => s!.ToDto(games.Where(g => g.SerieId == s!.Id).ToList())).ToList();
-            serieDtos.Add(new() 
-            { 
-                Serie = "Pas de série",
-                Games = games.Where(g => g.Serie == null).Select(g => g.ToSimpleDto()).ToList()
-            });
-            return serieDtos;
+            var series = await serieRepository.Get(s => s.Games!.Count > 0, f => f.Include(s => s.Games!.OrderBy(g => g.Name)), f => f.OrderBy(s => s.IsDefault).ThenBy(s => s.Name));
+            return series.Select(s => s.ToDto()).ToList();
         }
     } 
 }

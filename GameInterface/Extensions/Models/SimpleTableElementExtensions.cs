@@ -23,6 +23,7 @@ namespace GameInterface.Extensions.Models
         {
             Id = serieDto.Id,
             Name = serieDto.Serie,
+            CanBeDeleted = serieDto.CanBeDeleted
         };
     }
 }

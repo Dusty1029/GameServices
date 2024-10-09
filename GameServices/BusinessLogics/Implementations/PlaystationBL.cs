@@ -60,6 +60,11 @@ namespace GameService.API.BusinessLogics.Implementations
             else
             {
                 var gameEntity = gamePlaystationDto.ToEntity(trophiesResult.Result, trophiesEarnedResult.Result, platformIdResult.Result);
+                if (gameEntity.SerieId is null)
+                {
+                    var defaultSerie = await serieRepository.FindDefaultSerie();
+                    gameEntity.SerieId = defaultSerie.Id;
+                }
                 await gameRepository.CreateGame(gameEntity, categories);
                 gamePlaystationDto.GameId = gameEntity.Id;
             }
