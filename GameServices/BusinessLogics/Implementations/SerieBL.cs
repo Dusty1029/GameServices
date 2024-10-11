@@ -71,7 +71,10 @@ namespace GameService.API.BusinessLogics.Implementations
 
         public async Task<List<SerieDto>> GetSeriesWithGames()
         {
-            var series = await serieRepository.Get(s => s.Games!.Count > 0, f => f.Include(s => s.Games!.OrderBy(g => g.Name)), f => f.OrderBy(s => s.IsDefault).ThenBy(s => s.Name));
+            var series = await serieRepository.Get(
+                s => s.Games!.Count > 0,
+                f => f.Include(s => s.Games!.OrderBy(g => g.PlayOrder).ThenBy(g => g.Name)),
+                f => f.OrderBy(s => s.IsDefault).ThenBy(s => s.Name));
             return series.Select(s => s.ToDto()).ToList();
         }
     } 

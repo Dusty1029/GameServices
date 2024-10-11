@@ -86,7 +86,7 @@ namespace GameService.API.BusinessLogics.Implementations
                     searchGameDto.Page,
                     BuildSearchPredicate(searchGameDto),
                     include: query => query.Include(g => g.Categories!.OrderBy(c => c.Name)).Include(g => g.GameDetails)!.ThenInclude(gd => gd.Platform).Include(g => g.Serie),
-                    orderBy: query => query.OrderBy(g => g.StatusOrder).ThenBy(g => g.Serie!.Name).ThenBy(g => g.Name)
+                    orderBy: query => query.OrderBy(g => g.StatusOrder).ThenBy(g => g.Serie!.Name).ThenBy(g => g.PlayOrder).ThenBy(g => g.Name)
                 );
 
             return new()

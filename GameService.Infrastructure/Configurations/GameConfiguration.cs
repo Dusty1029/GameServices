@@ -27,6 +27,10 @@ namespace GameService.Infrastructure.Configurations
                    .HasDefaultValue(GameDetailStatusEnumEntity.NotStarted.GetOrder())
                    .IsRequired();
 
+            builder.Property(x => x.PlayOrder)
+                   .HasDefaultValue(0)
+                   .IsRequired();
+
             //Relations
 
             builder.HasOne(x => x.Serie)

@@ -7,6 +7,7 @@ namespace GameService.Infrastructure.Entities
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public int StatusOrder { get; set; }
+        public int PlayOrder { get; set; }
 
         public Guid? SerieId { get; set; }
         public SerieEntity? Serie { get; set; }
