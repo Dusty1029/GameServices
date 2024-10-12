@@ -31,6 +31,9 @@ namespace GameService.Infrastructure.Configurations
                    .WithMany(x => x.ChildrenSeries)
                    .HasForeignKey(x => x.ParentSerieId).OnDelete(DeleteBehavior.Cascade);
 
+            builder.HasIndex(x => x.Name)
+                   .IsUnique();
+
             builder.HasData(
             [
                 new() 

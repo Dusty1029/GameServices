@@ -1,4 +1,6 @@
+using Game.Dto;
 using GameInterface.Components;
+using GameInterface.Extensions.Models.States;
 using GameInterface.Services.Implementations;
 using GameInterface.Services.Interfaces;
 using MudBlazor;
@@ -28,6 +30,10 @@ builder.Services.AddScoped<ISteamService, SteamService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IPlatformService, PlatformService>();
 builder.Services.AddScoped<ISerieService, SerieService>();
+
+//States
+
+builder.Services.AddScoped<SearchGameState>();
 
 var app = builder.Build();
 

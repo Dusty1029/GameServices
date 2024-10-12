@@ -4,5 +4,6 @@
     {
         public string Serie { get; set; } = string.Empty;
         public Guid? ParentId { get; set; }
+        public List<SimpleGameDto> Games { get; set; } = [];
     }
 }

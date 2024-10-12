@@ -34,6 +34,7 @@ namespace GameService.API.Extensions.Entities
             serieEntity ??= new();
             serieEntity.Name = createSerieDto.Serie;
             serieEntity.ParentSerieId = createSerieDto.ParentId;
+            serieEntity.Games!.ForEach(g => g.PlayOrder = createSerieDto.Games!.First(gameDto => gameDto.Id == g.Id).Order);
 
             return serieEntity;
         }

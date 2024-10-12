@@ -15,9 +15,9 @@ namespace GameService.API.Controllers
             => controllerExecutor.ExecuteAsync(this, serieBL.GetAllSeries);
 
         [HttpGet]
-        [Route("{id}")]
-        public Task<IActionResult> GetSerieById([FromRoute] Guid id)
-            => controllerExecutor.ExecuteAsync(this, () => serieBL.GetSerieById(id));
+        [Route("{name}")]
+        public Task<IActionResult> GetSerieByName([FromRoute] string name)
+            => controllerExecutor.ExecuteAsync(this, () => serieBL.GetSerieByName(name));
 
         [HttpPost]
         public Task<IActionResult> CreateSerie([FromBody] CreateSerieDto createSerie)

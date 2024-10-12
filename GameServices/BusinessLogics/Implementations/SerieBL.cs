@@ -3,6 +3,8 @@ using Game.Dto;
 using GameService.API.BusinessLogics.Interfaces;
 using GameService.API.Extensions.Entities;
 using GameService.Infrastructure.Entities;
+using GameService.Infrastructure.Entities.Enums;
+using GameService.Infrastructure.Extensions.Enums;
 using GameService.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +14,9 @@ namespace GameService.API.BusinessLogics.Implementations
     {
         public async Task<Guid> CreateSerie(CreateSerieDto createSerie)
         {
+            if (await serieRepository.Exists(s => EF.Functions.Like(s.Name.ToLower(), $"%{createSerie.Serie.ToLower()}%")))
+                throw new ArgumentException($"Serie with name [{createSerie.Serie}] already exist.");
+
             if (createSerie.ParentId.HasValue)
             {
                 var parentExist = await serieRepository.Exists(s => s.Id == createSerie.ParentId);
@@ -52,30 +57,35 @@ namespace GameService.API.BusinessLogics.Implementations
         public Task<List<SimpleSerieDto>> GetAllSeries() =>
             serieRepository.GetAllSelect(f => f.Select(s => new SimpleSerieDto { Id = s.Id, Serie = s.Name, CanBeDeleted = !s.IsDefault }), orderBy: f => f.OrderBy(s => s.Name));
 
-        public async Task<SerieDto> GetSerieById(Guid id)
+        public async Task<SerieDto> GetSerieByName(string name)
         {
-            var serie = await serieRepository.Find(s => s.Id == id, f => f.Include(s => s.ParentSerie).Include(s => s.ChildrenSeries).Include(s => s.Games))
-                ?? throw new NotFoundException($"Serie with id [{id}] was not found.");
+            var serie = await serieRepository.Find(s => s.Name == name, f => f.Include(s => s.ParentSerie).Include(s => s.ChildrenSeries).Include(s => s.Games!.OrderBy(g => g.PlayOrder)))
+                ?? throw new NotFoundException($"Serie with name [{name}] was not found.");
 
             return serie.ToDto();
         }
 
         public async Task UpdateSerie(Guid id, CreateSerieDto createSerie)
         {
-            var serie = await serieRepository.Find(s => s.Id == id, noTracking: false)
+            var serie = await serieRepository.Find(s => s.Id == id, f => f.Include(s => s.Games), noTracking: false)
                 ?? throw new NotFoundException($"Serie with id [{id}] was not found.");
 
             createSerie.ToEntity(serie);
             await serieRepository.SaveChanges();
         }
 
-        public async Task<List<SerieDto>> GetSeriesWithGames()
+        public async Task<List<SearchGameItemDto>> GetSeriesWithGames()
         {
             var series = await serieRepository.Get(
                 s => s.Games!.Count > 0,
-                f => f.Include(s => s.Games!.OrderBy(g => g.PlayOrder).ThenBy(g => g.Name)),
-                f => f.OrderBy(s => s.IsDefault).ThenBy(s => s.Name));
-            return series.Select(s => s.ToDto()).ToList();
+                f => f.Include(s => s.Games!).ThenInclude(g => g.GameDetails!).ThenInclude(gd => gd.Platform)
+                      .Include(s => s.Games!).ThenInclude(g => g.Categories),
+                f => f.OrderBy(s => s.IsDefault)
+                      .ThenBy(s => !s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.Started.GetOrder()))
+                      .ThenBy(s => !s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.Finished.GetOrder()))
+                      .ThenBy(s => !s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.TotalyFinished.GetOrder()))
+                      .ThenBy(s => s.Name));
+            return series.SelectMany(s => s.Games!.OrderBy(g => g.PlayOrder).ThenBy(g => g.Name)).Select(g => g.ToSearchItemDto()).ToList();
         }
     } 
 }

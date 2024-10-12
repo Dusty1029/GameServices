@@ -7,15 +7,16 @@
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
 @inject NavigationManager Navigation
+@inject SearchGameState SearchGameState
 
 <div class="pa-4">
     <MudGrid>
         <MudItem xs="11"/>
         <MudItem xs="1">
-            <MudSwitch @bind-Value="BySerie" Label="Série" Color="Color.Success" />
+            <MudSwitch @bind-Value="SearchGameState.BySerie" Label="Série" Color="Color.Success" />
         </MudItem>
     </MudGrid>
-    @if (!BySerie)
+    @if (!SearchGameState.BySerie)
     {
         <MudTable T="SearchGameItemDto" ServerData="SearchGames" Hover="true" Striped="true" Loading="@_loading" LoadingProgressColor="Color.Info" @ref="_table" RowClass="cursor-pointer" OnRowClick="OnGameClicked">
             <ToolBarContent>
@@ -30,10 +31,10 @@
             </ToolBarContent>
             <HeaderContent>
                 <MudTh>
-                    <MudTextField T="string" Label="Nom" Immediate="true" ValueChanged="OnSearchGameChanged" Placeholder="Final Fantasy VII"></MudTextField>
+                    <MudTextField T="string" Label="Nom" Immediate="true" Value="SearchGameState.SearchGame.Name" ValueChanged="OnSearchGameChanged" Placeholder="Final Fantasy VII"></MudTextField>
                 </MudTh>
                 <MudTh>
-                    <MudSelect T="PlatformDto" Label="Platform" Clearable="true" ValueChanged="OnPlatformChanged" Placeholder="PS1">
+                    <MudSelect T="PlatformDto" Label="Platform" Clearable="true" Value="SearchGameState.SearchGame.Platform" ValueChanged="OnPlatformChanged" Placeholder="PS1">
                         @foreach (var platform in _platforms)
                         {
                             <MudSelectItem Value="@platform">@platform.Name</MudSelectItem>
@@ -41,7 +42,7 @@
                     </MudSelect>
                 </MudTh>
                 <MudTh>
-                    <MudSelect T="CategoryDto" Label="Catégories" Clearable="true" Placeholder="RPG" MultiSelection="true" SelectedValuesChanged="OnSelectedCategoriesChanged">
+                    <MudSelect T="CategoryDto" Label="Catégories" Clearable="true" Placeholder="RPG" MultiSelection="true" SelectedValues="SearchGameState.SearchGame.Categories" SelectedValuesChanged="OnSelectedCategoriesChanged">
                         @foreach (var category in _categories)
                         {
                             <MudSelectItem Value="@category">@category.Name</MudSelectItem>
@@ -49,10 +50,10 @@
                     </MudSelect>
                 </MudTh>
                 <MudTh>
-                    <MudAutocomplete T="SimpleSerieDto" ValueChanged="OnSerieChanged" Label="Série" SearchFunc="@SearchSerie" Clearable="true" ResetValueOnEmptyText="true" Placeholder="Final Fantasy" />
+                    <MudAutocomplete T="SimpleSerieDto" Value="SearchGameState.SearchGame.Serie" ValueChanged="OnSerieChanged" Label="Série" SearchFunc="@SearchSerie" Clearable="true" ResetValueOnEmptyText="true" Placeholder="Final Fantasy" />
                 </MudTh>
                 <MudTh>
-                    <MudSelect T="GameDetailStatusEnumDto?" ValueChanged="OnStatusChanged" Label="Status" Clearable="true" Placeholder="Fini">
+                    <MudSelect T="GameDetailStatusEnumDto?" Value="SearchGameState.SearchGame.GameDetailStatus" ValueChanged="OnStatusChanged" Label="Status" Clearable="true" Placeholder="Fini">
                         @foreach (var gameDetailStatus in Enum.GetValues(typeof(GameDetailStatusEnumDto)).Cast<GameDetailStatusEnumDto?>())
                         {
                             <MudSelectItem Value="gameDetailStatus">@gameDetailStatus!.GetDescription()</MudSelectItem>
@@ -62,7 +63,7 @@
             </HeaderContent>
             <RowTemplate>
                 <MudTd DataLabel="Nom">@context.Name</MudTd>
-                <MudTd DataLabel="Platform">@context.Platforms</MudTd>
+                <MudTd DataLabel="Platformes">@context.Platforms</MudTd>
                 <MudTd DataLabel="Catégories">@context.Categories</MudTd>
                 <MudTd DataLabel="Serie">@context.Serie</MudTd>
                 <MudTd DataLabel="Status">
@@ -79,21 +80,48 @@
     }
     else
     {
-        <MudPaper Elevation="2">
-            <MudList T="CategoryDto">
-                @foreach (var serie in _series)
-                {
-                    <MudListItem Text="@serie.Serie">
-                        <NestedList>
-                            @foreach (var game in serie.Games)
-                            {
-                                <MudListItem Text="@game.Name" />
-                            }
-                        </NestedList>
-                    </MudListItem>
-                }
-            </MudList>
-        </MudPaper>
+        <MudTable T="SearchGameItemDto" Hover="true" Striped="true" LoadingProgressColor="Color.Info" RowClass="cursor-pointer" OnRowClick="OnGameClicked"
+                  Items="@GamesBySeries"
+                  GroupBy="@_groupDefinition"
+                  @ref="_tableSerieRef">
+            <ColGroup>
+                <col style="width: 60px;" />
+                <col />
+                <col />
+                <col />
+                <col />
+                <col />
+            </ColGroup>
+            <HeaderContent>
+                <MudTh>Nom</MudTh>
+                <MudTh>Platform</MudTh>
+                <MudTh>Catégories</MudTh>
+                <MudTh>Status</MudTh>
+            </HeaderContent>
+            <GroupHeaderTemplate>
+                <MudTh Class="mud-table-cell-custom-group" colspan="5">
+                    <MudGrid>
+                        <MudItem xs="11">
+                            <MudText Style="padding: 12px;">@($"{context.Key}")</MudText>
+                        </MudItem>
+                        <MudItem xs="1">
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" OnClick="() => NavigateToSerie(context.Key!.ToString()!)" />
+                        </MudItem>
+                    </MudGrid>
+                </MudTh>
+            </GroupHeaderTemplate>
+            <RowTemplate>
+                <MudTd DataLabel="Nom">@context.Name</MudTd>
+                <MudTd DataLabel="Platform">@context.Platforms</MudTd>
+                <MudTd DataLabel="Catégories">@context.Categories</MudTd>
+                <MudTd DataLabel="Status">
+                    @foreach (var status in @context.Status)
+                    {
+                        <MudChip T="string" Color="@status.ToColor()">@status.GetDescription()</MudChip>
+                    }
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
         
     }
 
@@ -104,10 +132,20 @@
     private List<PlatformDto> _platforms = [];
     private List<SimpleSerieDto> _simpleSeries = [];
     private List<SerieDto> _series = [];
-    private SearchGameDto _searchGameDto = new();
     private MudTable<SearchGameItemDto>? _table;
     private bool _loading;
-    public bool BySerie { get; set; } = false;
+
+    private MudTable<SearchGameItemDto>? _tableSerieRef;
+
+    private TableGroupDefinition<SearchGameItemDto> _groupDefinition = new()
+    {
+        Indentation = false,
+        Expandable = true,
+        IsInitiallyExpanded = false,
+        Selector = (e) => e.Serie
+    };
+
+    private IEnumerable<SearchGameItemDto> GamesBySeries = new List<SearchGameItemDto>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -124,17 +162,17 @@
             _categories = getAllCategoriesResult.Result.Result!;
             _platforms = getAllPlatformsResult.Result.Result!;
             _simpleSeries = getAllSeriesResult.Result.Result!;
-            _series = getSeriesWithGameResult.Result.Result!;
+            GamesBySeries = getSeriesWithGameResult.Result.Result!;
         }
     }
 
     private async Task<TableData<SearchGameItemDto>> SearchGames(TableState state, CancellationToken token)
     {
         _loading = true;
-        _searchGameDto.Page = ++state.Page;
-        _searchGameDto.Size = state.PageSize;
+        SearchGameState.SearchGame.Page = ++state.Page;
+        SearchGameState.SearchGame.Size = state.PageSize;
 
-        var searchGamesResult = await GameService.SearchGame(token, _searchGameDto);
+        var searchGamesResult = await GameService.SearchGame(token, SearchGameState.SearchGame);
         _loading = false;
 
         if (searchGamesResult.IsSucceed)
@@ -148,31 +186,31 @@
 
     private void OnPlatformChanged(PlatformDto platform)
     {
-        _searchGameDto.PlatformId = platform?.Id;
+        SearchGameState.SearchGame.Platform = platform;
         ReloadData();
     }
 
     private void OnSerieChanged(SimpleSerieDto serie)
     {
-        _searchGameDto.SerieId = serie?.Id;
+        SearchGameState.SearchGame.Serie = serie;
         ReloadData();
     }
 
     private void OnStatusChanged(GameDetailStatusEnumDto? status)
     {
-        _searchGameDto.GameDetailStatus = status;
+        SearchGameState.SearchGame.GameDetailStatus = status;
         ReloadData();
     }
 
-    private void OnSelectedCategoriesChanged(IEnumerable<CategoryDto> categoryIds)
+    private void OnSelectedCategoriesChanged(IEnumerable<CategoryDto> categories)
     {
-        _searchGameDto.CategoriesId = categoryIds.Select(c => c.Id).ToList();
+        SearchGameState.SearchGame.Categories = categories.ToList();
         ReloadData();
     }
 
     private void OnSearchGameChanged(string searchGame)
     {
-        _searchGameDto.Name = searchGame;
+        SearchGameState.SearchGame.Name = searchGame;
         ReloadData();
     }
 
@@ -217,4 +255,5 @@
         NavigateToGame(tableRowClickEventArgs.Item!.Id);
 
     private void NavigateToGame(Guid gameId) => Navigation.NavigateTo($"/games/{gameId}");
+    private void NavigateToSerie(string serieName) => Navigation.NavigateTo($"/games/series/{serieName}");
 }

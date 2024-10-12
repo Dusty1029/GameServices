@@ -16,11 +16,11 @@ namespace GameInterface.Services.Implementations
         public Task<ApiResult<List<SimpleSerieDto>>> GetAllSeries(CancellationToken cancellationToken) =>
             genericService.GetResult<List<SimpleSerieDto>>(cancellationToken, beginPath);
 
-        public Task<ApiResult<SerieDto>> GetSerieById(CancellationToken cancellationToken, Guid id) =>
-            genericService.GetResult<SerieDto>(cancellationToken, $"beginPath/{id}");
+        public Task<ApiResult<SerieDto>> GetSerieByName(CancellationToken cancellationToken, string name) =>
+            genericService.GetResult<SerieDto>(cancellationToken, $"{beginPath}/{name}");
 
-        public Task<ApiResult<List<SerieDto>>> GetSeriesWithGames(CancellationToken cancellationToken) =>
-            genericService.GetResult<List<SerieDto>>(cancellationToken, $"{beginPath}/games");
+        public Task<ApiResult<List<SearchGameItemDto>>> GetSeriesWithGames(CancellationToken cancellationToken) =>
+            genericService.GetResult<List<SearchGameItemDto>>(cancellationToken, $"{beginPath}/games");
 
         public Task<ApiResult> UpdateSerie(CancellationToken cancellationToken, Guid id, CreateSerieDto createSerie) =>
             genericService.PutResult(cancellationToken, createSerie, $"{beginPath}/{id}");

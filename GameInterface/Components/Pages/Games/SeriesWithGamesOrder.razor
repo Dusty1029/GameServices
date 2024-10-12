@@ -1,0 +1,43 @@
+﻿@page "/games/series/{SerieName}"
+@using MudBlazor.Utilities
+@inject ISerieService SerieService
+
+<MudDropContainer T="SimpleGameDto" Items="Games" ItemsSelector="@((item,dropzone) => true)" ItemDropped="GameOrderUpdated" Class="d-flex flex-wrap flex-grow-1">
+    <ChildContent>
+        <MudDropZone T="SimpleGameDto" Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1" AllowReorder="true">
+            <MudText Typo="Typo.h6" Class="mb-4">@SerieName</MudText>
+        </MudDropZone>
+    </ChildContent>
+    <ItemRenderer>
+        <MudPaper Elevation="25" Class="pa-4 my-4">@context.Name</MudPaper>
+    </ItemRenderer>
+</MudDropContainer>
+
+@code {
+    [Parameter]
+    public required string SerieName { get; set; }
+
+    private List<SimpleGameDto> Games { get; set; } = [];
+
+    private SerieDto Serie { get; set; } = new()
+    {
+        Games = []
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        var serieResult = await SerieService.GetSerieByName(CancellationToken, SerieName);
+        if (serieResult.IsSucceed)
+        {
+            Serie = serieResult.Result!;
+            Games = Serie.Games;
+        }
+    }
+
+    private async Task GameOrderUpdated(MudItemDropInfo<SimpleGameDto> dropItem)
+    {
+        Games.UpdateOrder(dropItem, item => item.Order);
+        await SerieService.UpdateSerie(CancellationToken, Serie.Id, Serie.ToCreate());
+    }
+
+}

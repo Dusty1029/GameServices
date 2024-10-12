@@ -7,9 +7,9 @@ namespace Game.Dto
         public int Size { get; set; }
         public int Page { get; set; }
         public string Name { get; set; } = string.Empty;
-        public Guid? SerieId { get; set; }
-        public Guid? PlatformId { get; set; }
+        public SimpleSerieDto? Serie { get; set; }
+        public PlatformDto? Platform { get; set; }
         public GameDetailStatusEnumDto? GameDetailStatus { get; set; }
-        public List<Guid>? CategoriesId { get; set; }
+        public List<CategoryDto>? Categories { get; set; }
     }
 }

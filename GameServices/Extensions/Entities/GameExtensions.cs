@@ -21,7 +21,8 @@ namespace GameService.API.Extensions.Entities
         public static SimpleGameDto ToSimpleDto(this GameEntity entity) => new()
         {
             Id = entity.Id,
-            Name = entity.Name
+            Name = entity.Name,
+            Order = entity.PlayOrder
         };
 
         public static SearchGameItemDto ToSearchItemDto(this GameEntity entity) => new()

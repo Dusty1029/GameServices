@@ -44,6 +44,8 @@ namespace GameService.API.BusinessLogics.Implementations
                 gameEntity.SerieId = defaultSerie.Id;
             }
 
+            gameEntity.PlayOrder = (await gameRepository.MaxPlayOrderBySerie(gameEntity.SerieId.Value)) + 1;
+
             await gameRepository.CreateGame(gameEntity, categories);
             return gameEntity.Id;
         }
@@ -98,15 +100,15 @@ namespace GameService.API.BusinessLogics.Implementations
         private static Expression<Func<GameEntity, bool>> BuildSearchPredicate(SearchGameDto searchGameDto)
         {
             var predicate = PredicateBuilder.New<GameEntity>(g => EF.Functions.Like(g.Name.ToLower(), $"%{searchGameDto.Name.ToLower()}%"));
-            predicate = predicate.And(g => !searchGameDto.PlatformId.HasValue || g.GameDetails!.Select(gd => gd.PlatformId).Contains(searchGameDto.PlatformId.Value));
-            predicate = predicate.And(g => !searchGameDto.SerieId.HasValue || g.SerieId == searchGameDto.SerieId);
+            predicate = predicate.And(g => searchGameDto.Platform == null || g.GameDetails!.Select(gd => gd.PlatformId).Contains(searchGameDto.Platform.Id));
+            predicate = predicate.And(g => searchGameDto.Serie == null || g.SerieId == searchGameDto.Serie.Id);
             predicate = predicate.And(g => !searchGameDto.GameDetailStatus.HasValue || g.GameDetails!.Any(gd => gd.Status == searchGameDto.GameDetailStatus.Value.ToEntity()));
 
-            if (searchGameDto.CategoriesId is not null)
+            if (searchGameDto.Categories is not null)
             {
-                foreach (var categoryId in searchGameDto.CategoriesId)
+                foreach (var category in searchGameDto.Categories)
                 {
-                    predicate = predicate.And(g => g.Categories!.Select(c => c.Id).Contains(categoryId));
+                    predicate = predicate.And(g => g.Categories!.Select(c => c.Id).Contains(category.Id));
                 }
             }
 

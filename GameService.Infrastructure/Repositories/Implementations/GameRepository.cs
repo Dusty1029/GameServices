@@ -2,6 +2,7 @@
 using CommonV2.Infrastructure.Services.Interfaces;
 using GameService.Infrastructure.Entities;
 using GameService.Infrastructure.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameService.Infrastructure.Repositories.Implementations
 {
@@ -21,5 +22,8 @@ namespace GameService.Infrastructure.Repositories.Implementations
             await transaction.CommitAsync(CancellationToken);
             return gameEntity;
         }
+
+        public Task<int> MaxPlayOrderBySerie(Guid serieId) => 
+            DbSet.AsQueryable().AsNoTracking().Where(g => g.SerieId == serieId).MaxAsync(g => g.PlayOrder);
     }
 }

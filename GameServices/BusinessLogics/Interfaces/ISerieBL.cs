@@ -9,8 +9,8 @@ namespace GameService.API.BusinessLogics.Interfaces
         Task<Guid> CreateSerie(CreateSerieDto createSerie);
         Task DeleteSerie(Guid id);
         Task<List<SimpleSerieDto>> GetAllSeries();
-        Task<SerieDto> GetSerieById(Guid id);
-        Task<List<SerieDto>> GetSeriesWithGames();
+        Task<SerieDto> GetSerieByName(string name);
+        Task<List<SearchGameItemDto>> GetSeriesWithGames();
         Task UpdateSerie(Guid id, CreateSerieDto createSerie);
     }
 }
