@@ -25,6 +25,10 @@ namespace GameService.Infrastructure.Configurations
                    .HasMaxLength(256)
                    .IsRequired(false);
 
+            builder.Property(x => x.XboxId)
+                   .HasMaxLength(256)
+                   .IsRequired(false);
+
             builder.Property(x => x.Name)
                    .HasMaxLength(256)
                    .IsRequired();
@@ -39,7 +43,11 @@ namespace GameService.Infrastructure.Configurations
 
             builder.HasIndex(x => x.Name);
             builder.HasIndex(x => x.SteamId).IsUnique();
-            builder.HasIndex(x => x.PlaystationId).IsUnique();
+            builder.HasIndex(x => new { x.PlaystationId, x.PlatformId })
+                   .IsUnique();
+
+            builder.HasIndex(x => new { x.XboxId, x.PlatformId })
+                   .IsUnique();
 
         }
     }

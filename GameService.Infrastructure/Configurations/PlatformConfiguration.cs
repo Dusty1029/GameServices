@@ -85,6 +85,13 @@ namespace GameService.Infrastructure.Configurations
                 IsSeed = true,
                 Name = "PS5",
                 PlatformEnum = PlatformEnumEntity.PS5
+            },
+            new()
+            {
+                Id = new Guid("b7943964-819d-4c70-9997-c09c7aeb468d"),
+                IsSeed = true,
+                Name = "Xbox360",
+                PlatformEnum = PlatformEnumEntity.Xbox360
             }
         ];
     }

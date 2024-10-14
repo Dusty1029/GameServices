@@ -5,6 +5,7 @@ using GameService.API.Models.Options;
 using Microsoft.Extensions.Options;
 using System.Collections.Specialized;
 using System.Web;
+using System.Net.Http.Json;
 
 namespace GameService.API.Gateways.Implementations
 {
@@ -17,13 +18,13 @@ namespace GameService.API.Gateways.Implementations
 
         public async Task<List<GameSteam>?> GetSteamGames()
         {
-            var builder = new UriBuilder(_steamOptions.Url + "/IPlayerService/GetOwnedGames/v0001/");
+            var builder = new UriBuilder($"{httpClient.BaseAddress}IPlayerService/GetOwnedGames/v0001/");
             var query = HttpUtility.ParseQueryString(builder.Query);
             AddBasicQueryParams(query);
             query["steamid"] = _steamOptions.SteamId;
             query["include_appinfo"] = true.ToString();
             builder.Query = query.ToString();
-            
+
             var response = await httpClient.GetFromJsonAsync<ResponseGetGamesSteam>(builder.ToString(), _cancellationToken);
             return response?.response?.games;
         }
@@ -32,7 +33,7 @@ namespace GameService.API.Gateways.Implementations
         {
             try
             { 
-                var builder = new UriBuilder(_steamOptions.Url + "/ISteamUserStats/GetPlayerAchievements/v0001/");
+                var builder = new UriBuilder($"{httpClient.BaseAddress}ISteamUserStats/GetPlayerAchievements/v0001/");
                 var query = HttpUtility.ParseQueryString(builder.Query);
                 AddBasicQueryParams(query);
                 query["appid"] = appId.ToString();
@@ -55,7 +56,7 @@ namespace GameService.API.Gateways.Implementations
         {
             try
             {
-                var builder = new UriBuilder(_steamOptions.Url + "/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/");
+                var builder = new UriBuilder($"{httpClient.BaseAddress}ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/");
                 var query = HttpUtility.ParseQueryString(builder.Query);
                 AddBasicQueryParams(query);
                 query["gameId"] = appId.ToString();

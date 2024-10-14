@@ -1,6 +1,6 @@
 ﻿namespace GameService.API.Models.Options
 {
-    public class PlaystationOption
+    public class PlaystationOptions
     {
         public const string SectionName = "Playstation";
         public string TokenUrl { get; set; } = string.Empty;

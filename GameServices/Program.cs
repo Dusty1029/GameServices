@@ -15,7 +15,7 @@ builder.Services.AddDbContext<GameContext>(options =>
 });
 
 builder.Services.AddServices();
-builder.ConfigureOptions();
+builder.ConfigureServices();
 
 var app = builder.Build();
 

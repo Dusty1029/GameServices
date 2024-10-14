@@ -12,9 +12,8 @@ namespace GameService.API.Extensions
         {
             services.AddRepositories();
             services.AddBusinessLogics();
-            services.AddGateways();
         }
-        public static void AddBusinessLogics(this IServiceCollection services)
+        private static void AddBusinessLogics(this IServiceCollection services)
         {
             services.AddScoped<ICategoryBL, CategoryBL>();
             services.AddScoped<IGameBL, GameBL>();
@@ -23,12 +22,7 @@ namespace GameService.API.Extensions
             services.AddScoped<IPlaystationBL, PlaystationBL>();
             services.AddScoped<IPlatformBL, PlatformBL>();
             services.AddScoped<ISerieBL, SerieBL>();
-        }
-
-        public static void AddGateways(this IServiceCollection services)
-        {
-            services.AddHttpClient<ISteamApiGateway, SteamApiGateway>();
-            services.AddHttpClient<IPlaystationApiGateway, PlaystationApiGateway>();
+            services.AddScoped<IXboxBL, XboxBL>();
         }
 
     }

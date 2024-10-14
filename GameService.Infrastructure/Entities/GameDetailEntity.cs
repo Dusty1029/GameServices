@@ -8,6 +8,7 @@ namespace GameService.Infrastructure.Entities
         public Guid Id { get; set; }
         public int? SteamId { get; set; }
         public string? PlaystationId { get; set; }
+        public string? XboxId { get; set; }
         public GameDetailStatusEnumEntity Status { get; set; }
 
         public Guid PlatformId { get; set; }

@@ -13,6 +13,7 @@ using GameService.Infrastructure.Entities;
 namespace GameService.API.BusinessLogics.Implementations
 {
     public class PlaystationBL(IPlaystationApiGateway playstationApiGateway,
+        IPlaystationTokenGateway playstationTokenGateway,
         IParameterRepository parameterRepository,
         IGameRepository gameRepository,
         IGameDetailRepository gameDetailRepository,
@@ -46,7 +47,7 @@ namespace GameService.API.BusinessLogics.Implementations
 
             var actualToken = await RefreshToken();
             var platformEnum = gamePlaystationDto.PlaystationGame.TrophyTitlePlatform.ToEntity();
-            var platformIdResult = GetPlaystationPlatformId(platformEnum);
+            var platformIdResult = platformRepository.GetPlatformIdByEnum(platformEnum);
 
             var trophiesResult = playstationApiGateway.GetTrophiesByGame(actualToken, gamePlaystationDto.PlaystationGame.PlaystationId, platformEnum);
             var trophiesEarnedResult = playstationApiGateway.GetTrophyEarnedsByGame(actualToken, gamePlaystationDto.PlaystationGame.PlaystationId, platformEnum);
@@ -77,7 +78,7 @@ namespace GameService.API.BusinessLogics.Implementations
             if (isIgnored)
             {
                 var platformEnum = gamePlaystationDto.TrophyTitlePlatform.ToEntity();
-                var platformIdResult = await GetPlaystationPlatformId(platformEnum);
+                var platformIdResult = await platformRepository.GetPlatformIdByEnum(platformEnum);
 
                 var ignoredGameEntity = gamePlaystationDto.ToEntity();
                 ignoredGameEntity.PlatformId = platformIdResult;
@@ -144,7 +145,7 @@ namespace GameService.API.BusinessLogics.Implementations
             var actualToken = await parameterRepository.GetPlaystationTokenEntity();
             npssoEntity ??= await parameterRepository.GetNpssoEntity();
 
-            var token = await playstationApiGateway.GetAuthenticationToken(npssoEntity!.Value) ??
+            var token = await playstationTokenGateway.GetAuthenticationToken(npssoEntity!.Value) ??
                 throw new CommonV2.Models.Exceptions.UnauthorizedAccessException($"The npsso [{npssoEntity!.Value}] is invalid.");
 
             actualToken!.Value = token;
@@ -180,7 +181,5 @@ namespace GameService.API.BusinessLogics.Implementations
 
             return playstationGamesSplited?.OrderBy(pg => pg.TrophyTitleName).ToList() ?? [];
         }
-
-        private Task<Guid> GetPlaystationPlatformId(PlatformEnumEntity platformEnum) => platformRepository.FindSelect(p => p.PlatformEnum == platformEnum, f => f.Select(p => p.Id));
     }
 }

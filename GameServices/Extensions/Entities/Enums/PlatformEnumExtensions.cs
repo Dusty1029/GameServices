@@ -12,6 +12,7 @@ namespace GameService.API.Extensions.Entities.Enums
             PlatformEnumEntity.PS3 => PlatformEnumDto.PS3,
             PlatformEnumEntity.PS4 => PlatformEnumDto.PS4,
             PlatformEnumEntity.PS5 => PlatformEnumDto.PS5,
+            PlatformEnumEntity.Xbox360 => PlatformEnumDto.Xbox360,
             _ => throw new NotImplementedException($"The platformEnum [{platformEnumEntity}] is not implemented."),
         };
 
@@ -22,6 +23,7 @@ namespace GameService.API.Extensions.Entities.Enums
             PlatformEnumDto.PS3 => PlatformEnumEntity.PS3,
             PlatformEnumDto.PS4 => PlatformEnumEntity.PS4,
             PlatformEnumDto.PS5 => PlatformEnumEntity.PS5,
+            PlatformEnumDto.Xbox360 => PlatformEnumEntity.Xbox360,
             _ => throw new NotImplementedException($"The platformEnum [{platformEnumEntity}] is not implemented."),
         };
     }

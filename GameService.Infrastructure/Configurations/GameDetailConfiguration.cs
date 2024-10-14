@@ -26,6 +26,10 @@ namespace GameService.Infrastructure.Configurations
                    .HasMaxLength(256)
                    .IsRequired(false);
 
+            builder.Property(x => x.XboxId)
+                   .HasMaxLength(256)
+                   .IsRequired(false);
+
             builder.Property(x => x.Status)
                    .HasDefaultValue(GameDetailStatusEnumEntity.NotStarted)
                    .HasConversion<string>()
@@ -49,6 +53,9 @@ namespace GameService.Infrastructure.Configurations
                    .IsUnique();
 
             builder.HasIndex(x => new { x.PlaystationId, x.PlatformId })
+                   .IsUnique();
+
+            builder.HasIndex(x => new { x.XboxId, x.PlatformId })
                    .IsUnique();
 
             builder.HasIndex(x => new { x.GameId, x.PlatformId })

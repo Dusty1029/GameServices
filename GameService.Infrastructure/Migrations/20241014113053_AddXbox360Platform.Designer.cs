@@ -3,6 +3,7 @@ using System;
 using GameService.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace GameService.Infrastructure.Migrations
 {
     [DbContext(typeof(GameContext))]
-    partial class GameContextModelSnapshot : ModelSnapshot
+    [Migration("20241014113053_AddXbox360Platform")]
+    partial class AddXbox360Platform
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -196,9 +199,6 @@ namespace GameService.Infrastructure.Migrations
                     b.HasIndex("PlaystationId", "PlatformId")
                         .IsUnique();
 
-                    b.HasIndex("XboxId", "PlatformId")
-                        .IsUnique();
-
                     b.ToTable("GameDetail", (string)null);
                 });
 
@@ -298,13 +298,10 @@ namespace GameService.Infrastructure.Migrations
 
                     b.HasIndex("PlatformId");
 
+                    b.HasIndex("PlaystationId")
+                        .IsUnique();
+
                     b.HasIndex("SteamId")
-                        .IsUnique();
-
-                    b.HasIndex("PlaystationId", "PlatformId")
-                        .IsUnique();
-
-                    b.HasIndex("XboxId", "PlatformId")
                         .IsUnique();
 
                     b.ToTable("IgnoredGame", (string)null);

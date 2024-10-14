@@ -1,6 +1,7 @@
 ﻿using Game.Dto;
 using GameService.API.Models.PlaystationGateway;
 using GameService.API.Models.SteamGateway;
+using GameService.API.Models.XboxGateway;
 using GameService.Infrastructure.Entities;
 
 namespace GameService.API.Extensions.Entities
@@ -35,6 +36,15 @@ namespace GameService.API.Extensions.Entities
              PlaystationTrophyId = trophy.trophyId,
              Description = trophy.trophyDetail,
              Percentage = trophyEarned.trophyEarnedRate
+        };
+
+        public static AchievementEntity ToEntity(this XboxAchievement achievement, bool isEarned) => new()
+        {
+            Achieved = isEarned,
+            Name = achievement.name,
+            XboxId = achievement.id,
+            Description = achievement.description,
+            Percentage = achievement.rarity?.currentPercentage
         };
 
         public static AchievementDto ToDto(this AchievementEntity achievementEntity) => new()
