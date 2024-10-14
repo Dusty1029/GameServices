@@ -64,6 +64,8 @@ namespace GameService.API.BusinessLogics.Implementations
                     var defaultSerie = await serieRepository.FindDefaultSerie();
                     gameEntity.SerieId = defaultSerie.Id;
                 }
+                gameEntity.PlayOrder = await gameRepository.NextPlayOrderBySerie(gameEntity.SerieId.Value);
+
                 await gameRepository.CreateGame(gameEntity, categories);
                 xboxGameDto.GameId = gameEntity.Id;
             }

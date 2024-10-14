@@ -23,7 +23,19 @@ namespace GameService.Infrastructure.Repositories.Implementations
             return gameEntity;
         }
 
-        public Task<int> MaxPlayOrderBySerie(Guid serieId) => 
-            DbSet.AsQueryable().AsNoTracking().Where(g => g.SerieId == serieId).MaxAsync(g => g.PlayOrder);
+        public async Task<int> NextPlayOrderBySerie(Guid serieId)
+        {
+            var numberOfGame = await GetCount(g => g.SerieId == serieId);
+            if (numberOfGame > 0) 
+            {
+                return (await DbSet.AsQueryable().AsNoTracking().Where(g => g.SerieId == serieId).MaxAsync(g => g.PlayOrder)) + 1;
+            }
+            else
+            {
+                return 0;
+            }
+            
+        }
+            
     }
 }

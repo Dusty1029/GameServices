@@ -44,7 +44,7 @@ namespace GameService.API.BusinessLogics.Implementations
                 gameEntity.SerieId = defaultSerie.Id;
             }
 
-            gameEntity.PlayOrder = (await gameRepository.MaxPlayOrderBySerie(gameEntity.SerieId.Value)) + 1;
+            gameEntity.PlayOrder = await gameRepository.NextPlayOrderBySerie(gameEntity.SerieId.Value);
 
             await gameRepository.CreateGame(gameEntity, categories);
             return gameEntity.Id;
