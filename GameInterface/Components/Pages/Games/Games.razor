@@ -81,9 +81,12 @@
     else
     {
         <MudTable T="SearchGameItemDto" Hover="true" Striped="true" LoadingProgressColor="Color.Info" RowClass="cursor-pointer" OnRowClick="OnGameClicked"
-                  Items="@GamesBySeries"
+                  Items="@GamesBySeries" Filter="new Func<SearchGameItemDto,bool>(FilterSerieFunc)"
                   GroupBy="@_groupDefinition"
                   @ref="_tableSerieRef">
+            <ToolBarContent>
+                <MudTextField T="string" @bind-Value="@SearchGameState.SearchSerie" Label="Serie" Immediate="true" Placeholder="Final Fantasy"></MudTextField>
+            </ToolBarContent>
             <ColGroup>
                 <col style="width: 60px;" />
                 <col />
@@ -249,6 +252,15 @@
             return await Task.FromResult(new List<SimpleSerieDto>());
 
         return await Task.FromResult(_simpleSeries.Where(x => x.Serie.Contains(value, StringComparison.InvariantCultureIgnoreCase)));
+    }
+
+    private bool FilterSerieFunc(SearchGameItemDto game)
+    {
+        if (string.IsNullOrWhiteSpace(SearchGameState.SearchSerie))
+            return true;
+        if (game.Serie.Contains(SearchGameState.SearchSerie, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
 
     private void OnGameClicked(TableRowClickEventArgs<SearchGameItemDto> tableRowClickEventArgs) =>

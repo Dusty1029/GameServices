@@ -9,8 +9,7 @@
         </ToolBarContent>
         <HeaderContent>
             <MudTh>
-                Nom
-                <MudTextField T="string" @bind-Value="@_searchGame" Immediate="true" Placeholder="Final Fantasy"></MudTextField>
+                <MudTextField T="string" @bind-Value="@_searchGame" Label="Nom" Immediate="true" Placeholder="Final Fantasy"></MudTextField>
             </MudTh>
             @if (Options.HasColumnPlatform)
             {
