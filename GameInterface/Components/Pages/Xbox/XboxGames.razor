@@ -1,0 +1,63 @@
+﻿@page "/xboxGames"
+
+@inject IXboxService XboxService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+
+<GamesToLoadTableComponent Options="SimpleGamesComponentOptions"
+                           Games="SimpleGames"
+                           LoadGame="LoadXboxGames"
+                           AddGame="AddXboxGame"
+                           IgnoreGame="IgnoreXboxGame">
+</GamesToLoadTableComponent>
+
+
+@code {
+    private List<SimpleGame> SimpleGames { get; set; } = [];
+    private List<XboxGameDto> XboxGameDtos { get; set; } = [];
+    private SimpleGamesComponentOptions SimpleGamesComponentOptions { get; set; } = new()
+        {
+            Title = "Jeux xbox à récupérer",
+            HasColumnPlatform = true
+        };
+
+    private async Task LoadXboxGames()
+    {
+        var getMissingXboxGamesResult = await XboxService.GetMissingXboxGames(CancellationToken);
+        if (getMissingXboxGamesResult.IsSucceed)
+        {
+            XboxGameDtos = getMissingXboxGamesResult.Result!;
+            SimpleGames = XboxGameDtos.Select(xg => xg.ToGameLoader()).ToList();
+        }
+    }
+
+    private async Task AddXboxGame(CreateSimpleGame xboxGame)
+    {
+        var xboxGameDto = FindXboxGame(xboxGame.Game);
+        var addXboxGameResult = await XboxService.AddXboxGame(CancellationToken, new CreateXboxGameDto
+            {
+                GameId = xboxGame.GameToLoad?.Game?.Id,
+                Serie = xboxGame.GameToLoad?.Serie,
+                Categories = xboxGame.GameToLoad?.Categories,
+                XboxGame = xboxGameDto
+            });
+        if (addXboxGameResult.IsSucceed)
+        {
+            Snackbar.Add($"Le jeu {xboxGame.Game.Name} a bien été ajouté à votre bibliothèque.", Severity.Success);
+            XboxGameDtos.Remove(xboxGameDto);
+        }
+    }
+
+    private async Task IgnoreXboxGame(SimpleGame xboxGame)
+    {
+        var xboxGameDto = FindXboxGame(xboxGame);
+        var ignoreXboxGameResult = await XboxService.IgnoreXboxGame(CancellationToken, xboxGameDto, true);
+        if (ignoreXboxGameResult.IsSucceed)
+        {
+            Snackbar.Add($"Le jeu {xboxGame.Name} a bien été ignoré.", Severity.Success);
+            XboxGameDtos.Remove(xboxGameDto);
+        }
+    }
+
+    private XboxGameDto FindXboxGame(SimpleGame gameLoader) => XboxGameDtos.First(sg => sg.XboxId == gameLoader.Id);
+}

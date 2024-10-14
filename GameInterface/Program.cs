@@ -1,4 +1,3 @@
-using Game.Dto;
 using GameInterface.Components;
 using GameInterface.Extensions.Models.States;
 using GameInterface.Services.Implementations;
@@ -30,6 +29,7 @@ builder.Services.AddScoped<ISteamService, SteamService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IPlatformService, PlatformService>();
 builder.Services.AddScoped<ISerieService, SerieService>();
+builder.Services.AddScoped<IXboxService, XboxService>();
 
 //States
 

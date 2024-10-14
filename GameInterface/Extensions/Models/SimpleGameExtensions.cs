@@ -19,5 +19,12 @@ namespace GameInterface.Extensions.Models
             Name = playstationGame.TrophyTitleName,
             Platform = playstationGame.TrophyTitlePlatform
         };
+
+        public static SimpleGame ToGameLoader(this XboxGameDto xboxGame) => new()
+        {
+            Id = xboxGame.XboxId,
+            Name = xboxGame.Name,
+            Platform = xboxGame.PlatformEnum
+        };
     }
 }
