@@ -1,7 +1,6 @@
 ﻿using CommonV2.Extensions;
 using GameService.Infrastructure.Entities;
 using GameService.Infrastructure.Entities.Enums;
-using GameService.Infrastructure.Extensions.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -23,8 +22,9 @@ namespace GameService.Infrastructure.Configurations
                    .HasMaxLength(256)
                    .IsRequired();
 
-            builder.Property(x => x.StatusOrder)
-                   .HasDefaultValue(GameDetailStatusEnumEntity.NotStarted.GetOrder())
+            builder.Property(x => x.GlobalStatus)
+                   .HasDefaultValue(GameDetailStatusEnumEntity.NotStarted)
+                   .HasConversion<string>()
                    .IsRequired();
 
             builder.Property(x => x.PlayOrder)
@@ -45,12 +45,6 @@ namespace GameService.Infrastructure.Configurations
             builder.HasMany(x => x.GameDetails)
                    .WithOne(x => x.Game)
                    .HasForeignKey(x => x.GameId);
-
-            //Indexes
-            builder.HasIndex(g => g.StatusOrder);
-
-            builder.HasIndex(g => g.Name)
-                   .IsUnique();
         }
     }
 }

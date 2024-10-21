@@ -81,19 +81,19 @@ namespace GameService.API.BusinessLogics.Implementations
                 f => f.Include(s => s.Games!).ThenInclude(g => g.GameDetails!).ThenInclude(gd => gd.Platform)
                       .Include(s => s.Games!).ThenInclude(g => g.Categories),
                 f => f.OrderByDescending(s => !s.IsDefault)
-                      .ThenByDescending(s => s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.Started.GetOrder()))
-                      .ThenByDescending(s => s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.Finished.GetOrder()) &&
-                                             (s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.NotStarted.GetOrder()) ||
-                                             s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.ToBuy.GetOrder())))
-                      .ThenByDescending(s => s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.TotalyFinished.GetOrder()) &&
-                                             (s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.NotStarted.GetOrder()) ||
-                                             s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.ToBuy.GetOrder())))
-                      .ThenByDescending(s => s.Games!.All(g => g.StatusOrder == GameDetailStatusEnumEntity.Finished.GetOrder()))
-                      .ThenByDescending(s => s.Games!.All(g => g.StatusOrder == GameDetailStatusEnumEntity.NotStarted.GetOrder()))
-                      .ThenByDescending(s => s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.NotStarted.GetOrder()) &&
-                                             s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.ToBuy.GetOrder()))
-                      .ThenByDescending(s => s.Games!.All(g => g.StatusOrder == GameDetailStatusEnumEntity.ToBuy.GetOrder()))
-                      .ThenByDescending(s => s.Games!.All(g => g.StatusOrder == GameDetailStatusEnumEntity.TotalyFinished.GetOrder()))
+                      .ThenByDescending(s => s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.Started))
+                      .ThenByDescending(s => s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.Finished) &&
+                                             (s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.NotStarted) ||
+                                             s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.ToBuy)))
+                      .ThenByDescending(s => s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.TotalyFinished) &&
+                                             (s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.NotStarted) ||
+                                             s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.ToBuy)))
+                      .ThenByDescending(s => s.Games!.All(g => g.GlobalStatus == GameDetailStatusEnumEntity.Finished))
+                      .ThenByDescending(s => s.Games!.All(g => g.GlobalStatus == GameDetailStatusEnumEntity.NotStarted))
+                      .ThenByDescending(s => s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.NotStarted) &&
+                                             s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.ToBuy))
+                      .ThenByDescending(s => s.Games!.All(g => g.GlobalStatus == GameDetailStatusEnumEntity.ToBuy))
+                      .ThenByDescending(s => s.Games!.All(g => g.GlobalStatus == GameDetailStatusEnumEntity.TotalyFinished))
                       .ThenBy(s => s.Name));
             return series.SelectMany(s => s.Games!.OrderBy(g => g.PlayOrder).ThenBy(g => g.Name)).Select(g => g.ToSearchItemDto()).ToList();
         }

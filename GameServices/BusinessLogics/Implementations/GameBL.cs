@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using Game.Dto.Enums;
 using GameService.API.Extensions.Entities.Enums;
+using GameService.Infrastructure.Entities.Enums;
 
 namespace GameService.API.BusinessLogics.Implementations
 {
@@ -64,7 +65,7 @@ namespace GameService.API.BusinessLogics.Implementations
                 var gameDetailToRemove = gameEntity.GameDetails!.First(gd => gd.Id == gameDetailId);
                 gameDetailRepository.Delete(gameDetailToRemove);
                 gameEntity.GameDetails.Remove(gameDetailToRemove);
-                gameEntity.UpdateStatusOrderGameEntity();
+                gameEntity.UpdateGlobalStatusGame();
                 await gameRepository.SaveChanges();
             }
         }
@@ -88,7 +89,14 @@ namespace GameService.API.BusinessLogics.Implementations
                     searchGameDto.Page,
                     BuildSearchPredicate(searchGameDto),
                     include: query => query.Include(g => g.Categories!.OrderBy(c => c.Name)).Include(g => g.GameDetails)!.ThenInclude(gd => gd.Platform).Include(g => g.Serie),
-                    orderBy: query => query.OrderBy(g => g.StatusOrder).ThenBy(g => g.Serie!.Name).ThenBy(g => g.PlayOrder).ThenBy(g => g.Name)
+                    orderBy: query => query.OrderByDescending(g => g.GlobalStatus == GameDetailStatusEnumEntity.Started)
+                                           .ThenByDescending(g => g.GlobalStatus == GameDetailStatusEnumEntity.Finished)
+                                           .ThenByDescending(g => g.GlobalStatus == GameDetailStatusEnumEntity.TotalyFinished)
+                                           .ThenByDescending(g => g.GlobalStatus == GameDetailStatusEnumEntity.NotStarted)
+                                           .ThenByDescending(g => g.GlobalStatus == GameDetailStatusEnumEntity.ToBuy)
+                                           .ThenBy(g => g.Serie!.Name)
+                                           .ThenBy(g => g.PlayOrder)
+                                           .ThenBy(g => g.Name)
                 );
 
             return new()
@@ -140,7 +148,7 @@ namespace GameService.API.BusinessLogics.Implementations
                 var defaultSerie = await serieRepository.FindDefaultSerie();
                 gameEntity.SerieId = defaultSerie.Id;
             }
-            gameEntity.UpdateStatusOrderGameEntity();
+            gameEntity.UpdateGlobalStatusGame();
 
             await gameRepository.SaveChanges();
         }

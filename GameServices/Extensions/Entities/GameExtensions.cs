@@ -39,6 +39,7 @@ namespace GameService.API.Extensions.Entities
         {
             Name = createGame.Name,
             SerieId = createGame.Serie?.Id,
+            GlobalStatus = createGame.Status.HasValue ? createGame.Status.Value.ToEntity() : GameDetailStatusEnumEntity.NotStarted,
             GameDetails =
             [
                 new()
@@ -56,10 +57,7 @@ namespace GameService.API.Extensions.Entities
             gameDto.GameDetails.ForEach(gd => gd.ToEntity(gameEntity.GameDetails!.First(gde => gde.Id == gd.Id)));
         }
 
-        public static void UpdateStatusOrderGameEntity(this GameEntity gameEntity) =>
-            gameEntity.StatusOrder = gameEntity.GameDetails!.Where(gd => gd.Status != GameDetailStatusEnumEntity.NotStarted)
-                                                            .Select(gd => gd.Status.GetOrder())
-                                                            .DefaultIfEmpty(GameDetailStatusEnumEntity.NotStarted.GetOrder())
-                                                            .Max();
+        public static void UpdateGlobalStatusGame(this GameEntity gameEntity) =>
+            gameEntity.GlobalStatus = gameEntity.GameDetails!.MaxBy(gd => gd.Status.GetStatusOrder())!.Status;
     }
 }
