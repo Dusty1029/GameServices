@@ -11,6 +11,8 @@ namespace Game.Dto.Enums
         [Description("Fini")]
         Finished = 2,
         [Description("Fini à 100%")]
-        TotalyFinished = 3
+        TotalyFinished = 3,
+        [Description("À acheter")]
+        ToBuy = 4
     }
 }

@@ -9,7 +9,8 @@ namespace GameService.Infrastructure.Extensions.Enums
             GameDetailStatusEnumEntity.Started,
             GameDetailStatusEnumEntity.Finished,
             GameDetailStatusEnumEntity.TotalyFinished,
-            GameDetailStatusEnumEntity.NotStarted
+            GameDetailStatusEnumEntity.NotStarted,
+            GameDetailStatusEnumEntity.ToBuy
         ];
 
         private readonly static List<GameDetailStatusEnumEntity> ListOrderedGameDetailStatus =
@@ -17,7 +18,8 @@ namespace GameService.Infrastructure.Extensions.Enums
             GameDetailStatusEnumEntity.TotalyFinished,
             GameDetailStatusEnumEntity.Finished,
             GameDetailStatusEnumEntity.Started,
-            GameDetailStatusEnumEntity.NotStarted
+            GameDetailStatusEnumEntity.NotStarted,
+            GameDetailStatusEnumEntity.ToBuy,
         ];
 
         public static int GetOrder(this GameDetailStatusEnumEntity status) => OrderedGameDetailStatus.FindIndex(s => s == status);

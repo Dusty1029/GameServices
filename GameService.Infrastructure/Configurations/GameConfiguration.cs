@@ -45,6 +45,12 @@ namespace GameService.Infrastructure.Configurations
             builder.HasMany(x => x.GameDetails)
                    .WithOne(x => x.Game)
                    .HasForeignKey(x => x.GameId);
+
+            //Indexes
+            builder.HasIndex(g => g.StatusOrder);
+
+            builder.HasIndex(g => g.Name)
+                   .IsUnique();
         }
     }
 }

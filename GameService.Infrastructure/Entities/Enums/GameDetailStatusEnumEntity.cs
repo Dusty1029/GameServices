@@ -5,6 +5,7 @@
         NotStarted = 0,
         Started = 1,
         Finished = 2,
-        TotalyFinished = 3
+        TotalyFinished = 3,
+        ToBuy = 4
     }
 }

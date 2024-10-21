@@ -80,10 +80,20 @@ namespace GameService.API.BusinessLogics.Implementations
                 s => s.Games!.Count > 0,
                 f => f.Include(s => s.Games!).ThenInclude(g => g.GameDetails!).ThenInclude(gd => gd.Platform)
                       .Include(s => s.Games!).ThenInclude(g => g.Categories),
-                f => f.OrderBy(s => s.IsDefault)
-                      .ThenBy(s => !s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.Started.GetOrder()))
-                      .ThenBy(s => !s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.Finished.GetOrder()))
-                      .ThenBy(s => !s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.TotalyFinished.GetOrder()))
+                f => f.OrderByDescending(s => !s.IsDefault)
+                      .ThenByDescending(s => s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.Started.GetOrder()))
+                      .ThenByDescending(s => s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.Finished.GetOrder()) &&
+                                             (s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.NotStarted.GetOrder()) ||
+                                             s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.ToBuy.GetOrder())))
+                      .ThenByDescending(s => s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.TotalyFinished.GetOrder()) &&
+                                             (s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.NotStarted.GetOrder()) ||
+                                             s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.ToBuy.GetOrder())))
+                      .ThenByDescending(s => s.Games!.All(g => g.StatusOrder == GameDetailStatusEnumEntity.Finished.GetOrder()))
+                      .ThenByDescending(s => s.Games!.All(g => g.StatusOrder == GameDetailStatusEnumEntity.NotStarted.GetOrder()))
+                      .ThenByDescending(s => s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.NotStarted.GetOrder()) &&
+                                             s.Games!.Any(g => g.StatusOrder == GameDetailStatusEnumEntity.ToBuy.GetOrder()))
+                      .ThenByDescending(s => s.Games!.All(g => g.StatusOrder == GameDetailStatusEnumEntity.ToBuy.GetOrder()))
+                      .ThenByDescending(s => s.Games!.All(g => g.StatusOrder == GameDetailStatusEnumEntity.TotalyFinished.GetOrder()))
                       .ThenBy(s => s.Name));
             return series.SelectMany(s => s.Games!.OrderBy(g => g.PlayOrder).ThenBy(g => g.Name)).Select(g => g.ToSearchItemDto()).ToList();
         }

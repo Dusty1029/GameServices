@@ -11,6 +11,7 @@ namespace GameInterface.Extensions.Models.Enums
             GameDetailStatusEnumDto.Started => Color.Primary,
             GameDetailStatusEnumDto.Finished => Color.Success,
             GameDetailStatusEnumDto.TotalyFinished => Color.Error,
+            GameDetailStatusEnumDto.ToBuy => Color.Warning,
             _ => throw new NotImplementedException($"The status [{status} is not implemented.]"),
         };
     }
