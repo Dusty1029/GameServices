@@ -44,6 +44,7 @@ namespace GameService.API.Extensions.Entities
                 new()
                 {
                     PlatformId = createGame.Platform!.Id,
+                    Status = createGame.Status.HasValue ? createGame.Status.Value.ToEntity() : GameDetailStatusEnumEntity.NotStarted
                 }
             ]
         };

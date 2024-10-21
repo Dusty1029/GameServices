@@ -18,6 +18,12 @@
                     <MudSelectItem Value="category">@category.Name</MudSelectItem>
                 }
             </MudSelect>
+            <MudSelect Class="pa-2" @bind-Value="_createGame.Status" Label="Status" Clearable="true" Placeholder="Fini">
+                @foreach (var gameDetailStatus in Enum.GetValues(typeof(GameDetailStatusEnumDto)).Cast<GameDetailStatusEnumDto?>())
+                {
+                    <MudSelectItem Value="gameDetailStatus">@gameDetailStatus!.GetDescription()</MudSelectItem>
+                }
+            </MudSelect>
         </MudForm>
     </DialogContent>
     <DialogActions>
@@ -38,7 +44,10 @@
     public List<SimpleSerieDto> Series { get; set; } = [];
 
     private MudForm? _form;
-    private CreateGameDto _createGame = new();
+    private CreateGameDto _createGame = new()
+    {
+        Status = GameDetailStatusEnumDto.NotStarted
+    };
 
     private async Task<IEnumerable<SimpleSerieDto?>> SearchSerie(string value, CancellationToken token)
     {
