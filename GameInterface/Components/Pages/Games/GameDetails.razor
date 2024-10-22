@@ -237,19 +237,12 @@
 
     private async Task RefreshGame(GameDetailDto gameDetail)
     {
-        ApiResult apiResult;
-        if (gameDetail.Platform.PlatformEnum == PlatformEnumDto.Steam)
+        var apiResult = gameDetail.Platform.PlatformEnum switch
         {
-            apiResult = await SteamService.ReloadSteamGame(CancellationToken, gameDetail.Id);
-        }
-        else if (gameDetail.Platform.PlatformEnum == PlatformEnumDto.Xbox360)
-        {
-            apiResult = await XboxService.ReloadXboxGame(CancellationToken, gameDetail.Id);
-        }
-        else
-        {
-            apiResult = await PlaystationService.ReloadPlaystationGame(CancellationToken, gameDetail.Id);
-        }
+            PlatformEnumDto.Steam => await SteamService.ReloadSteamGame(CancellationToken, gameDetail.Id),
+            PlatformEnumDto.Xbox360 => await XboxService.ReloadXboxGame(CancellationToken, gameDetail.Id),
+            _ => await PlaystationService.ReloadPlaystationGame(CancellationToken, gameDetail.Id)
+        };
 
         if (apiResult.IsSucceed)
         {
