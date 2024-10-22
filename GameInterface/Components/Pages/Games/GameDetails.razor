@@ -8,7 +8,9 @@
 @inject ISteamService SteamService
 @inject IPlaystationService PlaystationService
 @inject ISerieService SerieService
+@inject IXboxService XboxService
 @inject NavigationManager NavigationManager
+
 <MudForm Model="_updateGame" @ref="_form">
     <MudGrid class="pa-4">
     
@@ -239,6 +241,10 @@
         if (gameDetail.Platform.PlatformEnum == PlatformEnumDto.Steam)
         {
             apiResult = await SteamService.ReloadSteamGame(CancellationToken, gameDetail.Id);
+        }
+        else if (gameDetail.Platform.PlatformEnum == PlatformEnumDto.Xbox360)
+        {
+            apiResult = await XboxService.ReloadXboxGame(CancellationToken, gameDetail.Id);
         }
         else
         {
