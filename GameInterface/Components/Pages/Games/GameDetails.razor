@@ -240,8 +240,9 @@
         var apiResult = gameDetail.Platform.PlatformEnum switch
         {
             PlatformEnumDto.Steam => await SteamService.ReloadSteamGame(CancellationToken, gameDetail.Id),
-            PlatformEnumDto.Xbox360 => await XboxService.ReloadXboxGame(CancellationToken, gameDetail.Id),
-            _ => await PlaystationService.ReloadPlaystationGame(CancellationToken, gameDetail.Id)
+            PlatformEnumDto.Xbox360 or PlatformEnumDto.XboxOne => await XboxService.ReloadXboxGame(CancellationToken, gameDetail.Id),
+            PlatformEnumDto.PS3 or PlatformEnumDto.PS4 or PlatformEnumDto.PS5 or PlatformEnumDto.PSVITA => await PlaystationService.ReloadPlaystationGame(CancellationToken, gameDetail.Id),
+            _ => throw new NotImplementedException($"Refresh game for platform {gameDetail.Platform.Name} is not implemented.")
         };
 
         if (apiResult.IsSucceed)

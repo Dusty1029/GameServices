@@ -4,8 +4,8 @@ using Game.Dto.Enums;
 using GameService.API.BusinessLogics.Interfaces;
 using GameService.API.Extensions.Entities;
 using GameService.API.Extensions.Entities.Enums;
-using GameService.API.Gateways.Implementations;
 using GameService.API.Gateways.Interfaces;
+using GameService.API.Models.XboxGateway;
 using GameService.Infrastructure.Entities;
 using GameService.Infrastructure.Entities.Enums;
 using GameService.Infrastructure.Repositories.Interfaces;
@@ -47,18 +47,21 @@ namespace GameService.API.BusinessLogics.Implementations
             var platformEnum = xboxGameDto.XboxGame.PlatformEnum.ToEntity();
             var platformIdResult = platformRepository.GetPlatformIdByEnum(platformEnum);
 
-            var achievementsResult = xboxApiGateway.GetXboxAchievementsByGame(xboxGameDto.XboxGame.XboxId);
-            var achievementsEarnedResult = xboxApiGateway.GetXboxAchievementsEarnedByGame(xboxGameDto.XboxGame.XboxId);
+            var achievementsResult = xboxGameDto.XboxGame.PlatformEnum == PlatformEnumDto.Xbox360 ?
+                xboxApiGateway.GetXbox360AchievementsByGame(xboxGameDto.XboxGame.XboxId) : xboxApiGateway.GetXboxAchievementsByGame(xboxGameDto.XboxGame.XboxId);
+
+            var achievementsEarnedResult = xboxGameDto.XboxGame.PlatformEnum == PlatformEnumDto.Xbox360 ?
+                xboxApiGateway.GetXbox360AchievementsEarnedByGame(xboxGameDto.XboxGame.XboxId) : Task.FromResult((List<XboxAchievement>?)null);
 
             await Task.WhenAll(platformIdResult, achievementsResult, achievementsEarnedResult);
 
             if (xboxGameDto.GameId.HasValue)
             {
-                await gameDetailRepository.InsertAndSave(xboxGameDto.ToEntityWithGameId(achievementsResult.Result, achievementsEarnedResult.Result, platformIdResult.Result));
+                await gameDetailRepository.InsertAndSave(xboxGameDto.ToEntityWithGameId(achievementsResult.Result, platformIdResult.Result, achievementsEarnedResult.Result));
             }
             else
             {
-                var gameEntity = xboxGameDto.ToEntity(achievementsResult.Result, achievementsEarnedResult.Result, platformIdResult.Result);
+                var gameEntity = xboxGameDto.ToEntity(achievementsResult.Result, platformIdResult.Result, achievementsEarnedResult.Result);
                 if (gameEntity.SerieId is null)
                 {
                     var defaultSerie = await serieRepository.FindDefaultSerie();
@@ -81,10 +84,12 @@ namespace GameService.API.BusinessLogics.Implementations
 
             await Task.WhenAll(ignoredXboxGameResult, newXboxGamesResult);
 
-            var xboxGames = newXboxGamesResult.Result.Where(xg => xg.devices.Contains(PlatformEnumEntity.Xbox360.ToString()));
+            var xboxPlatforms = PlatformEnumExtensions.XboxPlatformEnums.Select(p => p.ToString());
+
+            var xboxGames = newXboxGamesResult.Result.Where(xg => xboxPlatforms.Any(xp => xg.devices.Contains(xp)));
 
             var xboxGamesSplited = xboxGames?.SelectMany(
-                    xg => xg.devices.Where(d => d == PlatformEnumEntity.Xbox360.ToString()).Select(d => new XboxGameDto
+                    xg => xg.devices.Where(d => xboxPlatforms.Any(xp => xp == d)).Select(d => new XboxGameDto
                     {
                         XboxId = xg.titleId,
                         Name = xg.name,
@@ -132,25 +137,28 @@ namespace GameService.API.BusinessLogics.Implementations
             if (gameDetail.XboxId is null)
                 throw new ValidationException($"The game with id [{gameDetailId}] is not a Playstation game.");
 
-            var achievementsResult = xboxApiGateway.GetXboxAchievementsByGame(gameDetail.XboxId);
-            var achievementsEarnedResult = xboxApiGateway.GetXboxAchievementsEarnedByGame(gameDetail.XboxId);
+            var achievementsResult = gameDetail.Platform!.PlatformEnum == PlatformEnumEntity.Xbox360 ? 
+                xboxApiGateway.GetXbox360AchievementsByGame(gameDetail.XboxId) : xboxApiGateway.GetXboxAchievementsByGame(gameDetail.XboxId);
 
-            await Task.WhenAll(achievementsResult, achievementsEarnedResult);
+            var achievementsEarnedResult = gameDetail.Platform!.PlatformEnum == PlatformEnumEntity.Xbox360 ?
+                xboxApiGateway.GetXbox360AchievementsEarnedByGame(gameDetail.XboxId) : Task.FromResult((List<XboxAchievement>?)null);
+
+            await Task.WhenAll(achievementsResult, achievementsEarnedResult!);
 
             var achievements = achievementsResult.Result;
-            var achievementsEarned = achievementsEarnedResult.Result;
+            var achievementsEarned = achievementsEarnedResult?.Result;
 
             gameDetail.Achievements!.ForEach(a =>
             {
                 var achievement = achievements.First(ac => ac.id == a.XboxId);
-                a.Achieved = achievementsEarned.Any(ae => ae.id == a.XboxId);
+                a.Achieved = achievementsEarned is not null ? achievementsEarned.Any(ae => ae.id == a.XboxId) : achievement.progressState == XboxGameExtensions.AchievedProgressState;
                 a.Percentage = achievement.rarity?.currentPercentage;
             });
 
             achievements.RemoveAll(t => gameDetail.Achievements!.Select(a => a.XboxId).Contains(t.id));
             if (achievements.Count != 0)
             {
-                var achievementEntities = achievements.Select(a => a.ToEntity(achievementsEarned.Any(ae => ae.id == a.id))).ToList();
+                var achievementEntities = achievements.Select(a => a.ToEntity(achievementsEarned is not null ? achievementsEarned.Any(ae => ae.id == a.id) : a.progressState == XboxGameExtensions.AchievedProgressState)).ToList();
                 achievementEntities.ForEach(ae => ae.GameDetailId = gameDetail.Id);
                 await achievementRepository.InsertRange(achievementEntities);
             }

@@ -13,15 +13,21 @@ namespace GameService.API.Gateways.Implementations
         private readonly CancellationToken _cancellationToken = cancellationTokenService.CancellationToken;
         private readonly XboxOptions _xboxOptions = xboxOptions.Value;
 
-        public async Task<List<XboxAchievement>> GetXboxAchievementsByGame(string titleId)
+        public async Task<List<XboxAchievement>> GetXbox360AchievementsByGame(string titleId)
         {
             var response = await httpClient.GetFromJsonAsync<ResponseGetXboxAchievementsByGame>($"player/{_xboxOptions.UserId}/title/{titleId}", _cancellationToken);
             return response!.achievements;
         }
 
-        public async Task<List<XboxAchievement>> GetXboxAchievementsEarnedByGame(string titleId)
+        public async Task<List<XboxAchievement>?> GetXbox360AchievementsEarnedByGame(string titleId)
         {
             var response = await httpClient.GetFromJsonAsync<ResponseGetXboxAchievementsByGame>($"x360/{_xboxOptions.UserId}/title/{titleId}", _cancellationToken);
+            return response?.achievements;
+        }
+
+        public async Task<List<XboxAchievement>> GetXboxAchievementsByGame(string titleId)
+        {
+            var response = await httpClient.GetFromJsonAsync<ResponseGetXboxAchievementsByGame>($"player/{_xboxOptions.UserId}/{titleId}", _cancellationToken);
             return response!.achievements;
         }
 

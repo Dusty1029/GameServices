@@ -93,6 +93,14 @@ namespace GameService.Infrastructure.Configurations
                 Name = "Xbox360",
                 PlatformEnum = PlatformEnumEntity.Xbox360
             }
+            ,
+            new()
+            {
+                Id = new Guid("47a47a3a-d03b-44cf-ac69-5bde9b4867f9"),
+                IsSeed = true,
+                Name = "XboxOne",
+                PlatformEnum = PlatformEnumEntity.XboxOne
+            }
         ];
     }
 }
