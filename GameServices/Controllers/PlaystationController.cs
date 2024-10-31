@@ -15,8 +15,9 @@ namespace GameService.API.Controllers
             => controllerExecutor.ExecuteAsync(this, () => playstationBL.RefreshToken(npsso));
 
         [HttpGet]
-        public Task<IActionResult> GetMissingSteamGames()
-            => controllerExecutor.ExecuteAsync(this, playstationBL.GetMissingPlaystationGames);
+        [Route("force/{forceReload}")]
+        public Task<IActionResult> GetMissingSteamGames([FromRoute] bool forceReload)
+            => controllerExecutor.ExecuteAsync(this, () => playstationBL.GetMissingPlaystationGames(forceReload));
         
         [HttpPost]
         public Task<IActionResult> AddPlaystationGame([FromBody] CreatePlaystationGameDto gamePlaystationDto)

@@ -1,6 +1,5 @@
 ﻿using CommonV2.Models.Exceptions;
 using GameService.API.Models.PlaystationGateway;
-using GameService.Infrastructure.Entities.Enums;
 using GameService.Infrastructure.Repositories.Interfaces;
 using GameService.API.BusinessLogics.Interfaces;
 using GameService.API.Extensions.Entities;
@@ -9,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Game.Dto;
 using GameService.API.Extensions.Entities.Enums;
 using GameService.Infrastructure.Entities;
+using CommonV2.Helpers;
 
 namespace GameService.API.BusinessLogics.Implementations
 {
@@ -145,6 +145,9 @@ namespace GameService.API.BusinessLogics.Implementations
         private async Task<string> RefreshToken(ParameterEntity? npssoEntity = null)
         {
             var actualToken = await parameterRepository.GetPlaystationTokenEntity();
+            if (!JwtTokenHelper.IsTokenExpired(actualToken!.Value))
+                return actualToken.Value;
+
             npssoEntity ??= await parameterRepository.GetNpssoEntity();
 
             var token = await playstationTokenGateway.GetAuthenticationToken(npssoEntity!.Value) ??
@@ -156,16 +159,16 @@ namespace GameService.API.BusinessLogics.Implementations
             return token;
         }
 
-        public async Task<List<PlaystationGameDto>> GetMissingPlaystationGames()
+        public async Task<List<PlaystationGameDto>> GetMissingPlaystationGames(bool forceReload)
         {
             var actualToken = await RefreshToken();
             var playstationGames = await gameDetailRepository.Get(g => g.PlaystationId != null, f => f.Include(g => g.Platform));
             var ignoredPlaystationGameResult = ignoredGameRepository.Get(g => g.PlaystationId != null, f => f.Include(gd => gd.Platform));
-            var newPlaystationGamesResult = playstationApiGateway.GetPlaystationGames(actualToken ?? "");
+            var newPlaystationGamesResult = playstationApiGateway.GetPlaystationGames(actualToken, forceReload);
 
             await Task.WhenAll(ignoredPlaystationGameResult, newPlaystationGamesResult);
 
-            var playstationGamesSplited = newPlaystationGamesResult.Result?.SelectMany(
+            var playstationGamesSplited = newPlaystationGamesResult.Result.SelectMany(
                     pg => pg.trophyTitlePlatform.Split(',').Select(t => new GamePlaystation
                     {
                         trophyTitlePlatform = t,

@@ -76,11 +76,11 @@ namespace GameService.API.BusinessLogics.Implementations
             return xboxGameDto.GameId!.Value;
         }
 
-        public async Task<List<XboxGameDto>> GetMissingXboxGames()
+        public async Task<List<XboxGameDto>> GetMissingXboxGames(bool forceReload)
         {
             var xboxGameEntities = await gameDetailRepository.Get(g => g.XboxId != null, f => f.Include(g => g.Platform));
             var ignoredXboxGameResult = ignoredGameRepository.Get(g => g.XboxId != null, f => f.Include(gd => gd.Platform));
-            var newXboxGamesResult = xboxApiGateway.GetXboxGames();
+            var newXboxGamesResult = xboxApiGateway.GetXboxGames(forceReload);
 
             await Task.WhenAll(ignoredXboxGameResult, newXboxGamesResult);
 

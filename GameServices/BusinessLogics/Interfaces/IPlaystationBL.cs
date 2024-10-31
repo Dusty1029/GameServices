@@ -7,7 +7,7 @@ namespace GameService.API.BusinessLogics.Interfaces
         Task<Guid> AddPlaystationGame(CreatePlaystationGameDto gamePlaystationDto);
         Task IgnorePlaystationGame(PlaystationGameDto gamePlaystationDto, bool isIgnored);
         Task ReloadPlaystationGame(Guid gameDetailId);
-        Task<List<PlaystationGameDto>> GetMissingPlaystationGames();
+        Task<List<PlaystationGameDto>> GetMissingPlaystationGames(bool forceReload);
         Task<string> RefreshToken(string npsso);
     }
 }

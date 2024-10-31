@@ -1,8 +1,7 @@
-﻿using GameService.API.BusinessLogics.Implementations;
+﻿using CommonV2.Extensions;
+using GameService.API.BusinessLogics.Implementations;
 using GameService.API.BusinessLogics.Interfaces;
 using GameService.Infrastructure.Extensions;
-using GameService.API.Gateways.Implementations;
-using GameService.API.Gateways.Interfaces;
 
 namespace GameService.API.Extensions
 {
@@ -10,6 +9,7 @@ namespace GameService.API.Extensions
     {
         public static void AddServices(this IServiceCollection services)
         {
+            services.AddMemoryCacheServices();
             services.AddRepositories();
             services.AddBusinessLogics();
         }

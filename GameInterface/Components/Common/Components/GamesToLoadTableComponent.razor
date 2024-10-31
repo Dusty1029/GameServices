@@ -6,6 +6,9 @@
     <MudTable Items="@Games" Hover="true" Striped="true" Loading="@_loading" LoadingProgressColor="Color.Info" Filter="new Func<SimpleGame,bool>(FilterFunc)">
         <ToolBarContent>
             <MudText Typo="Typo.h6">@Options.Title</MudText>
+            <MudTooltip Text="Recharger les jeux">
+                <MudIconButton Icon="@Icons.Material.Filled.Refresh" OnClick="ForceReloadGames" />
+            </MudTooltip>
         </ToolBarContent>
         <HeaderContent>
             <MudTh>
@@ -51,7 +54,7 @@
     [Parameter]
     public EventCallback<SimpleGame> IgnoreGame { get; set; }
     [Parameter]
-    public EventCallback LoadGame { get; set; }
+    public EventCallback<bool> LoadGame { get; set; }
 
     private List<CategoryDto> _categories = [];
     private List<SimpleSerieDto> _simpleSeries = [];
@@ -70,7 +73,7 @@
         var getAllCategoriesResult = CategoryService.GetAllCategories(CancellationToken);
         var getAllSeriesResult = SerieService.GetAllSeries(CancellationToken);
 
-        await Task.WhenAll(getAllCategoriesResult, getAllSeriesResult, LoadGame.InvokeAsync());
+        await Task.WhenAll(getAllCategoriesResult, getAllSeriesResult, LoadGame.InvokeAsync(false));
 
         if (getAllCategoriesResult.Result.IsSucceed && getAllSeriesResult.Result.IsSucceed)
         {
@@ -78,6 +81,13 @@
             _simpleSeries = getAllSeriesResult.Result.Result!;
             _loading = false;
         }
+    }
+
+    private async Task ForceReloadGames()
+    {
+        _loading = true;
+        await LoadGame.InvokeAsync(true);
+        _loading = false;
     }
 
     private async Task InvokeAddGame(SimpleGame game)
@@ -92,16 +102,20 @@
         var response = await dialogReference.Result;
         if (!response!.Canceled)
         {
+            _loading = true;
             var gameToLoad = (GameToLoad?)response.Data;
             await AddGame.InvokeAsync(new CreateSimpleGame { GameToLoad = gameToLoad, Game = game });
             Games.Remove(game);
+            _loading = false;
         }
     }
 
     private async Task InvokeIgnoreGame(SimpleGame game)
     {
+        _loading = true;
         await IgnoreGame.InvokeAsync(game);
         Games.Remove(game);
+        _loading = false;
     }
 
     private bool FilterFunc(SimpleGame game)

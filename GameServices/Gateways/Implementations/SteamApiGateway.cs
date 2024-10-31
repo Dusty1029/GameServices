@@ -5,18 +5,22 @@ using GameService.API.Models.Options;
 using Microsoft.Extensions.Options;
 using System.Collections.Specialized;
 using System.Web;
-using System.Net.Http.Json;
 
 namespace GameService.API.Gateways.Implementations
 {
     public class SteamApiGateway(IOptions<SteamOptions> steamOptions,
         ICancellationTokenService cancellationTokenService,
-        HttpClient httpClient) : ISteamApiGateway
+        HttpClient httpClient,
+        IMemoryCacheService cacheService) : ISteamApiGateway
     {
         private readonly CancellationToken _cancellationToken = cancellationTokenService.CancellationToken;
         private readonly SteamOptions _steamOptions = steamOptions.Value;
+        private readonly string SteamGamesCacheKey = "steamGamesCacheKey";
 
-        public async Task<List<GameSteam>?> GetSteamGames()
+        public Task<List<GameSteam>> GetSteamGames(bool forceReload) => 
+            cacheService.GetOrAddAsync(SteamGamesCacheKey, GetSteamGamesApi, forceReload);
+
+        private async Task<List<GameSteam>> GetSteamGamesApi()
         {
             var builder = new UriBuilder($"{httpClient.BaseAddress}IPlayerService/GetOwnedGames/v0001/");
             var query = HttpUtility.ParseQueryString(builder.Query);
@@ -26,7 +30,7 @@ namespace GameService.API.Gateways.Implementations
             builder.Query = query.ToString();
 
             var response = await httpClient.GetFromJsonAsync<ResponseGetGamesSteam>(builder.ToString(), _cancellationToken);
-            return response?.response?.games;
+            return response?.response?.games ?? [];
         }
 
         public async Task<List<AchievementSteam>> GetAchievementByAppId(int appId)
@@ -42,7 +46,7 @@ namespace GameService.API.Gateways.Implementations
                 builder.Query = query.ToString();
 
                 var response = await httpClient.GetFromJsonAsync<ResponseGetAchievementsSteam>(builder.ToString(), _cancellationToken);
-                return response!.playerstats.achievements;
+                return response?.playerstats.achievements ?? [];
             }
             catch (HttpRequestException ex) 
             { 
@@ -63,7 +67,7 @@ namespace GameService.API.Gateways.Implementations
                 builder.Query = query.ToString();
 
                 var response = await httpClient.GetFromJsonAsync<ResponseGetPercentageSteam>(builder.ToString(), _cancellationToken);
-                return response!.achievementpercentages.achievements;
+                return response?.achievementpercentages.achievements ?? [];
             }
             catch (HttpRequestException ex) 
             {

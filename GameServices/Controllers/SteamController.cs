@@ -11,8 +11,9 @@ namespace GameService.API.Controllers
         ISteamBL steamBL) : ControllerBase
     {
         [HttpGet]
-        public Task<IActionResult> GetMissingSteamGames()
-            => controllerExecutor.ExecuteAsync(this, steamBL.GetMissingSteamGames);
+        [Route("force/{forceReload}")]
+        public Task<IActionResult> GetMissingSteamGames([FromRoute] bool forceReload)
+            => controllerExecutor.ExecuteAsync(this, () => steamBL.GetMissingSteamGames(forceReload));
 
         [HttpPost]
         public Task<IActionResult> AddSteamGame([FromBody] CreateSteamGameDto steamGameDto)

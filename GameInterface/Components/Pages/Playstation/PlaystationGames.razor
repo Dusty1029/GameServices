@@ -33,9 +33,9 @@
     private string Npsso { get; set; } = string.Empty;
     private bool IsTokenValid { get; set; } = true;
 
-    private async Task LoadPlaystationGames()
+    private async Task LoadPlaystationGames(bool forceReload)
     {
-        var getMissingPlaystationGamesResult = await PlaystationService.GetMissingPlaystationGames(CancellationToken);
+        var getMissingPlaystationGamesResult = await PlaystationService.GetMissingPlaystationGames(CancellationToken, forceReload);
         if (getMissingPlaystationGamesResult.IsSucceed)
         {
             PlaystationGameDtos = getMissingPlaystationGamesResult.Result!;
@@ -93,5 +93,5 @@
         }
     }
 
-    private PlaystationGameDto FindPlaystationGame(SimpleGame gameLoader) => PlaystationGameDtos.First(sg => sg.PlaystationId == gameLoader.Id);
+    private PlaystationGameDto FindPlaystationGame(SimpleGame gameLoader) => PlaystationGameDtos.First(sg => sg.PlaystationId == gameLoader.Id && sg.TrophyTitlePlatform == gameLoader.Platform);
 }

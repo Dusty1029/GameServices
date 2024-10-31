@@ -8,7 +8,7 @@ namespace GameInterface.Services.Interfaces
         Task<ApiResult<Guid>> AddPlaystationGame(CancellationToken cancellationToken, CreatePlaystationGameDto gamePlaystationDto);
         Task<ApiResult> IgnorePlaystationGame(CancellationToken cancellationToken, PlaystationGameDto gamePlaystationDto, bool isIgnored);
         Task<ApiResult> ReloadPlaystationGame(CancellationToken cancellationToken, Guid gameDetailId);
-        Task<ApiResult<List<PlaystationGameDto>>> GetMissingPlaystationGames(CancellationToken cancellationToken);
+        Task<ApiResult<List<PlaystationGameDto>>> GetMissingPlaystationGames(CancellationToken cancellationToken, bool forceReload = false);
         Task<ApiResult> RefreshToken(CancellationToken cancellationToken, string npsso);
     }
 }

@@ -11,8 +11,9 @@ namespace GameService.API.Controllers
         IXboxBL xboxBL) : ControllerBase
     {
         [HttpGet]
-        public Task<IActionResult> GetMissingXboxGames()
-            => controllerExecutor.ExecuteAsync(this, xboxBL.GetMissingXboxGames);
+        [Route("force/{forceReload}")]
+        public Task<IActionResult> GetMissingXboxGames([FromRoute] bool forceReload)
+            => controllerExecutor.ExecuteAsync(this, () => xboxBL.GetMissingXboxGames(forceReload));
 
         [HttpPost]
         public Task<IActionResult> AddXboxGame([FromBody] CreateXboxGameDto xboxGameDto)

@@ -68,15 +68,15 @@ namespace GameService.API.BusinessLogics.Implementations
             return gameSteamDto.GameId!.Value;
         }
 
-        public async Task<List<SteamGameDto>> GetMissingSteamGames()
+        public async Task<List<SteamGameDto>> GetMissingSteamGames(bool forceReload)
         {
             var steamIds = await gameDetailRepository.GetSelect(f => f.Select(g => g.SteamId), g => g.SteamId != null);
-            var ignoredSteamIds = ignoredGameRepository.GetSelect(i => i.Select(i => (int?)i.SteamId));
-            var steamGames = steamApiGateway.GetSteamGames();
+            var ignoredSteamIds = ignoredGameRepository.GetSelect(i => i.Select(i => i.SteamId));
+            var steamGames = steamApiGateway.GetSteamGames(forceReload);
 
             await Task.WhenAll(ignoredSteamIds, steamGames);
 
-            return steamGames.Result?.Where(sg => !steamIds.Union(ignoredSteamIds.Result).Contains(sg.appid)).OrderBy(sg => sg.name).Select(sg => sg.ToDto()).ToList() ?? [];
+            return steamGames.Result.Where(sg => !steamIds.Union(ignoredSteamIds.Result).Contains(sg.appid)).OrderBy(sg => sg.name).Select(sg => sg.ToDto()).ToList() ?? [];
         }
 
         public async Task IgnoreSteamGame(SteamGameDto gameSteamDto, bool isIgnored)

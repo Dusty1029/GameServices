@@ -10,8 +10,8 @@ namespace GameInterface.Services.Implementations
         public Task<ApiResult<Guid>> AddSteamGame(CancellationToken cancellationToken, CreateSteamGameDto gameSteamDto) =>
             genericService.PostResult<Guid>(cancellationToken, gameSteamDto, beginPath);
 
-        public Task<ApiResult<List<SteamGameDto>>> GetMissingSteamGames(CancellationToken cancellationToken) =>
-            genericService.GetResult<List<SteamGameDto>>(cancellationToken, beginPath);
+        public Task<ApiResult<List<SteamGameDto>>> GetMissingSteamGames(CancellationToken cancellationToken, bool forceReload) =>
+            genericService.GetResult<List<SteamGameDto>>(cancellationToken, $"{beginPath}/force/{forceReload}");
 
         public Task<ApiResult> IgnoreSteamGame(CancellationToken cancellationToken, SteamGameDto gameSteamDto, bool isIgnored) =>
             genericService.PostResult(cancellationToken, gameSteamDto, $"{beginPath}/ignore/{isIgnored}");

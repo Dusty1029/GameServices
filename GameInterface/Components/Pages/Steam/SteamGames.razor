@@ -19,9 +19,9 @@
         HasColumnPlatform = false
     };
 
-    private async Task LoadSteamGames()
+    private async Task LoadSteamGames(bool forced)
     {
-        var getMissingSteamGamesResult = await SteamService.GetMissingSteamGames(CancellationToken);
+        var getMissingSteamGamesResult = await SteamService.GetMissingSteamGames(CancellationToken, forced);
         if (getMissingSteamGamesResult.IsSucceed)
         {
             SteamGameDtos = getMissingSteamGamesResult.Result!;

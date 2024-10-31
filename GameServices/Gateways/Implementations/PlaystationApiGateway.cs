@@ -9,11 +9,16 @@ using UnauthorizedAccessException = CommonV2.Models.Exceptions.UnauthorizedAcces
 namespace GameService.API.Gateways.Implementations
 {
     public class PlaystationApiGateway(ICancellationTokenService cancellationTokenService,
-        HttpClient httpClient) : IPlaystationApiGateway
+        HttpClient httpClient,
+        IMemoryCacheService cacheService) : IPlaystationApiGateway
     {
         private readonly CancellationToken _cancellationToken = cancellationTokenService.CancellationToken;
+        private readonly string PlaystationGamesCacheKey = "playstationGamesCacheKey";
 
-        public Task<List<GamePlaystation>?> GetPlaystationGames(string token)
+        public Task<List<GamePlaystation>> GetPlaystationGames(string token, bool forceReload) =>
+            cacheService.GetOrAddAsync(PlaystationGamesCacheKey,() => GetPlaystationGamesApi(token), forceReload);
+
+        private Task<List<GamePlaystation>> GetPlaystationGamesApi(string token)
             => ApiExceptionHandler(async () =>
             {
                 var builder = new UriBuilder($"{httpClient.BaseAddress}users/me/trophyTitles");
@@ -25,7 +30,7 @@ namespace GameService.API.Gateways.Implementations
                 httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
 
                 var response = await httpClient.GetFromJsonAsync<ResponseGetGamesPlaystation>(builder.ToString(), _cancellationToken);
-                return response?.trophyTitles;
+                return response?.trophyTitles ?? [];
 
             });
 
@@ -42,7 +47,7 @@ namespace GameService.API.Gateways.Implementations
                 httpClient.DefaultRequestHeaders.Add("Accept-Language", "fr-FR");
 
                 var response = await httpClient.GetFromJsonAsync<ResponseGetTrophiesByGame>(builder.ToString(), _cancellationToken);
-                return response!.trophies;
+                return response?.trophies ?? [];
             });
 
         public Task<List<TrophyEarned>> GetTrophyEarnedsByGame(string token, string gameId, PlatformEnumEntity platformEnum)
@@ -57,7 +62,7 @@ namespace GameService.API.Gateways.Implementations
                 httpClient.DefaultRequestHeaders.Add("Authorization", $"Basic {token}");
 
                 var response = await httpClient.GetFromJsonAsync<ResponseGetTrophiesEarnedByGame>(builder.ToString(), _cancellationToken);
-                return response!.trophies;
+                return response?.trophies ?? [];
             });
 
         private static async Task<TResult> ApiExceptionHandler<TResult>(Func<Task<TResult>> action)
