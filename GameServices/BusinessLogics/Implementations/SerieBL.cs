@@ -4,7 +4,6 @@ using GameService.API.BusinessLogics.Interfaces;
 using GameService.API.Extensions.Entities;
 using GameService.Infrastructure.Entities;
 using GameService.Infrastructure.Entities.Enums;
-using GameService.Infrastructure.Extensions.Enums;
 using GameService.Infrastructure.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +13,7 @@ namespace GameService.API.BusinessLogics.Implementations
     {
         public async Task<Guid> CreateSerie(CreateSerieDto createSerie)
         {
-            if (await serieRepository.Exists(s => EF.Functions.Like(s.Name.ToLower(), $"%{createSerie.Serie.ToLower()}%")))
+            if (await serieRepository.Exists(s => s.Name.ToLower() == createSerie.Serie.ToLower()))
                 throw new ArgumentException($"Serie with name [{createSerie.Serie}] already exist.");
 
             if (createSerie.ParentId.HasValue)

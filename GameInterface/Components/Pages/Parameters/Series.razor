@@ -53,7 +53,7 @@
             var createCategoryResult = await SerieService.CreateSerie(CancellationToken, new() { Serie = serie });
             if (createCategoryResult.IsSucceed)
             {
-                Snackbar.Add($"La plateforme {serie} a bien été crée.", Severity.Success);
+                Snackbar.Add($"La série {serie} a bien été crée.", Severity.Success);
                 await LoadSeries();
             }
         }
