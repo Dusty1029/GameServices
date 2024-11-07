@@ -108,7 +108,7 @@
                                                             </MudTooltip>
                                                         </MudItem>
                                                         <MudItem xs="3">
-                                                            <MudCheckBox @bind-Value="@achievement.Achieved" Disabled="!gameDetail.Platform.PlatformEnum.HasValue"></MudCheckBox>
+                                                            <MudCheckBox @bind-Value="@achievement.Achieved" Disabled="gameDetail.Platform.PlatformEnum.HasValue"></MudCheckBox>
                                                         </MudItem>
                                                     </MudGrid>
                                                 </MudListItem>
