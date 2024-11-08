@@ -29,7 +29,11 @@
                 @if (!_editMode)
                 {
                     <MudText Align="Align.Center" Typo="Typo.h5">@_game?.Name</MudText>
-                    <MudText Class="pa-4" Align="Align.Inherit">@_game?.Serie?.Serie</MudText>
+                    @if (@_game?.Serie?.Serie is not null)
+                    {
+                        <MudLink Class="pa-4" Align="Align.Inherit" Href="@($"/games/series/{_game.Serie.Serie}")">@_game.Serie.Serie</MudLink>
+                    }
+                    
                     <MudList T="CategoryDto">
                         @if (@_game?.Categories.Count() > 0)
                         {
