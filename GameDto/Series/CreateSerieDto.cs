@@ -1,4 +1,6 @@
-﻿namespace Game.Dto
+﻿using Game.Dto.Games;
+
+namespace Game.Dto.Series
 {
     public class CreateSerieDto
     {

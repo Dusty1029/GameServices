@@ -16,6 +16,7 @@ namespace GameService.Infrastructure.Extensions
             services.AddScoped<IIgnoredGameRepository, IgnoredGameRepository>();
             services.AddScoped<IPlatformRepository, PlatformRepository>();
             services.AddScoped<ISerieRepository, SerieRepository>();
+            services.AddScoped<IGoalRepository, GoalRepository>();
         }
     }
 }

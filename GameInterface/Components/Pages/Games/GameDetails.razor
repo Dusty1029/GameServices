@@ -9,6 +9,7 @@
 @inject IPlaystationService PlaystationService
 @inject ISerieService SerieService
 @inject IXboxService XboxService
+@inject IGoalService GoalService
 @inject NavigationManager NavigationManager
 
 <MudForm Model="_updateGame" @ref="_form">
@@ -95,6 +96,9 @@
                                             <MudIconButton Icon="@Icons.Material.Filled.Refresh" OnClick="(_) => RefreshGame(gameDetail)" />
                                         </MudTooltip>
                                     }
+                                    <MudTooltip Text="Ajouter un objectif">
+                                        <MudIconButton Icon="@Icons.Material.Filled.Add" OnClick="(_) => AddGoal(gameDetail)" />
+                                    </MudTooltip>
                                 </MudItem>
                             </MudGrid>
                             <MudList T="GameDetailDto">
@@ -125,9 +129,33 @@
                                     <MudListItem Text="Pas de succès" />
                                 }
 
-                                <MudListItem Text="Pas d'objectifs">
+                                @if (gameDetail.Goals.Count() > 0)
+                                {
+                                    <MudListItem Text="Succès">
+                                        <NestedList>
+                                            @foreach (var goal in gameDetail.Goals)
+                                            {
+                                                <MudListItem>
+                                                    <MudGrid>
+                                                        <MudItem xs="9" Style="display: flex; align-items: center">
+                                                            <MudText>@goal.Name</MudText>
+                                                        </MudItem>
+                                                        <MudItem xs="3">
+                                                            <MudCheckBox T="bool" Value="@goal.Achieved" ValueChanged="(isChecked) => OnGoalCheckedChanged(goal, isChecked)"></MudCheckBox>
+                                                        </MudItem>
+                                                    </MudGrid>
+                                                </MudListItem>
+                                            }
+                                        </NestedList>
+                                    </MudListItem>
+                                }
+                                else
+                                {
+                                    <MudListItem Text="Pas d'objectifs">
 
-                                </MudListItem>
+                                    </MudListItem>
+                                }
+
                             </MudList>
                         </MudTabPanel>
                     }
@@ -237,6 +265,36 @@
                 }
             }            
         }
+    }
+
+    private async Task AddGoal(GameDetailDto gameDetailDto)
+    {
+        var parameters = new DialogParameters<TextInputDialog>
+        {
+            { x => x.ContentText, $"Création d'un objectif" },
+            { x => x.Label, "Objectif" }
+        };
+        var dialogOptions = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialogReference = await DialogService.ShowAsync<TextInputDialog>("Création", parameters, dialogOptions);
+        var response = await dialogReference.Result;
+
+        if (!response!.Canceled)
+        {
+            var goal = (string)response.Data!;
+            var createGoalResult = await GoalService.CreateGoal(CancellationToken, gameDetailDto.Id, new() { Name = goal, GameDetailId = gameDetailDto.Id });
+            if (createGoalResult.IsSucceed)
+            {
+                await ReloadPage($"L'objectif {goal} a bien été crée.");
+            }
+        }
+    }
+
+    private async Task OnGoalCheckedChanged(GoalDto goal, bool isChecked)
+    {
+        var result = await GoalService.UpdateAchievedGoal(CancellationToken, goal.Id, isChecked);
+
+        if (result.IsSucceed)
+            await ReloadPage("La modification de l'objectif a bien été effectuée.");
     }
 
     private async Task RefreshGame(GameDetailDto gameDetail)

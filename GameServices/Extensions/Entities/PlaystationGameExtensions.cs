@@ -1,5 +1,5 @@
-﻿using Game.Dto;
-using Game.Dto.Enums;
+﻿using Game.Dto.Enums;
+using Game.Dto.Playstation;
 using GameService.API.Models.PlaystationGateway;
 using GameService.Infrastructure.Entities;
 

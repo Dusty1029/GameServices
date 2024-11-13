@@ -1,4 +1,4 @@
-﻿using Game.Dto;
+﻿using Game.Dto.Xbox;
 using GameService.API.Models.XboxGateway;
 using GameService.Infrastructure.Entities;
 

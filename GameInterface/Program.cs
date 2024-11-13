@@ -30,6 +30,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IPlatformService, PlatformService>();
 builder.Services.AddScoped<ISerieService, SerieService>();
 builder.Services.AddScoped<IXboxService, XboxService>();
+builder.Services.AddScoped<IGoalService, GoalService>();
 
 //States
 

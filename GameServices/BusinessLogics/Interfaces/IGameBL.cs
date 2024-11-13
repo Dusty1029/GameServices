@@ -1,6 +1,6 @@
 ﻿using CommonV2.Models;
-using Game.Dto;
 using Game.Dto.Enums;
+using Game.Dto.Games;
 
 namespace GameService.API.BusinessLogics.Interfaces
 {

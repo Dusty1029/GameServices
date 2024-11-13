@@ -1,4 +1,4 @@
-﻿namespace Game.Dto
+﻿namespace Game.Dto.Games
 {
     public class SimpleGameDto
     {

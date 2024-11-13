@@ -1,6 +1,6 @@
 ﻿using Game.Dto.Enums;
 
-namespace Game.Dto
+namespace Game.Dto.Games
 {
     public class UpdateGameDetailDto
     {

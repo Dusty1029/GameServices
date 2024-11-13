@@ -1,4 +1,4 @@
-﻿using Game.Dto;
+﻿using Game.Dto.Series;
 using GameService.Infrastructure.Entities;
 
 namespace GameService.API.Extensions.Entities

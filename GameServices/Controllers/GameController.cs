@@ -1,6 +1,6 @@
 ﻿using CommonV2.Helpers.Controller;
-using Game.Dto;
 using Game.Dto.Enums;
+using Game.Dto.Games;
 using GameService.API.BusinessLogics.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 

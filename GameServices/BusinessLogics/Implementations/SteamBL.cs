@@ -1,5 +1,4 @@
 ﻿using CommonV2.Models.Exceptions;
-using Game.Dto;
 using GameService.API.BusinessLogics.Interfaces;
 using GameService.API.Extensions.Entities;
 using GameService.Infrastructure.Repositories.Interfaces;
@@ -7,6 +6,7 @@ using GameService.API.Gateways.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using GameService.Infrastructure.Entities.Enums;
 using GameService.Infrastructure.Entities;
+using Game.Dto.Steam;
 
 namespace GameService.API.BusinessLogics.Implementations
 {

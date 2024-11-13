@@ -1,6 +1,6 @@
 ﻿using CommonV2.Models.Exceptions;
-using Game.Dto;
 using Game.Dto.Enums;
+using Game.Dto.Xbox;
 using GameService.API.BusinessLogics.Interfaces;
 using GameService.API.Extensions.Entities;
 using GameService.API.Extensions.Entities.Enums;

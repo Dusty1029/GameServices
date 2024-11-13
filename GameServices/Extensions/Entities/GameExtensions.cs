@@ -1,4 +1,4 @@
-﻿using Game.Dto;
+﻿using Game.Dto.Games;
 using GameService.API.Extensions.Entities.Enums;
 using GameService.Infrastructure.Entities;
 using GameService.Infrastructure.Entities.Enums;

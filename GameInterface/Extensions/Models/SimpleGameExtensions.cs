@@ -1,5 +1,7 @@
-﻿using Game.Dto;
-using Game.Dto.Enums;
+﻿using Game.Dto.Enums;
+using Game.Dto.Playstation;
+using Game.Dto.Steam;
+using Game.Dto.Xbox;
 using GameInterface.Models;
 
 namespace GameInterface.Extensions.Models

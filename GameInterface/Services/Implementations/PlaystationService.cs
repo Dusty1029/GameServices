@@ -1,4 +1,4 @@
-﻿using Game.Dto;
+﻿using Game.Dto.Playstation;
 using GameInterface.Models;
 using GameInterface.Services.Interfaces;
 

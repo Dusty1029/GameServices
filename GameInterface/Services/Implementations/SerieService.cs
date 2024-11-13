@@ -1,4 +1,5 @@
-﻿using Game.Dto;
+﻿using Game.Dto.Games;
+using Game.Dto.Series;
 using GameInterface.Models;
 using GameInterface.Services.Interfaces;
 

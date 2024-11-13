@@ -1,4 +1,6 @@
 ﻿using Game.Dto;
+using Game.Dto.Games;
+using Game.Dto.Series;
 
 namespace GameInterface.Models
 {

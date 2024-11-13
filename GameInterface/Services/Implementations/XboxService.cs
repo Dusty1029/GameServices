@@ -1,4 +1,4 @@
-﻿using Game.Dto;
+﻿using Game.Dto.Xbox;
 using GameInterface.Models;
 using GameInterface.Services.Interfaces;
 

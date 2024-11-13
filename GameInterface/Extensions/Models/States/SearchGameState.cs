@@ -1,4 +1,4 @@
-﻿using Game.Dto;
+﻿using Game.Dto.Games;
 
 namespace GameInterface.Extensions.Models.States
 {

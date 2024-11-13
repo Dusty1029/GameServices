@@ -1,5 +1,4 @@
-﻿
-namespace Game.Dto
+﻿namespace Game.Dto.Steam
 {
     public class SteamGameDto
     {

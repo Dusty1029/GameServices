@@ -1,4 +1,4 @@
-﻿using Game.Dto;
+﻿using Game.Dto.Steam;
 
 namespace GameService.API.BusinessLogics.Interfaces
 {

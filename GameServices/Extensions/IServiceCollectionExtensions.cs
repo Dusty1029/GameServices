@@ -23,6 +23,7 @@ namespace GameService.API.Extensions
             services.AddScoped<IPlatformBL, PlatformBL>();
             services.AddScoped<ISerieBL, SerieBL>();
             services.AddScoped<IXboxBL, XboxBL>();
+            services.AddScoped<IGoalBL, GoalBL>();
         }
 
     }

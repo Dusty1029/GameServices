@@ -1,5 +1,5 @@
 ﻿using CommonV2.Helpers.Controller;
-using Game.Dto;
+using Game.Dto.Xbox;
 using GameService.API.BusinessLogics.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 

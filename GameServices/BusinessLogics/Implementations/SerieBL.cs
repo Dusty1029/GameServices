@@ -1,5 +1,6 @@
 ﻿using CommonV2.Models.Exceptions;
-using Game.Dto;
+using Game.Dto.Games;
+using Game.Dto.Series;
 using GameService.API.BusinessLogics.Interfaces;
 using GameService.API.Extensions.Entities;
 using GameService.Infrastructure.Entities;

@@ -1,4 +1,4 @@
-﻿using Game.Dto;
+﻿using Game.Dto.Playstation;
 
 namespace GameService.API.BusinessLogics.Interfaces
 {

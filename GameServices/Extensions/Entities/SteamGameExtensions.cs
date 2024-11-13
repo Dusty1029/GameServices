@@ -1,4 +1,4 @@
-﻿using Game.Dto;
+﻿using Game.Dto.Steam;
 using GameService.API.Models.SteamGateway;
 using GameService.Infrastructure.Entities;
 

@@ -1,7 +1,7 @@
-﻿
-using Game.Dto.Enums;
+﻿using Game.Dto.Enums;
+using Game.Dto.Series;
 
-namespace Game.Dto
+namespace Game.Dto.Games
 {
     public class CreateGameDto
     {

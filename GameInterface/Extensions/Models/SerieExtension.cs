@@ -1,4 +1,4 @@
-﻿using Game.Dto;
+﻿using Game.Dto.Series;
 
 namespace GameInterface.Extensions.Models
 {

@@ -5,10 +5,10 @@ using GameService.API.BusinessLogics.Interfaces;
 using GameService.API.Extensions.Entities;
 using GameService.API.Gateways.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Game.Dto;
 using GameService.API.Extensions.Entities.Enums;
 using GameService.Infrastructure.Entities;
 using CommonV2.Helpers;
+using Game.Dto.Playstation;
 
 namespace GameService.API.BusinessLogics.Implementations
 {

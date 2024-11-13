@@ -1,6 +1,5 @@
 ﻿using CommonV2.Models;
 using CommonV2.Models.Exceptions;
-using Game.Dto;
 using GameService.Infrastructure.Entities;
 using GameService.Infrastructure.Repositories.Interfaces;
 using GameService.API.BusinessLogics.Interfaces;
@@ -11,6 +10,7 @@ using System.Linq.Expressions;
 using Game.Dto.Enums;
 using GameService.API.Extensions.Entities.Enums;
 using GameService.Infrastructure.Entities.Enums;
+using Game.Dto.Games;
 
 namespace GameService.API.BusinessLogics.Implementations
 {
@@ -77,6 +77,7 @@ namespace GameService.API.BusinessLogics.Implementations
                           .Include(g => g.Serie)
                           .Include(g => g.GameDetails)!.ThenInclude(gd => gd.Platform)
                           .Include(g => g.GameDetails)!.ThenInclude(gd => gd.Achievements!.OrderByDescending(a => a.Percentage).ThenBy(a => a.Name))
+                          .Include(g => g.GameDetails)!.ThenInclude(gd => gd.Goals!.OrderBy(g => g.IsFulFilled).ThenBy(g => g.Title))
                 );
 
             return game is null ? throw new NotFoundException($"The game with id [{gameId}] was not found.") : game.ToDto();
