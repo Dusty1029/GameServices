@@ -19,7 +19,7 @@
                 }
             </MudSelect>
             <MudSelect Class="pa-2" @bind-Value="_createGame.Status" Label="Status" Clearable="true" Placeholder="Fini">
-                @foreach (var gameDetailStatus in Enum.GetValues(typeof(GameDetailStatusEnumDto)).Cast<GameDetailStatusEnumDto?>())
+                @foreach (var gameDetailStatus in GameDetailStatusEnumExtensions.OrderedStatus.Cast<GameDetailStatusEnumDto?>())
                 {
                     <MudSelectItem Value="gameDetailStatus">@gameDetailStatus!.GetDescription()</MudSelectItem>
                 }

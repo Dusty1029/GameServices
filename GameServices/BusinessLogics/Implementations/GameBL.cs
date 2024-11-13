@@ -90,6 +90,7 @@ namespace GameService.API.BusinessLogics.Implementations
                     BuildSearchPredicate(searchGameDto),
                     include: query => query.Include(g => g.Categories!.OrderBy(c => c.Name)).Include(g => g.GameDetails)!.ThenInclude(gd => gd.Platform).Include(g => g.Serie),
                     orderBy: query => query.OrderByDescending(g => g.GlobalStatus == GameDetailStatusEnumEntity.Started)
+                                           .ThenByDescending(g => g.GlobalStatus == GameDetailStatusEnumEntity.StartedTotalyFinished)
                                            .ThenByDescending(g => g.GlobalStatus == GameDetailStatusEnumEntity.Finished)
                                            .ThenByDescending(g => g.GlobalStatus == GameDetailStatusEnumEntity.TotalyFinished)
                                            .ThenByDescending(g => g.GlobalStatus == GameDetailStatusEnumEntity.NotStarted)

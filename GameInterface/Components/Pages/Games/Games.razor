@@ -54,7 +54,7 @@
                 </MudTh>
                 <MudTh>
                     <MudSelect T="GameDetailStatusEnumDto?" Value="SearchGameState.SearchGame.GameDetailStatus" ValueChanged="OnStatusChanged" Label="Status" Clearable="true" Placeholder="Fini">
-                        @foreach (var gameDetailStatus in Enum.GetValues(typeof(GameDetailStatusEnumDto)).Cast<GameDetailStatusEnumDto?>())
+                        @foreach (var gameDetailStatus in GameDetailStatusEnumExtensions.OrderedStatus.Cast<GameDetailStatusEnumDto?>())
                         {
                             <MudSelectItem Value="gameDetailStatus">@gameDetailStatus!.GetDescription()</MudSelectItem>
                         }

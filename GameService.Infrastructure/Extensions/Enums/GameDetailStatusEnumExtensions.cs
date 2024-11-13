@@ -8,6 +8,7 @@ namespace GameService.Infrastructure.Extensions.Enums
         [
             GameDetailStatusEnumEntity.TotalyFinished,
             GameDetailStatusEnumEntity.Finished,
+            GameDetailStatusEnumEntity.StartedTotalyFinished,
             GameDetailStatusEnumEntity.Started,
             GameDetailStatusEnumEntity.NotStarted,
             GameDetailStatusEnumEntity.ToBuy
@@ -19,6 +20,7 @@ namespace GameService.Infrastructure.Extensions.Enums
             GameDetailStatusEnumEntity.NotStarted,
             GameDetailStatusEnumEntity.Finished,
             GameDetailStatusEnumEntity.TotalyFinished,
+            GameDetailStatusEnumEntity.StartedTotalyFinished,
             GameDetailStatusEnumEntity.Started
         ];
 

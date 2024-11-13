@@ -78,7 +78,7 @@
                                     else
                                     {
                                         <MudSelect T="GameDetailStatusEnumDto" Class="pa-2" @bind-value="gameDetail.Status" Label="Status">
-                                            @foreach (var gameDetailStatus in Enum.GetValues(typeof(GameDetailStatusEnumDto)).Cast<GameDetailStatusEnumDto>())
+                                            @foreach (var gameDetailStatus in GameDetailStatusEnumExtensions.OrderedStatus)
                                             {
                                                 <MudSelectItem Value="gameDetailStatus">@gameDetailStatus.GetDescription()</MudSelectItem>
                                             }

@@ -81,6 +81,7 @@ namespace GameService.API.BusinessLogics.Implementations
                       .Include(s => s.Games!).ThenInclude(g => g.Categories),
                 f => f.OrderByDescending(s => !s.IsDefault)
                       .ThenByDescending(s => s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.Started))
+                      .ThenByDescending(s => s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.StartedTotalyFinished))
                       .ThenByDescending(s => s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.Finished) &&
                                              (s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.NotStarted) ||
                                              s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.ToBuy)))

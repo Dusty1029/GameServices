@@ -12,7 +12,18 @@ namespace GameInterface.Extensions.Models.Enums
             GameDetailStatusEnumDto.Finished => Color.Success,
             GameDetailStatusEnumDto.TotalyFinished => Color.Error,
             GameDetailStatusEnumDto.ToBuy => Color.Warning,
+            GameDetailStatusEnumDto.StartedTotalyFinished => Color.Secondary,
             _ => throw new NotImplementedException($"The status [{status} is not implemented.]"),
         };
+
+        public static List<GameDetailStatusEnumDto> OrderedStatus =>
+        [
+            GameDetailStatusEnumDto.NotStarted,
+            GameDetailStatusEnumDto.Started,
+            GameDetailStatusEnumDto.Finished,
+            GameDetailStatusEnumDto.StartedTotalyFinished,
+            GameDetailStatusEnumDto.TotalyFinished,
+            GameDetailStatusEnumDto.ToBuy
+        ];
     }
 }
