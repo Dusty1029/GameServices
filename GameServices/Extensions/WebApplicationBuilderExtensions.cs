@@ -1,7 +1,6 @@
 ﻿using GameService.API.Gateways.Implementations;
 using GameService.API.Gateways.Interfaces;
 using GameService.API.Models.Options;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace GameService.API.Extensions
 {
@@ -43,6 +42,13 @@ namespace GameService.API.Extensions
             builder.Services.AddHttpClient<IPlaystationTokenGateway, PlaystationTokenGateway>(client =>
             {
                 client.BaseAddress = new Uri(playstationOptions!.TokenUrl);
+            });
+
+            builder.Services.AddHttpClient<IHowLongToBeatGateway, HowLongToBeatGateway>(client =>
+            {
+                client.BaseAddress = new Uri("https://howlongtobeat.com/api/user/undefined/collections/id/72947/");
+                client.DefaultRequestHeaders.Add("Accept", "*/*");
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36");
             });
         }
     }

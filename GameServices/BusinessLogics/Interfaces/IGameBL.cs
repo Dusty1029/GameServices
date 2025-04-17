@@ -13,5 +13,6 @@ namespace GameService.API.BusinessLogics.Interfaces
         Task<PaginationResult<SearchGameItemDto>> SearchGame(SearchGameDto searchGameDto);
         Task<List<SimpleGameDto>> SearchSimpleGame(string gameSearched, PlatformEnumDto? ignoredPlatform);
         Task UpdateGame(Guid gameId, UpdateGameDto gameDto);
+        Task UpdateGameTime(Guid gameId);
     }
 }

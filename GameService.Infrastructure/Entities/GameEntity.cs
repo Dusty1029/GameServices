@@ -8,6 +8,10 @@ namespace GameService.Infrastructure.Entities
         public string Name { get; set; } = string.Empty;
         public GameDetailStatusEnumEntity GlobalStatus { get; set; }
         public int PlayOrder { get; set; }
+        public string HowLongToBeatName { get; set; } = string.Empty;
+        public decimal? MainStoryTime { get; set; } 
+        public decimal? MainStoryAndExtraTime { get; set; } 
+        public decimal? FullTime { get; set; } 
 
         public Guid? SerieId { get; set; }
         public SerieEntity? Serie { get; set; }

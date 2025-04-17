@@ -23,5 +23,7 @@ namespace GameInterface.Services.Implementations
             genericService.PostResult<List<SimpleGameDto>>(cancellationToken, platformEnum, $"{beginPath}/search/{gameSearched}");
         public Task<ApiResult> UpdateGame(CancellationToken cancellationToken, Guid gameId, UpdateGameDto gameDto) =>
             genericService.PutResult(cancellationToken, gameDto, $"{beginPath}/{gameId}");
+        public Task<ApiResult> UpdateGameTime(CancellationToken cancellationToken, Guid gameId) =>
+            genericService.PutResult(cancellationToken, path: $"{beginPath}/{gameId}/time");
     }
 }

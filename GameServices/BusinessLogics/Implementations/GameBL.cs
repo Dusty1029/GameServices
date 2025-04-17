@@ -11,6 +11,7 @@ using Game.Dto.Enums;
 using GameService.API.Extensions.Entities.Enums;
 using GameService.Infrastructure.Entities.Enums;
 using Game.Dto.Games;
+using GameService.API.Gateways.Interfaces;
 
 namespace GameService.API.BusinessLogics.Implementations
 {
@@ -18,7 +19,8 @@ namespace GameService.API.BusinessLogics.Implementations
         IPlatformRepository platformRepository,
         ICategoryRepository categoryRepository,
         IGameDetailRepository gameDetailRepository,
-        ISerieRepository serieRepository) : IGameBL
+        ISerieRepository serieRepository,
+        IHowLongToBeatGateway howLongToBeatGateway) : IGameBL
     {
         public async Task<Guid> CreateGame(CreateGameDto createGameDto)
         {
@@ -183,6 +185,22 @@ namespace GameService.API.BusinessLogics.Implementations
                 g => EF.Functions.Like(g.Name.ToLower(), $"%{gameSearched.ToLower()}%") && 
                 (!ignoredPlatformEnum.HasValue || !g.GameDetails!.Any(gd => gd.Platform!.PlatformEnum == ignoredPlatformEnum))
             );
+        }
+
+        public async Task UpdateGameTime(Guid gameId)
+        {
+            var gameEntity = await gameRepository.Find(g => g.Id == gameId, noTracking: false) ??
+                throw new NotFoundException($"The game with id [{gameId}] was not found.");
+
+            var gameTime = await howLongToBeatGateway.FindHowLongToBeatGame(gameEntity.HowLongToBeatName);
+            if(gameTime is not null)
+            {
+                gameEntity.FullTime = Math.Round(gameTime.FullTime / 1800m, MidpointRounding.AwayFromZero) / 2m;
+                gameEntity.MainStoryTime = Math.Round(gameTime.MainStoryTime / 1800m, MidpointRounding.AwayFromZero) / 2m;
+                gameEntity.MainStoryAndExtraTime = Math.Round(gameTime.MainStoryAndExtraTime / 1800m, MidpointRounding.AwayFromZero) / 2m;
+
+                await gameRepository.SaveChanges();
+            }
         }
     }
 }

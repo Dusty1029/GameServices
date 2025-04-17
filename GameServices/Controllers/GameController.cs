@@ -25,6 +25,11 @@ namespace GameService.API.Controllers
         public Task<IActionResult> UpdateGame([FromRoute] Guid gameId, [FromBody] UpdateGameDto gameDto)
             => controllerExecutor.ExecuteAsync(this, () => gameBL.UpdateGame(gameId, gameDto));
 
+        [HttpPut]
+        [Route("{gameId}/time")]
+        public Task<IActionResult> UpdateGameTime([FromRoute] Guid gameId)
+            => controllerExecutor.ExecuteAsync(this, () => gameBL.UpdateGameTime(gameId));
+
         [HttpGet]
         [Route("{gameId}")]
         public Task<IActionResult> GetGameById([FromRoute] Guid gameId)

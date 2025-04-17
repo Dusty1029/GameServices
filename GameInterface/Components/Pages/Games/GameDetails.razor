@@ -53,6 +53,7 @@
                 {
 
                     <MudTextField Class="pa-2" @bind-Value="_updateGame.Name" Immediate="true" Label="Nom" />
+                    <MudTextField Class="pa-2" @bind-Value="_updateGame.HowLongToBeatName" Immediate="true" Label="Nom HowLongToBeat" />
                     <MudAutocomplete Class="pa-2" @bind-Value="_updateGame.Serie" Label="Série" SearchFunc="@SearchSerie" Clearable="true" ResetValueOnEmptyText="true" />
                     <MudSelect Class="pa-2" @bind-SelectedValues="_updateGame.Categories" Label="Categories" MultiSelection="true">
                         @foreach (var category in _categories)
@@ -60,6 +61,7 @@
                             <MudSelectItem Value="category">@category.Name</MudSelectItem>
                         }
                     </MudSelect>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="UpdateTimes">Mettre à jour les temps</MudButton>
                 }
             </MudPaper>
         </MudItem>
@@ -131,7 +133,7 @@
 
                                 @if (gameDetail.Goals.Count() > 0)
                                 {
-                                    <MudListItem Text="Succès">
+                                    <MudListItem Text="Objectifs">
                                         <NestedList>
                                             @foreach (var goal in gameDetail.Goals)
                                             {
@@ -210,6 +212,7 @@
             {
                 Id = _game.Id,
                 Name = _game.Name,
+                HowLongToBeatName = _game.HowLongToBeatName,
                 Serie = _series.FirstOrDefault(s => s.Id == _game.Serie?.Id),
                 Categories = _categories.Where(c => _game.Categories.Select(ca => ca.Id).Contains(c.Id)),
                 GameDetails = _game.GameDetails.Select(gd => new UpdateGameDetailDto { Id = gd.Id, Status = gd.Status })
@@ -233,6 +236,15 @@
         {
             await ReloadPage($"Le jeu {_game!.Name} a bien été modifié");
             _editMode = false;
+        }
+    }
+
+    private async void UpdateTimes()
+    {
+        var updateTimeResult = await GameService.UpdateGameTime(CancellationToken, GameId);
+        if(updateTimeResult.IsSucceed)
+        {
+            await ReloadPage($"Les temps du jeu {_game!.Name} ont bien été modifié");
         }
     }
 

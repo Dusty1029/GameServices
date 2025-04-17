@@ -15,7 +15,8 @@ namespace GameService.API.Extensions.Entities
             Name = entity.Name,
             Categories = entity.Categories!.Select(c => c.ToDto()),
             GameDetails = entity.GameDetails!.Select(gd => gd.ToDto()).OrderByDescending(gd => gd.AchievementCompletion),
-            Serie =  entity.Serie?.ToSimpleDto()
+            Serie =  entity.Serie?.ToSimpleDto(),
+            HowLongToBeatName = entity.HowLongToBeatName
         };
 
         public static SimpleGameDto ToSimpleDto(this GameEntity entity) => new()
@@ -38,6 +39,7 @@ namespace GameService.API.Extensions.Entities
         public static GameEntity ToEntity(this CreateGameDto createGame) => new()
         {
             Name = createGame.Name,
+            HowLongToBeatName = createGame.Name,
             SerieId = createGame.Serie?.Id,
             GlobalStatus = createGame.Status.HasValue ? createGame.Status.Value.ToEntity() : GameDetailStatusEnumEntity.NotStarted,
             GameDetails =
@@ -53,6 +55,7 @@ namespace GameService.API.Extensions.Entities
         public static void ToEntity(this UpdateGameDto gameDto, GameEntity gameEntity)
         {
             gameEntity.Name = gameDto.Name;
+            gameEntity.HowLongToBeatName = gameDto.HowLongToBeatName;
             gameEntity.SerieId = gameDto.Serie?.Id;
             gameDto.GameDetails.ForEach(gd => gd.ToEntity(gameEntity.GameDetails!.First(gde => gde.Id == gd.Id)));
         }

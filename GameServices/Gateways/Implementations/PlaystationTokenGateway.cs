@@ -25,7 +25,7 @@ namespace GameService.API.Gateways.Implementations
             {
 
                 httpClient.DefaultRequestHeaders.Add("Cookie", $"npsso={npsso}");
-                var response = await httpClient.GetAsync(builder.ToString());
+                var response = await httpClient.GetAsync(builder.ToString(), _cancellationToken);
                 var location = response.Headers.Location;
                 if (location != null && location.Query.Contains("?code=v3"))
                 {
@@ -57,8 +57,8 @@ namespace GameService.API.Gateways.Implementations
             {
 
                 httpClient.DefaultRequestHeaders.Add("Authorization", "Basic MDk1MTUxNTktNzIzNy00MzcwLTliNDAtMzgwNmU2N2MwODkxOnVjUGprYTV0bnRCMktxc1A=");
-                var response = await httpClient.PostAsync(url, body);
-                var content = await response.Content.ReadAsStringAsync();
+                var response = await httpClient.PostAsync(url, body, _cancellationToken);
+                var content = await response.Content.ReadAsStringAsync(_cancellationToken);
 
                 // Suppose the content is in JSON format
                 dynamic? json = JsonConvert.DeserializeObject(content);

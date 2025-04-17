@@ -22,6 +22,10 @@ namespace GameService.Infrastructure.Configurations
                    .HasMaxLength(256)
                    .IsRequired();
 
+            builder.Property(x => x.HowLongToBeatName)
+                   .HasMaxLength(256)
+                   .IsRequired();
+
             builder.Property(x => x.GlobalStatus)
                    .HasDefaultValue(GameDetailStatusEnumEntity.NotStarted)
                    .HasConversion<string>()

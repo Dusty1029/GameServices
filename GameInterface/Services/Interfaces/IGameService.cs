@@ -14,5 +14,6 @@ namespace GameInterface.Services.Interfaces
         Task<ApiResult> UpdateGame(CancellationToken cancellationToken, Guid gameId, UpdateGameDto gameDto);
         Task<ApiResult<Guid>> AddPlatformToAGame(CancellationToken cancellationToken, Guid gameId, Guid platformId);
         Task<ApiResult<List<SimpleGameDto>>> SearchSimpleGame(CancellationToken cancellationToken, string gameSearched, PlatformEnumDto? platformEnum);
+        Task<ApiResult> UpdateGameTime(CancellationToken cancellationToken, Guid gameId);
     }
 }
