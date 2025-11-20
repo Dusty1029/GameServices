@@ -202,5 +202,14 @@ namespace GameService.API.BusinessLogics.Implementations
                 await gameRepository.SaveChanges();
             }
         }
+
+        public async Task<SimpleGameDto> FindRandomGame()
+        {
+            var games = await gameRepository.Get(g => g.GameDetails!.Select(gd => gd.PlatformId).Contains(new Guid("450ba6e2-97a6-4dcd-87d5-607f60385821")));
+
+            int randomNumber = Random.Shared.Next(0, games.Count);
+
+            return games[randomNumber]?.ToSimpleDto() ?? throw new NotFoundException($"The random game can't be found.");
+        }
     }
 }

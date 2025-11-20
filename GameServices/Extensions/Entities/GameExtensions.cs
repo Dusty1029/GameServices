@@ -16,7 +16,10 @@ namespace GameService.API.Extensions.Entities
             Categories = entity.Categories!.Select(c => c.ToDto()),
             GameDetails = entity.GameDetails!.Select(gd => gd.ToDto()).OrderByDescending(gd => gd.AchievementCompletion),
             Serie =  entity.Serie?.ToSimpleDto(),
-            HowLongToBeatName = entity.HowLongToBeatName
+            HowLongToBeatName = entity.HowLongToBeatName,
+            FullTime = entity.FullTime,
+            MainStoryAndExtraTime = entity.MainStoryAndExtraTime,
+            MainStoryTime = entity.MainStoryTime
         };
 
         public static SimpleGameDto ToSimpleDto(this GameEntity entity) => new()

@@ -49,5 +49,10 @@ namespace GameService.API.Controllers
         [Route("search/{gameSearched}")]
         public Task<IActionResult> SearchSimpleGame([FromRoute] string gameSearched, [FromBody] PlatformEnumDto? ignoredPlatform)
             => controllerExecutor.ExecuteAsync(this, () => gameBL.SearchSimpleGame(gameSearched, ignoredPlatform));
+
+        [HttpPost]
+        [Route("random")]
+        public Task<IActionResult> FindRandomGame()
+            => controllerExecutor.ExecuteAsync(this, () => gameBL.FindRandomGame());
     }
 }

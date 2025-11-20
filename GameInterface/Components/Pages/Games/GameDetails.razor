@@ -61,6 +61,9 @@
                             <MudSelectItem Value="category">@category.Name</MudSelectItem>
                         }
                     </MudSelect>
+                    <MudText>Temps de jeu: @_game?.MainStoryTime heures</MudText>
+                    <MudText>Temps de jeu et extra: @_game?.MainStoryAndExtraTime heures</MudText>
+                    <MudText>Temps 100%: @_game?.FullTime heures</MudText>
                     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="UpdateTimes">Mettre à jour les temps</MudButton>
                 }
             </MudPaper>
@@ -239,7 +242,7 @@
         }
     }
 
-    private async void UpdateTimes()
+    private async Task UpdateTimes()
     {
         var updateTimeResult = await GameService.UpdateGameTime(CancellationToken, GameId);
         if(updateTimeResult.IsSucceed)

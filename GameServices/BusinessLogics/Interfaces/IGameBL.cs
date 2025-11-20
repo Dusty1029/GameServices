@@ -9,6 +9,7 @@ namespace GameService.API.BusinessLogics.Interfaces
         Task<Guid> AddPlatformToAGame(Guid gameId, Guid platformId);
         Task<Guid> CreateGame(CreateGameDto createGameDto);
         Task DeleteGameByGameDetailId(Guid gameDetailId);
+        Task<SimpleGameDto> FindRandomGame();
         Task<GameDto> GetGameById(Guid gameId);
         Task<PaginationResult<SearchGameItemDto>> SearchGame(SearchGameDto searchGameDto);
         Task<List<SimpleGameDto>> SearchSimpleGame(string gameSearched, PlatformEnumDto? ignoredPlatform);
