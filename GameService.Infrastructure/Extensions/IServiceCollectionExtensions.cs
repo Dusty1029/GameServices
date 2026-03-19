@@ -17,6 +17,9 @@ namespace GameService.Infrastructure.Extensions
             services.AddScoped<IPlatformRepository, PlatformRepository>();
             services.AddScoped<ISerieRepository, SerieRepository>();
             services.AddScoped<IGoalRepository, GoalRepository>();
+
+            services.AddPartyRepositories();
+            services.AddRallyeRepositories();
         }
     }
 }

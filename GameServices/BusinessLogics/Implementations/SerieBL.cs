@@ -76,26 +76,7 @@ namespace GameService.API.BusinessLogics.Implementations
 
         public async Task<List<SearchGameItemDto>> GetSeriesWithGames()
         {
-            var series = await serieRepository.Get(
-                s => s.Games!.Count > 0,
-                f => f.Include(s => s.Games!).ThenInclude(g => g.GameDetails!).ThenInclude(gd => gd.Platform)
-                      .Include(s => s.Games!).ThenInclude(g => g.Categories),
-                f => f.OrderByDescending(s => !s.IsDefault)
-                      .ThenByDescending(s => s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.Started))
-                      .ThenByDescending(s => s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.StartedTotalyFinished))
-                      .ThenByDescending(s => s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.Finished) &&
-                                             (s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.NotStarted) ||
-                                             s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.ToBuy)))
-                      .ThenByDescending(s => s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.TotalyFinished) &&
-                                             (s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.NotStarted) ||
-                                             s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.ToBuy)))
-                      .ThenByDescending(s => s.Games!.All(g => g.GlobalStatus == GameDetailStatusEnumEntity.Finished))
-                      .ThenByDescending(s => s.Games!.All(g => g.GlobalStatus == GameDetailStatusEnumEntity.NotStarted))
-                      .ThenByDescending(s => s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.NotStarted) &&
-                                             s.Games!.Any(g => g.GlobalStatus == GameDetailStatusEnumEntity.ToBuy))
-                      .ThenByDescending(s => s.Games!.All(g => g.GlobalStatus == GameDetailStatusEnumEntity.ToBuy))
-                      .ThenByDescending(s => s.Games!.All(g => g.GlobalStatus == GameDetailStatusEnumEntity.TotalyFinished))
-                      .ThenBy(s => s.Name));
+            var series = await serieRepository.GetSeriesWithOrderedGames();
             return series.SelectMany(s => s.Games!.OrderBy(g => g.PlayOrder).ThenBy(g => g.Name)).Select(g => g.ToSearchItemDto()).ToList();
         }
     } 

@@ -362,6 +362,155 @@ namespace GameService.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("GameService.Infrastructure.Entities.Party.GageEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Gage", "party");
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.Party.GameEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<bool>("IsTeamGame")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Game", "party");
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.Party.PartyEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<int>("ActualRound")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("IsFinish")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Party", "party");
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.Party.PlayerEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Player", "party");
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.Party.RoundEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<Guid?>("GageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("GameId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsTeamRound")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("PartyId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("TeamOneId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("TeamTwoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("WinningTeamId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GageId");
+
+                    b.HasIndex("GameId");
+
+                    b.HasIndex("PartyId");
+
+                    b.HasIndex("TeamOneId");
+
+                    b.HasIndex("TeamTwoId");
+
+                    b.HasIndex("WinningTeamId");
+
+                    b.ToTable("Round", "party");
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.Party.TeamEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("PartyId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PartyId");
+
+                    b.ToTable("Team", "party");
+                });
+
             modelBuilder.Entity("GameService.Infrastructure.Entities.PlatformEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -444,6 +593,23 @@ namespace GameService.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("GameService.Infrastructure.Entities.Rallye.PlayerEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("uuid_generate_v4()");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Player", "rallye");
+                });
+
             modelBuilder.Entity("GameService.Infrastructure.Entities.SerieEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -502,6 +668,21 @@ namespace GameService.Infrastructure.Migrations
                     b.HasIndex("PlatformId");
 
                     b.ToTable("WishGame", (string)null);
+                });
+
+            modelBuilder.Entity("TeamPlayer", b =>
+                {
+                    b.Property<Guid>("PlayersId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TeamsId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("PlayersId", "TeamsId");
+
+                    b.HasIndex("TeamsId");
+
+                    b.ToTable("TeamPlayer", "party");
                 });
 
             modelBuilder.Entity("GameCategory", b =>
@@ -581,6 +762,56 @@ namespace GameService.Infrastructure.Migrations
                     b.Navigation("Platform");
                 });
 
+            modelBuilder.Entity("GameService.Infrastructure.Entities.Party.RoundEntity", b =>
+                {
+                    b.HasOne("GameService.Infrastructure.Entities.Party.GageEntity", "Gage")
+                        .WithMany()
+                        .HasForeignKey("GageId");
+
+                    b.HasOne("GameService.Infrastructure.Entities.Party.GameEntity", "Game")
+                        .WithMany()
+                        .HasForeignKey("GameId");
+
+                    b.HasOne("GameService.Infrastructure.Entities.Party.PartyEntity", "Party")
+                        .WithMany("Rounds")
+                        .HasForeignKey("PartyId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("GameService.Infrastructure.Entities.Party.TeamEntity", "TeamOne")
+                        .WithMany()
+                        .HasForeignKey("TeamOneId");
+
+                    b.HasOne("GameService.Infrastructure.Entities.Party.TeamEntity", "TeamTwo")
+                        .WithMany()
+                        .HasForeignKey("TeamTwoId");
+
+                    b.HasOne("GameService.Infrastructure.Entities.Party.TeamEntity", "WinningTeam")
+                        .WithMany()
+                        .HasForeignKey("WinningTeamId");
+
+                    b.Navigation("Gage");
+
+                    b.Navigation("Game");
+
+                    b.Navigation("Party");
+
+                    b.Navigation("TeamOne");
+
+                    b.Navigation("TeamTwo");
+
+                    b.Navigation("WinningTeam");
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.Party.TeamEntity", b =>
+                {
+                    b.HasOne("GameService.Infrastructure.Entities.Party.PartyEntity", "Party")
+                        .WithMany("Teams")
+                        .HasForeignKey("PartyId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Party");
+                });
+
             modelBuilder.Entity("GameService.Infrastructure.Entities.SerieEntity", b =>
                 {
                     b.HasOne("GameService.Infrastructure.Entities.SerieEntity", "ParentSerie")
@@ -602,6 +833,21 @@ namespace GameService.Infrastructure.Migrations
                     b.Navigation("Platform");
                 });
 
+            modelBuilder.Entity("TeamPlayer", b =>
+                {
+                    b.HasOne("GameService.Infrastructure.Entities.Party.PlayerEntity", null)
+                        .WithMany()
+                        .HasForeignKey("PlayersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("GameService.Infrastructure.Entities.Party.TeamEntity", null)
+                        .WithMany()
+                        .HasForeignKey("TeamsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("GameService.Infrastructure.Entities.GameDetailEntity", b =>
                 {
                     b.Navigation("Achievements");
@@ -612,6 +858,13 @@ namespace GameService.Infrastructure.Migrations
             modelBuilder.Entity("GameService.Infrastructure.Entities.GameEntity", b =>
                 {
                     b.Navigation("GameDetails");
+                });
+
+            modelBuilder.Entity("GameService.Infrastructure.Entities.Party.PartyEntity", b =>
+                {
+                    b.Navigation("Rounds");
+
+                    b.Navigation("Teams");
                 });
 
             modelBuilder.Entity("GameService.Infrastructure.Entities.PlatformEntity", b =>

@@ -7,6 +7,7 @@
         Finished = 2,
         TotalyFinished = 3,
         ToBuy = 4,
-        StartedTotalyFinished = 5
+        StartedTotalyFinished = 5,
+        Break = 6
     }
 }

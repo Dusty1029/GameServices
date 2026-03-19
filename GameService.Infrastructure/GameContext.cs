@@ -1,5 +1,4 @@
-﻿using GameService.Infrastructure.Configurations;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace GameService.Infrastructure
 {
@@ -12,7 +11,7 @@ namespace GameService.Infrastructure
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.HasPostgresExtension("uuid-ossp");
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(GameConfiguration).Assembly);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(Configurations.GameConfiguration).Assembly);
         }
     }
 }

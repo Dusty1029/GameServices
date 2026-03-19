@@ -1,6 +1,8 @@
 ﻿using CommonV2.Extensions;
 using GameService.API.BusinessLogics.Implementations;
+using GameService.API.BusinessLogics.Implementations.Rallye;
 using GameService.API.BusinessLogics.Interfaces;
+using GameService.API.BusinessLogics.Interfaces.Rallye;
 using GameService.Infrastructure.Extensions;
 
 namespace GameService.API.Extensions
@@ -24,6 +26,11 @@ namespace GameService.API.Extensions
             services.AddScoped<ISerieBL, SerieBL>();
             services.AddScoped<IXboxBL, XboxBL>();
             services.AddScoped<IGoalBL, GoalBL>();
+
+            services.AddScoped<IPartyBL, PartyBL>();
+
+            //Rallye
+            services.AddScoped<IPlayerBL, PlayerBL>();
         }
 
     }

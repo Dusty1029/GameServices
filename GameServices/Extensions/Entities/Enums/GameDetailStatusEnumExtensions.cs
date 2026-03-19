@@ -13,6 +13,7 @@ namespace GameService.API.Extensions.Entities.Enums
             GameDetailStatusEnumDto.TotalyFinished => GameDetailStatusEnumEntity.TotalyFinished,
             GameDetailStatusEnumDto.ToBuy => GameDetailStatusEnumEntity.ToBuy,
             GameDetailStatusEnumDto.StartedTotalyFinished => GameDetailStatusEnumEntity.StartedTotalyFinished,
+            GameDetailStatusEnumDto.Break => GameDetailStatusEnumEntity.Break,
             _ => throw new NotImplementedException($"The GameDetailStatusEnum [{dto}] is not implemented."),
         };
 
@@ -24,6 +25,7 @@ namespace GameService.API.Extensions.Entities.Enums
             GameDetailStatusEnumEntity.TotalyFinished => GameDetailStatusEnumDto.TotalyFinished,
             GameDetailStatusEnumEntity.ToBuy => GameDetailStatusEnumDto.ToBuy,
             GameDetailStatusEnumEntity.StartedTotalyFinished => GameDetailStatusEnumDto.StartedTotalyFinished,
+            GameDetailStatusEnumEntity.Break => GameDetailStatusEnumDto.Break,
             _ => throw new NotImplementedException($"The GameDetailStatusEnum [{entity}] is not implemented."),
         };
     }
