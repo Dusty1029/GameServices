@@ -31,6 +31,7 @@ namespace GameService.API.Extensions
 
             //Rallye
             services.AddScoped<IPlayerBL, PlayerBL>();
+            services.AddScoped<IRallyeBL, RallyeBL>();
         }
 
     }

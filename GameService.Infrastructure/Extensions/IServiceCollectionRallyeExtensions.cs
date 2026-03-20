@@ -9,6 +9,9 @@ namespace GameService.Infrastructure.Extensions
         public static void AddRallyeRepositories(this IServiceCollection services)
         {
             services.AddScoped<IPlayerRepository, PlayerRepository>();
+            services.AddScoped<IRallyeRepository, RallyeRepository>();
+            services.AddScoped<ISpecialRepository, SpecialRepository>();
+            services.AddScoped<ISpecialTimeRepository, SpecialTimeRepository>();
         }
     }
 }
