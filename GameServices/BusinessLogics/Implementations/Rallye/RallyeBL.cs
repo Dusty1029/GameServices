@@ -32,9 +32,12 @@ namespace GameService.API.BusinessLogics.Implementations.Rallye
         public async Task<RallyeDto> GetRallyeById(Guid rallyeId)
         {
             var rallye = await rallyeRepository.Find(r => r.Id == rallyeId,
-                    f => f.Include(r => r.Specials)!.ThenInclude(s => s.SpecialTimes)
+                    f => f.Include(r => r.Specials)!.ThenInclude(s => s.SpecialTimes)!.ThenInclude(st => st.Player)
                           .Include(r => r.Players)
                 );
+
+            rallye.Specials = rallye!.Specials!.OrderByDescending(s => s!.SpecialTimes!.Count == rallye!.Players!.Count).ToList();
+
 
             return rallye is null ? throw new NotFoundException($"The rallye with id [{rallyeId}] was not found.") : rallye.ToDto();
         }
